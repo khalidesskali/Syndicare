@@ -1,0 +1,1 @@
+# Synidc_management_saas
