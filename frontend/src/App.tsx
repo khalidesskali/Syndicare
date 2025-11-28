@@ -7,6 +7,7 @@ import SyndicDashboard from "./pages/SyndicDashboard";
 import ResidentDashboard from "./pages/ResidentDashboard";
 import RoleRedirect from "./components/RoleRedirect";
 import { useAuth } from "./context/AuthContext";
+import Syndics from "./pages/admin/Synidc";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -24,6 +25,16 @@ function App() {
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={["ADMIN"]}>
               <AdminDashboard />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/syndics"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={["ADMIN"]}>
+              <Syndics />
             </RoleBasedRoute>
           </ProtectedRoute>
         }
