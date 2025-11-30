@@ -1,6 +1,11 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
+from rest_framework.routers import DefaultRouter
+
+
+router = DefaultRouter()
+router.register(r'admin/syndics', views.SyndicAdminViewSet, basename='admin-syndic')
 
 urlpatterns = [
     # Authentication endpoints
@@ -16,4 +21,6 @@ urlpatterns = [
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('syndic/dashboard/', views.syndic_dashboard, name='syndic_dashboard'),
     path('resident/dashboard/', views.resident_dashboard, name='resident_dashboard'),
+
+    path('', include(router.urls)),
 ]
