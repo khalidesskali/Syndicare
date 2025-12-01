@@ -2,10 +2,20 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
 from rest_framework.routers import DefaultRouter
+from .views import (
+    SyndicAdminViewSet,
+    SubscriptionPlanAdminViewSet,
+    SubscriptionAdminViewSet,
+    PaymentAdminViewSet
+)
+
 
 
 router = DefaultRouter()
 router.register(r'admin/syndics', views.SyndicAdminViewSet, basename='admin-syndic')
+router.register(r'admin/subscription-plans', SubscriptionPlanAdminViewSet, basename='admin-subscription-plan')
+router.register(r'admin/subscriptions', SubscriptionAdminViewSet, basename='admin-subscription')
+router.register(r'admin/payments', PaymentAdminViewSet, basename='admin-payment')
 
 urlpatterns = [
     # Authentication endpoints
@@ -24,3 +34,4 @@ urlpatterns = [
 
     path('', include(router.urls)),
 ]
+
