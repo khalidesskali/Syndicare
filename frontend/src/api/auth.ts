@@ -1,8 +1,6 @@
 import axiosInstance from "./axios";
 import type {
-  LoginRequest,
   LoginResponse,
-  ChangePasswordRequest,
   User,
   CheckAuthResponse,
   RefreshTokenResponse,

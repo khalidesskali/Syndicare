@@ -10,6 +10,7 @@ import type {
   PasswordChangeResult,
   ApiError,
 } from "../types/auth";
+import axiosInstance from "@/api/axios";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -19,6 +20,9 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(() => {
+    return localStorage.getItem("access_token") || null;
+  });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | Record<string, string[]> | null>(
@@ -60,6 +64,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
   }, []);
 
+  useEffect(() => {
+    const requestInterceptor = axiosInstance.interceptors.request.use(
+      (config) => {
+        if (accessToken && !config.headers.Authorization) {
+          config.headers.Authorization = `Bearer ${localStorage.getItem(
+            "access_token"
+          )}`;
+        }
+        return config;
+      }
+    );
+
+    return () => axiosInstance.interceptors.request.eject(requestInterceptor);
+  }, [accessToken]);
+
   // Login function
   const login = async (
     email: string,
@@ -80,6 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem("refresh_token", data.refresh);
       localStorage.setItem("user", JSON.stringify(data.user));
 
+      setAccessToken(data.access);
       setUser(data.user);
       setIsAuthenticated(true);
       setLoading(false);
