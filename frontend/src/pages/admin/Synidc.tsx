@@ -17,6 +17,7 @@ import useSyndics from "@/hooks/useSyndics";
 import type { SyndicFilters } from "@/types/syndics";
 import { Button } from "@/components/ui/button";
 import AddSyndicModal from "@/components/syndic/AddSyndicModal";
+import EditSyndicModal from "@/components/syndic/EditSyndicModal";
 
 const Syndics: React.FC = () => {
   const [filters, setFilters] = useState<Partial<SyndicFilters>>({
@@ -26,7 +27,9 @@ const Syndics: React.FC = () => {
     search: "",
   });
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [selectedSyndic, setSelectedSyndic] = useState<any>(null);
 
   const {
     syndics,
@@ -56,6 +59,11 @@ const Syndics: React.FC = () => {
 
   const handlePageChange = (newPage: number) => {
     setFilters((prev) => ({ ...prev, page: newPage }));
+  };
+
+  const handleEdit = (syndic: any) => {
+    setSelectedSyndic(syndic);
+    setIsEditModalOpen(true);
   };
 
   // Format date to a more readable format
@@ -334,9 +342,7 @@ const Syndics: React.FC = () => {
                           <Eye className="h-5 w-5" />
                         </button>
                         <button
-                          onClick={() => {
-                            // TODO: Implement edit syndic
-                          }}
+                          onClick={() => handleEdit(syndic)}
                           className="text-blue-600 hover:text-blue-900 p-1.5 rounded-full hover:bg-blue-50"
                           title="Edit"
                         >
@@ -442,6 +448,11 @@ const Syndics: React.FC = () => {
         <AddSyndicModal
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}
+        />
+        <EditSyndicModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          syndic={selectedSyndic}
         />
       </div>
     </AdminLayout>
