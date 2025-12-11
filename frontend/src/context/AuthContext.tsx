@@ -197,12 +197,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Check if Syndic has valid subscription
-  const hasValidSubscription = (): boolean => {
-    if (user?.role === "SYNDIC") {
-      return user?.has_valid_subscription === true;
-    }
-    return true; // Non-syndics always have access
-  };
+  // const hasValidSubscription = (): boolean => {
+  //   if (user?.role === "SYNDIC") {
+  //     return user?.has_valid_subscription === true;
+  //   }
+  //   return true; // Non-syndics always have access
+  // };
 
   const value: AuthContextType = {
     user,
@@ -214,7 +214,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     changePassword,
     hasRole,
     isAuthenticated,
-    hasValidSubscription,
+    // hasValidSubscription,
     setError,
   };
 

@@ -63,7 +63,7 @@ export interface AuthContextType {
   ) => Promise<PasswordChangeResult>;
   hasRole: (role: UserRole) => boolean;
   isAuthenticated: boolean;
-  hasValidSubscription: () => boolean;
+  // hasValidSubscription: () => boolean;
   setError: (error: string | Record<string, string[]> | null) => void;
 }
 
