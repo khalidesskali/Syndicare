@@ -388,13 +388,7 @@ class SyndicAdminViewSet(viewsets.ModelViewSet):
             'total_syndics': total_syndics,
             'active_syndics': active_syndics,
             'inactive_syndics': total_syndics - active_syndics,
-            'total_buildings': Immeuble.objects.count(),
-            'total_apartments': Appartement.objects.count(),
             'active_subscriptions': Subscription.objects.filter(status='ACTIVE').count(),
-            'recent_syndics': self.get_serializer(
-                User.objects.filter(role='SYNDIC').order_by('-date_joined')[:5],
-                many=True
-            ).data
         }
         
         return Response({

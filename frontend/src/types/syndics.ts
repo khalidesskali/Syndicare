@@ -35,9 +35,8 @@ export interface SyndicFilters {
 }
 
 export interface SyndicStats {
-  total: number;
-  active: number;
-  pending: number;
-  inactive: number;
-  with_valid_subscription: number;
+  total_syndics: number;
+  active_syndics: number;
+  inactive_syndics: number;
+  active_subscriptions: number;
 }

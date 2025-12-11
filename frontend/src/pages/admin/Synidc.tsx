@@ -33,7 +33,8 @@ const Syndics: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [selectedSyndic, setSelectedSyndic] = useState<any>(null);
 
-  const { syndics, loading, error, pagination, fetchSyndics } = useSyndics();
+  const { syndics, loading, error, pagination, fetchSyndics, stats } =
+    useSyndics();
 
   useEffect(() => {
     fetchSyndics(filters);
@@ -132,7 +133,9 @@ const Syndics: React.FC = () => {
               <Users className="h-6 w-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900">0</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {stats ? stats.total_syndics : 0}
+              </p>
               <p className="text-sm text-slate-600">Total Syndics</p>
             </div>
           </div>
@@ -144,7 +147,9 @@ const Syndics: React.FC = () => {
               <CheckCircle2 className="h-6 w-6 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900">0</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {stats ? stats.active_syndics : 0}
+              </p>
               <p className="text-sm text-slate-600">Active</p>
             </div>
           </div>
@@ -156,8 +161,10 @@ const Syndics: React.FC = () => {
               <Clock className="h-6 w-6 text-orange-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900">0</p>
-              <p className="text-sm text-slate-600">Pending</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {stats ? stats.inactive_syndics : 0}
+              </p>
+              <p className="text-sm text-slate-600">Inactive</p>
             </div>
           </div>
         </div>
@@ -168,7 +175,9 @@ const Syndics: React.FC = () => {
               <CheckCircle2 className="h-6 w-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900">0</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {stats ? stats.active_subscriptions : 0}
+              </p>
               <p className="text-sm text-slate-600">With Valid Subscription</p>
             </div>
           </div>

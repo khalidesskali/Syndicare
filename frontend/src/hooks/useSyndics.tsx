@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import type {
   Syndic,
   SyndicFilters,
-  // SyndicStats,
+  SyndicStats,
   SyndicFormData,
 } from "../types/syndics";
 import axiosInstance from "../api/axios";
@@ -15,7 +15,7 @@ const useSyndics = () => {
   const [syndics, setSyndics] = useState<Syndic[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  // const [stats, setStats] = useState<SyndicStats | null>(null);
+  const [stats, setStats] = useState<SyndicStats | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
     page_size: 10,
@@ -60,18 +60,20 @@ const useSyndics = () => {
     [isAuthenticated]
   );
 
-  // const fetchSyndicStats = useCallback(async () => {
-  //   if (!isAuthenticated) return;
+  const fetchSyndicStats = useCallback(async () => {
+    if (!isAuthenticated) return;
 
-  //   try {
-  //     const response = await axiosInstance.get(
-  //       `${API_URL}/admin/syndics/stats/`
-  //     );
-  //     setStats(response.data);
-  //   } catch (err) {
-  //     console.error("Error fetching syndic stats:", err);
-  //   }
-  // }, [isAuthenticated]);
+    try {
+      const response = await axiosInstance.get(
+        `${API_URL}/admin/syndics/dashboard_stats/`
+      );
+      const data = response.data.data;
+      setStats(data);
+      // console.log(response.data);
+    } catch (err) {
+      console.error("Error fetching syndic stats:", err);
+    }
+  }, [isAuthenticated]);
 
   const getSyndic = useCallback(
     async (id: number): Promise<Syndic | null> => {
@@ -167,7 +169,7 @@ const useSyndics = () => {
   useEffect(() => {
     if (isAuthenticated) {
       fetchSyndics();
-      // fetchSyndicStats();
+      fetchSyndicStats();
     }
   }, [isAuthenticated, fetchSyndics]);
 
@@ -175,7 +177,7 @@ const useSyndics = () => {
     syndics,
     loading,
     error,
-    // stats,
+    stats,
     pagination,
     fetchSyndics,
     getSyndic,
