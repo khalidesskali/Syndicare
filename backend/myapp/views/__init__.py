@@ -29,6 +29,30 @@ from .payment import (
     PaymentAdminViewSet
 )
 
+from .immeubles import (
+    ImmeubleViewSet
+)
+
+from .apparetments import (
+    AppartementViewSet
+)
+
+from .residents_management import (
+    ResidentViewSet
+)
+
+from .reclamations import (
+    ReclamationViewSet
+)
+
+from .reunions import (
+    ReunionViewSet
+)
+
+from .charges import (
+    ChargeViewSet
+)
+
 __all__ = [
     # Authentication views
     'CustomTokenObtainPairView',
@@ -53,4 +77,9 @@ __all__ = [
     
     # Payment views
     'PaymentAdminViewSet',
+    
+    # Building management views
+    'ImmeubleViewSet',
+    'AppartementViewSet',
+    'ResidentViewSet',
 ]

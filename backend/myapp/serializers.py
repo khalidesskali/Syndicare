@@ -5,6 +5,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 
+from .models import (
+    Immeuble, Appartement, Reclamation, Reunion, 
+    ReunionAttendee, Charge, ResidentPayment, 
+    ResidentProfile, User
+)
+
 User = get_user_model()
 
 
@@ -369,3 +375,357 @@ class PaymentDetailSerializer(PaymentSerializer):
     
     class Meta(PaymentSerializer.Meta):
         fields = PaymentSerializer.Meta.fields + ['subscription_details']
+
+
+
+
+
+# ============================================
+# BUILDING SERIALIZERS
+# ============================================
+
+class ImmeubleSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Immeuble (Building) model
+    """
+    syndic_email = serializers.EmailField(source='syndic.email', read_only=True)
+    total_apartments = serializers.SerializerMethodField()
+    occupied_apartments = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Immeuble
+        fields = [
+            'id',
+            'name',
+            'address',
+            'floors',
+            'syndic',
+            'syndic_email',
+            'total_apartments',
+            'occupied_apartments',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'syndic', 'created_at']
+    
+    def get_total_apartments(self, obj):
+        return obj.appartements.count()
+    
+    def get_occupied_apartments(self, obj):
+        return obj.appartements.filter(resident__isnull=False).count()
+
+
+class ImmeubleDetailSerializer(ImmeubleSerializer):
+    """
+    Detailed serializer for Immeuble with apartment list
+    """
+    appartements = serializers.SerializerMethodField()
+    
+    class Meta(ImmeubleSerializer.Meta):
+        fields = ImmeubleSerializer.Meta.fields + ['appartements']
+    
+    def get_appartements(self, obj):
+        apartments = obj.appartements.all()
+        return [{
+            'id': apt.id,
+            'number': apt.number,
+            'floor': apt.floor,
+            'is_occupied': apt.resident is not None
+        } for apt in apartments]
+
+
+# ============================================
+# APARTMENT SERIALIZERS
+# ============================================
+
+class AppartementSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Appartement (Apartment) model
+    """
+    building_name = serializers.CharField(source='immeuble.name', read_only=True)
+    building_address = serializers.CharField(source='immeuble.address', read_only=True)
+    resident_email = serializers.EmailField(source='resident.email', read_only=True, allow_null=True)
+    resident_name = serializers.SerializerMethodField()
+    is_occupied = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Appartement
+        fields = [
+            'id',
+            'immeuble',
+            'building_name',
+            'building_address',
+            'number',
+            'floor',
+            'surface_area',
+            'monthly_charge',
+            'resident',
+            'resident_email',
+            'resident_name',
+            'is_occupied'
+        ]
+        read_only_fields = ['id']
+    
+    def get_resident_name(self, obj):
+        if obj.resident:
+            return f"{obj.resident.first_name} {obj.resident.last_name}".strip() or obj.resident.email
+        return None
+    
+    def get_is_occupied(self, obj):
+        return obj.resident is not None
+
+
+# ============================================
+# RESIDENT SERIALIZERS
+# ============================================
+
+class ResidentProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ResidentProfile model
+    """
+    class Meta:
+        model = ResidentProfile
+        fields = ['id', 'cin']
+        read_only_fields = ['id']
+
+
+class ResidentSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Resident users
+    """
+    resident_profile = ResidentProfileSerializer(read_only=True)
+    cin = serializers.CharField(write_only=True, required=False)
+    apartments = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+            'role',
+            'is_active',
+            'created_at',
+            'resident_profile',
+            'cin',
+            'apartments'
+        ]
+        read_only_fields = ['id', 'role', 'created_at']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+    
+    def get_apartments(self, obj):
+        apartments = obj.appartements.all()
+        return [{
+            'id': apt.id,
+            'number': apt.number,
+            'building': apt.immeuble.name,
+            'monthly_charge': float(apt.monthly_charge)
+        } for apt in apartments]
+    
+    def create(self, validated_data):
+        cin = validated_data.pop('cin', '')
+        password = validated_data.pop('password', None)
+        validated_data['role'] = 'RESIDENT'
+        
+        user = User.objects.create(**validated_data)
+        if password:
+            user.set_password(password)
+            user.save()
+        
+        # Create resident profile
+        ResidentProfile.objects.create(user=user, cin=cin)
+        
+        return user
+
+
+# ============================================
+# RECLAMATION SERIALIZERS
+# ============================================
+
+class ReclamationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Reclamation model
+    """
+    resident_email = serializers.EmailField(source='resident.email', read_only=True)
+    resident_name = serializers.SerializerMethodField()
+    apartment_number = serializers.CharField(source='appartement.number', read_only=True)
+    building_name = serializers.CharField(source='appartement.immeuble.name', read_only=True)
+    
+    class Meta:
+        model = Reclamation
+        fields = [
+            'id',
+            'resident',
+            'resident_email',
+            'resident_name',
+            'syndic',
+            'appartement',
+            'apartment_number',
+            'building_name',
+            'title',
+            'content',
+            'status',
+            'priority',
+            'response',
+            'created_at',
+            'updated_at'
+        ]
+        read_only_fields = ['id', 'syndic', 'resident', 'created_at', 'updated_at']
+    
+    def get_resident_name(self, obj):
+        return f"{obj.resident.first_name} {obj.resident.last_name}".strip() or obj.resident.email
+
+
+# ============================================
+# REUNION SERIALIZERS
+# ============================================
+
+class ReunionAttendeeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ReunionAttendee model
+    """
+    resident_email = serializers.EmailField(source='resident.email', read_only=True)
+    resident_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = ReunionAttendee
+        fields = [
+            'id',
+            'resident',
+            'resident_email',
+            'resident_name',
+            'confirmed',
+            'attended'
+        ]
+        read_only_fields = ['id']
+    
+    def get_resident_name(self, obj):
+        return f"{obj.resident.first_name} {obj.resident.last_name}".strip() or obj.resident.email
+
+
+class ReunionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Reunion model
+    """
+    building_name = serializers.CharField(source='immeuble.name', read_only=True)
+    building_address = serializers.CharField(source='immeuble.address', read_only=True)
+    attendees_count = serializers.SerializerMethodField()
+    confirmed_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Reunion
+        fields = [
+            'id',
+            'syndic',
+            'immeuble',
+            'building_name',
+            'building_address',
+            'title',
+            'topic',
+            'date_time',
+            'location',
+            'status',
+            'attendees_count',
+            'confirmed_count',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'syndic', 'created_at']
+    
+    def get_attendees_count(self, obj):
+        return obj.attendees.count()
+    
+    def get_confirmed_count(self, obj):
+        return obj.attendees.filter(confirmed=True).count()
+
+
+class ReunionDetailSerializer(ReunionSerializer):
+    """
+    Detailed serializer for Reunion with attendees
+    """
+    attendees = ReunionAttendeeSerializer(many=True, read_only=True)
+    
+    class Meta(ReunionSerializer.Meta):
+        fields = ReunionSerializer.Meta.fields + ['attendees']
+
+
+# ============================================
+# CHARGE SERIALIZERS
+# ============================================
+
+class ChargeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Charge model
+    """
+    apartment_number = serializers.CharField(source='appartement.number', read_only=True)
+    building_name = serializers.CharField(source='appartement.immeuble.name', read_only=True)
+    resident_email = serializers.SerializerMethodField()
+    resident_name = serializers.SerializerMethodField()
+    is_overdue = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = Charge
+        fields = [
+            'id',
+            'appartement',
+            'apartment_number',
+            'building_name',
+            'resident_email',
+            'resident_name',
+            'description',
+            'amount',
+            'due_date',
+            'status',
+            'paid_amount',
+            'paid_date',
+            'is_overdue',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+    
+    def get_resident_email(self, obj):
+        if obj.appartement.resident:
+            return obj.appartement.resident.email
+        return None
+    
+    def get_resident_name(self, obj):
+        if obj.appartement.resident:
+            resident = obj.appartement.resident
+            return f"{resident.first_name} {resident.last_name}".strip() or resident.email
+        return None
+
+
+# ============================================
+# RESIDENT PAYMENT SERIALIZERS
+# ============================================
+
+class ResidentPaymentSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ResidentPayment model
+    """
+    resident_email = serializers.EmailField(source='resident.email', read_only=True)
+    resident_name = serializers.SerializerMethodField()
+    charge_description = serializers.CharField(source='charge.description', read_only=True)
+    apartment_number = serializers.CharField(source='charge.appartement.number', read_only=True)
+    
+    class Meta:
+        model = ResidentPayment
+        fields = [
+            'id',
+            'charge',
+            'charge_description',
+            'apartment_number',
+            'resident',
+            'resident_email',
+            'resident_name',
+            'amount',
+            'payment_method',
+            'reference',
+            'payment_date',
+            'notes'
+        ]
+        read_only_fields = ['id', 'payment_date']
+    
+    def get_resident_name(self, obj):
+        return f"{obj.resident.first_name} {obj.resident.last_name}".strip() or obj.resident.email
