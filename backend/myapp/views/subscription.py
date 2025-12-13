@@ -20,10 +20,6 @@ from ..serializers import (
 from ..permissions import IsAdmin
 
 
-# ============================================
-# SUBSCRIPTION PLANS MANAGEMENT
-# ============================================
-
 class SubscriptionPlanAdminViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing subscription plans
@@ -147,7 +143,7 @@ class SubscriptionPlanAdminViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         """
-        Delete a subscription plan (soft delete by deactivating)
+        Delete a subscription plan
         DELETE /api/admin/subscription-plans/{id}/
         """
         plan = self.get_object()
@@ -159,13 +155,12 @@ class SubscriptionPlanAdminViewSet(viewsets.ModelViewSet):
                 'message': 'Cannot delete plan with active subscriptions'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Soft delete
-        plan.is_active = False
-        plan.save()
+        # Permanent deletion
+        plan.delete()
         
         return Response({
             'success': True,
-            'message': 'Subscription plan deactivated successfully'
+            'message': 'Subscription plan deleted successfully'
         }, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
