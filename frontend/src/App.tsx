@@ -10,7 +10,7 @@ import { useAuth } from "./context/AuthContext";
 import Syndics from "./pages/admin/Synidc";
 import SubscriptionPlans from "./pages/admin/SubscriptionPlans";
 import Payments from "./pages/admin/Payments";
-import Buildings from "./components/Buildings";
+import Buildings from "./pages/syndic/Buildings";
 import Residents from "./components/Residents";
 import Charge from "./pages/syndic/Charge";
 import Reunion from "./pages/syndic/Reunion";
