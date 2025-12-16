@@ -456,7 +456,6 @@ class AppartementSerializer(serializers.ModelSerializer):
             'building_address',
             'number',
             'floor',
-            'surface_area',
             'monthly_charge',
             'resident',
             'resident_email',

@@ -18,6 +18,12 @@ class AppartementViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Return only apartments in buildings owned by the authenticated syndic"""
+        # Handle swagger schema generation to prevent AnonymousUser errors
+        if getattr(self, 'swagger_fake_view', False):
+            return Appartement.objects.none()
+            
+        if not self.request.user or not self.request.user.is_authenticated:
+            return Appartement.objects.none()
         return Appartement.objects.filter(immeuble__syndic=self.request.user).select_related(
             'immeuble', 'resident'
         ).order_by('immeuble', 'floor', 'number')

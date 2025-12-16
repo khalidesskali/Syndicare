@@ -19,6 +19,13 @@ class ResidentViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Return only residents in buildings owned by the authenticated syndic"""
+        # Handle swagger schema generation to prevent AnonymousUser errors
+        if getattr(self, 'swagger_fake_view', False):
+            return User.objects.none()
+        
+        if not self.request.user or not self.request.user.is_authenticated:
+            return User.objects.none()
+            
         return User.objects.filter(
             role='RESIDENT',
             appartements__immeuble__syndic=self.request.user

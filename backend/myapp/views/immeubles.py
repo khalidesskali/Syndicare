@@ -19,6 +19,12 @@ class ImmeubleViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Return only buildings owned by the authenticated syndic"""
+        # Handle swagger schema generation to prevent AnonymousUser errors
+        if getattr(self, 'swagger_fake_view', False):
+            return Immeuble.objects.none()
+            
+        if not self.request.user or not self.request.user.is_authenticated:
+            return Immeuble.objects.none()
         return Immeuble.objects.filter(syndic=self.request.user).order_by('-created_at')
     
     def list(self, request, *args, **kwargs):

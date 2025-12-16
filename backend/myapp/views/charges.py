@@ -20,6 +20,12 @@ class ChargeViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Return only charges for apartments in syndic's buildings"""
+        # Handle swagger schema generation to prevent AnonymousUser errors
+        if getattr(self, 'swagger_fake_view', False):
+            return Charge.objects.none()
+            
+        if not self.request.user or not self.request.user.is_authenticated:
+            return Charge.objects.none()
         return Charge.objects.filter(
             appartement__immeuble__syndic=self.request.user
         ).select_related('appartement', 'appartement__immeuble').order_by('-created_at')

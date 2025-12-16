@@ -17,6 +17,12 @@ class ReunionViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Return only reunions created by the authenticated syndic"""
+        # Handle swagger schema generation to prevent AnonymousUser errors
+        if getattr(self, 'swagger_fake_view', False):
+            return Reunion.objects.none()
+            
+        if not self.request.user or not self.request.user.is_authenticated:
+            return Reunion.objects.none()
         return Reunion.objects.filter(syndic=self.request.user).select_related(
             'immeuble'
         ).order_by('-date_time')

@@ -17,6 +17,12 @@ class ReclamationViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Return only reclamations for the authenticated syndic"""
+        # Handle swagger schema generation to prevent AnonymousUser errors
+        if getattr(self, 'swagger_fake_view', False):
+            return Reclamation.objects.none()
+            
+        if not self.request.user or not self.request.user.is_authenticated:
+            return Reclamation.objects.none()
         return Reclamation.objects.filter(syndic=self.request.user).select_related(
             'resident', 'appartement', 'appartement__immeuble'
         ).order_by('-created_at')
