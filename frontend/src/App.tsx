@@ -15,6 +15,7 @@ import Residents from "./components/Residents";
 import Charge from "./pages/syndic/Charge";
 import ReunionPage from "./pages/syndic/Reunion";
 import ApartmentPage from "./pages/syndic/Apartment";
+import ComplaintPage from "./pages/syndic/Complaint";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -125,6 +126,16 @@ function App() {
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={["SYNDIC"]}>
               <ApartmentPage />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/syndic/complaints"
+        element={
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={["SYNDIC"]}>
+              <ComplaintPage />
             </RoleBasedRoute>
           </ProtectedRoute>
         }
