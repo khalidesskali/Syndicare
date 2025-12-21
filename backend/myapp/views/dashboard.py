@@ -7,7 +7,7 @@ from ..permissions import IsAdmin, IsSyndic, IsResident
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
-from ..models import User, Subscription, Payment, Immeuble, Appartement, Reclamation, Reunion, Charge
+from ..models import User, Subscription, Payment, Immeuble, Appartement, Reclamation, Reunion, Charge, ResidentProfile
 
 
 User = get_user_model()
@@ -172,10 +172,17 @@ def syndic_dashboard(request):
     """
     syndic = request.user
     today = timezone.now().date()
-    current_month_start = today.replace(day=1)
-    last_month_start = (current_month_start - timedelta(days=1)).replace(day=1)
-    
-    # ====================
+    current_month_start = timezone.make_aware(
+        timezone.datetime.combine(today.replace(day=1), timezone.datetime.min.time())
+    )
+    last_month_start = timezone.make_aware(
+        timezone.datetime.combine(
+            (current_month_start.date() - timedelta(days=1)).replace(day=1),
+            timezone.datetime.min.time()
+        )
+    )
+
+    # ==================== 
     # BUILDINGS STATISTICS
     # ====================
     buildings = Immeuble.objects.filter(syndic=syndic)
@@ -185,89 +192,97 @@ def syndic_dashboard(request):
     buildings_this_month = buildings.filter(
         created_at__gte=current_month_start
     ).count()
-    
-    # ====================
+
+    # ==================== 
     # RESIDENTS STATISTICS
     # ====================
     apartments = Appartement.objects.filter(immeuble__syndic=syndic)
     total_residents = User.objects.filter(
         role='RESIDENT',
-        resident_profile__appartement__immeuble__syndic=syndic
-    ).count()
+        appartements__in=apartments
+    ).distinct().count()
     
     # Residents added this month
     residents_this_month = User.objects.filter(
         role='RESIDENT',
-        resident_profile__appartement__immeuble__syndic=syndic,
+        appartements__in=apartments,
         created_at__gte=current_month_start
-    ).count()
-    
-    # ====================
+    ).distinct().count()
+
+    # ==================== 
     # CHARGES STATISTICS
     # ====================
     charges_queryset = Charge.objects.filter(appartement__immeuble__syndic=syndic)
+    
     pending_charges = charges_queryset.filter(
         status__in=['UNPAID', 'PARTIALLY_PAID']
     ).count()
-    
-    # Monthly revenue from paid charges
+
+    # Monthly revenue from paid charges (using paid_date instead of updated_at)
     current_month_charges = charges_queryset.filter(
         status='PAID',
-        updated_at__gte=current_month_start
+        paid_date__gte=current_month_start
     )
     monthly_revenue = current_month_charges.aggregate(
         total=Sum('amount')
     )['total'] or 0
-    
+
     # Last month revenue for comparison
     last_month_charges = charges_queryset.filter(
         status='PAID',
-        updated_at__gte=last_month_start,
-        updated_at__lt=current_month_start
+        paid_date__gte=last_month_start,
+        paid_date__lt=current_month_start
     )
     last_month_revenue = last_month_charges.aggregate(
         total=Sum('amount')
     )['total'] or 0
-    
+
     # Revenue change percentage
     revenue_change = 0
     if last_month_revenue > 0:
-        revenue_change = round(((monthly_revenue - last_month_revenue) / last_month_revenue * 100), 1)
+        revenue_change = round(
+            ((monthly_revenue - last_month_revenue) / last_month_revenue * 100), 1
+        )
     elif monthly_revenue > 0:
         revenue_change = 100
-    
-    # ====================
+
+    # ==================== 
     # REUNIONS STATISTICS
     # ====================
+    now = timezone.now()
     upcoming_reunions = Reunion.objects.filter(
         syndic=syndic,
         status='SCHEDULED',
-        date__gt=today
+        date_time__gt=now
     ).count()
-    
-    # ====================
+
+    # ==================== 
     # RECLAMATIONS STATISTICS
     # ====================
     reclamations_queryset = Reclamation.objects.filter(
         appartement__immeuble__syndic=syndic
     )
+    
     open_complaints = reclamations_queryset.filter(
         status__in=['PENDING', 'IN_PROGRESS']
     ).count()
-    
+
     # Urgent complaints (created more than 7 days ago and still pending)
+    urgent_cutoff = timezone.make_aware(
+        timezone.datetime.combine(today - timedelta(days=7), timezone.datetime.min.time())
+    )
     urgent_complaints = reclamations_queryset.filter(
         status__in=['PENDING', 'IN_PROGRESS'],
-        created_at__lte=today - timedelta(days=7)
+        created_at__lte=urgent_cutoff
     ).count()
-    
-    # ====================
+
+    # ==================== 
     # FINANCIAL OVERVIEW
     # ====================
     total_monthly_charges = apartments.aggregate(
         total=Sum('monthly_charge')
     )['total'] or 0
-    
+
     return Response({
         'success': True,
         'data': {
@@ -291,7 +306,6 @@ def syndic_dashboard(request):
             'has_valid_subscription': syndic.has_valid_subscription
         }
     })
-
 
 @api_view(['GET'])
 @permission_classes([IsResident])
