@@ -1,4 +1,4 @@
-import { Calendar, Users, Clock, TrendingUp } from "lucide-react";
+import { Calendar, Clock, Building, TrendingUp } from "lucide-react";
 import type { ReunionStats } from "../../types/reunion";
 
 interface ReunionStatsProps {
@@ -15,7 +15,7 @@ export function ReunionStats({ stats }: ReunionStatsProps) {
           </div>
         </div>
         <div className="text-2xl font-bold text-slate-900">
-          {stats.total_reunions}
+          {stats.total_reunions || 0}
         </div>
         <p className="text-sm text-slate-600">Total Reunions</p>
       </div>
@@ -27,21 +27,21 @@ export function ReunionStats({ stats }: ReunionStatsProps) {
           </div>
         </div>
         <div className="text-2xl font-bold text-slate-900">
-          {stats.upcoming_reunions}
+          {stats.upcoming_reunions || 0}
         </div>
-        <p className="text-sm text-slate-600">Upcoming</p>
+        <p className="text-sm text-slate-600">Scheduled</p>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between mb-4">
           <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-            <Users className="h-6 w-6 text-blue-600" />
+            <Building className="h-6 w-6 text-blue-600" />
           </div>
         </div>
         <div className="text-2xl font-bold text-slate-900">
-          {stats.total_participants}
+          {stats.completed_reunions || 0}
         </div>
-        <p className="text-sm text-slate-600">Total Participants</p>
+        <p className="text-sm text-slate-600">Completed</p>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-shadow">
@@ -51,9 +51,9 @@ export function ReunionStats({ stats }: ReunionStatsProps) {
           </div>
         </div>
         <div className="text-2xl font-bold text-slate-900">
-          {stats.average_attendance}%
+          {stats.average_attendance || 0}%
         </div>
-        <p className="text-sm text-slate-600">Average Attendance</p>
+        <p className="text-sm text-slate-600">Completion Rate</p>
       </div>
     </div>
   );

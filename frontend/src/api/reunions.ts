@@ -1,18 +1,16 @@
 import axiosInstance from "./axios";
-import type { Reunion, ReunionStats } from "../types/reunion";
+import type {
+  Reunion,
+  ReunionStats,
+  UpdateReunionRequest,
+} from "../types/reunion";
 
 export interface CreateReunionRequest {
   title: string;
-  description: string;
-  date: string;
-  time: string;
+  topic: string;
+  date_time: string;
   location: string;
-  building_name: string;
-  max_participants: number;
-}
-
-export interface UpdateReunionRequest extends Partial<CreateReunionRequest> {
-  status?: Reunion["status"];
+  immeuble: number; // building ID
 }
 
 export interface ReunionFilters {
@@ -36,21 +34,19 @@ const reunionAPI = {
     if (filters?.date_from) params.append("date_from", filters.date_from);
     if (filters?.date_to) params.append("date_to", filters.date_to);
 
-    const response = await axiosInstance.get<Reunion[]>(
-      `syndic/reunions/?${params.toString()}`
-    );
+    const response = await axiosInstance.get<{
+      success: boolean;
+      data: Reunion[];
+      count: number;
+    }>(`syndic/reunions/?${params.toString()}`);
 
-    // Handle different response formats
+    // Handle the known response format
     const data = response.data;
-    if (Array.isArray(data)) {
-      return data;
-    } else if (data && typeof data === "object" && "results" in data) {
-      const responseData = data as { results: Reunion[] };
-      if (Array.isArray(responseData.results)) {
-        return responseData.results;
-      }
+    if (data && data.success && Array.isArray(data.data)) {
+      return data.data;
     }
-    // Log the actual response structure for debugging
+
+    // Fallback for unexpected formats
     console.error("Unexpected API response format:", {
       type: typeof data,
       isArray: Array.isArray(data),
@@ -94,33 +90,25 @@ const reunionAPI = {
     // If reunions are provided, calculate stats locally
     if (reunions) {
       const totalReunions = reunions.length;
-      const upcomingReunions = reunions.filter(
-        (r) => r.status === "UPCOMING"
+      const scheduledReunions = reunions.filter(
+        (r) => r.status === "SCHEDULED"
       ).length;
       const completedReunions = reunions.filter(
         (r) => r.status === "COMPLETED"
       ).length;
-      const totalParticipants = reunions.reduce(
-        (sum, r) => sum + r.participants_count,
-        0
-      );
-      const averageAttendance =
+
+      // Calculate completion rate instead of attendance
+      const completionRate =
         totalReunions > 0
-          ? Math.round(
-              reunions.reduce(
-                (sum, r) =>
-                  sum + (r.participants_count / r.max_participants) * 100,
-                0
-              ) / totalReunions
-            )
+          ? Math.round((completedReunions / totalReunions) * 100)
           : 0;
 
       return {
         total_reunions: totalReunions,
-        upcoming_reunions: upcomingReunions,
+        upcoming_reunions: scheduledReunions,
         completed_reunions: completedReunions,
-        total_participants: totalParticipants,
-        average_attendance: averageAttendance,
+        total_participants: 0, // Not available in backend
+        average_attendance: completionRate,
       };
     }
 

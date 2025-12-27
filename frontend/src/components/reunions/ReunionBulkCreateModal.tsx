@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Plus, Trash2, Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import type { CreateReunionRequest } from "../../api/reunions";
+import { useBuilding } from "../../hooks/useBuilding";
 
 interface ReunionBulkCreateModalProps {
   isOpen: boolean;
@@ -40,16 +41,20 @@ export function ReunionBulkCreateModal({
   onBulkCreate,
   loading = false,
 }: ReunionBulkCreateModalProps) {
+  const {
+    buildings,
+    loading: buildingsLoading,
+    refetch: refetchBuildings,
+  } = useBuilding();
+
   const [reunions, setReunions] = useState<BulkReunionItem[]>([
     {
       id: crypto.randomUUID(),
       title: "",
-      description: "",
-      date: "",
-      time: "",
+      topic: "",
+      date_time: "",
       location: "",
-      building_name: "",
-      max_participants: 10,
+      immeuble: 0,
     },
   ]);
 
@@ -58,16 +63,21 @@ export function ReunionBulkCreateModal({
   );
   const [showCalendar, setShowCalendar] = useState<string | null>(null);
 
+  // Fetch buildings when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      refetchBuildings();
+    }
+  }, [isOpen, refetchBuildings]);
+
   const addReunion = () => {
     const newReunion: BulkReunionItem = {
       id: crypto.randomUUID(),
       title: "",
-      description: "",
-      date: "",
-      time: "",
+      topic: "",
+      date_time: "",
       location: "",
-      building_name: "",
-      max_participants: 10,
+      immeuble: 0,
     };
     setReunions([...reunions, newReunion]);
   };
@@ -103,8 +113,15 @@ export function ReunionBulkCreateModal({
 
   const handleDateSelect = (reunionId: string, date: Date | undefined) => {
     if (date) {
+      const reunion = reunions.find((r) => r.id === reunionId);
+      const currentTime = reunion?.date_time
+        ? new Date(reunion.date_time)
+        : new Date();
+      const dateTime = new Date(date);
+      dateTime.setHours(currentTime.getHours(), currentTime.getMinutes());
+
       updateReunion(reunionId, "selectedDate", date);
-      updateReunion(reunionId, "date", date.toISOString().split("T")[0]);
+      updateReunion(reunionId, "date_time", dateTime.toISOString());
       setShowCalendar(null);
     }
   };
@@ -118,23 +135,17 @@ export function ReunionBulkCreateModal({
       if (!reunion.title.trim()) {
         reunionErrors.title = "Title is required";
       }
-      if (!reunion.description.trim()) {
-        reunionErrors.description = "Description is required";
+      if (!reunion.topic.trim()) {
+        reunionErrors.topic = "Topic is required";
       }
-      if (!reunion.date) {
-        reunionErrors.date = "Date is required";
-      }
-      if (!reunion.time) {
-        reunionErrors.time = "Time is required";
+      if (!reunion.date_time) {
+        reunionErrors.date_time = "Date and time are required";
       }
       if (!reunion.location.trim()) {
         reunionErrors.location = "Location is required";
       }
-      if (!reunion.building_name) {
-        reunionErrors.building_name = "Building is required";
-      }
-      if (reunion.max_participants < 1) {
-        reunionErrors.max_participants = "Max participants must be at least 1";
+      if (!reunion.immeuble) {
+        reunionErrors.immeuble = "Building is required";
       }
 
       if (Object.keys(reunionErrors).length > 0) {
@@ -163,12 +174,10 @@ export function ReunionBulkCreateModal({
         {
           id: crypto.randomUUID(),
           title: "",
-          description: "",
-          date: "",
-          time: "",
+          topic: "",
+          date_time: "",
           location: "",
-          building_name: "",
-          max_participants: 10,
+          immeuble: 0,
         },
       ]);
       setErrors({});
@@ -230,20 +239,20 @@ export function ReunionBulkCreateModal({
 
                   <div className="md:col-span-2">
                     <Label className="text-sm font-medium text-slate-700">
-                      Description *
+                      Topic *
                     </Label>
                     <Textarea
-                      value={reunion.description}
+                      value={reunion.topic}
                       onChange={(e) =>
-                        updateReunion(reunion.id, "description", e.target.value)
+                        updateReunion(reunion.id, "topic", e.target.value)
                       }
                       className="mt-1 border-slate-200 focus:border-green-500 focus:ring-green-500"
                       placeholder="Describe the reunion purpose and agenda"
                       rows={2}
                     />
-                    {errors[reunion.id]?.description && (
+                    {errors[reunion.id]?.topic && (
                       <p className="text-sm text-red-600 mt-1">
-                        {errors[reunion.id]?.description}
+                        {errors[reunion.id]?.topic}
                       </p>
                     )}
                   </div>
@@ -281,9 +290,9 @@ export function ReunionBulkCreateModal({
                         </div>
                       )}
                     </div>
-                    {errors[reunion.id]?.date && (
+                    {errors[reunion.id]?.date_time && (
                       <p className="text-sm text-red-600 mt-1">
-                        {errors[reunion.id]?.date}
+                        {errors[reunion.id]?.date_time}
                       </p>
                     )}
                   </div>
@@ -294,15 +303,33 @@ export function ReunionBulkCreateModal({
                     </Label>
                     <Input
                       type="time"
-                      value={reunion.time}
-                      onChange={(e) =>
-                        updateReunion(reunion.id, "time", e.target.value)
+                      value={
+                        reunion.date_time
+                          ? new Date(reunion.date_time)
+                              .toTimeString()
+                              .slice(0, 5)
+                          : ""
                       }
+                      onChange={(e) => {
+                        const currentDate = reunion.date_time
+                          ? new Date(reunion.date_time)
+                          : new Date();
+                        const [hours, minutes] = e.target.value.split(":");
+                        currentDate.setHours(
+                          parseInt(hours),
+                          parseInt(minutes)
+                        );
+                        updateReunion(
+                          reunion.id,
+                          "date_time",
+                          currentDate.toISOString()
+                        );
+                      }}
                       className="mt-1 border-slate-200 focus:border-green-500 focus:ring-green-500"
                     />
-                    {errors[reunion.id]?.time && (
+                    {errors[reunion.id]?.date_time && (
                       <p className="text-sm text-red-600 mt-1">
-                        {errors[reunion.id]?.time}
+                        {errors[reunion.id]?.date_time}
                       </p>
                     )}
                   </div>
@@ -331,47 +358,40 @@ export function ReunionBulkCreateModal({
                       Building *
                     </Label>
                     <Select
-                      value={reunion.building_name}
+                      value={reunion.immeuble.toString()}
                       onValueChange={(value) =>
-                        updateReunion(reunion.id, "building_name", value)
+                        updateReunion(reunion.id, "immeuble", parseInt(value))
                       }
+                      disabled={buildingsLoading}
                     >
                       <SelectTrigger className="mt-1 border-slate-200 focus:border-green-500 focus:ring-green-500">
-                        <SelectValue placeholder="Select building" />
+                        <SelectValue
+                          placeholder={
+                            buildingsLoading
+                              ? "Loading buildings..."
+                              : "Select building"
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Building A">Building A</SelectItem>
-                        <SelectItem value="Building B">Building B</SelectItem>
-                        <SelectItem value="Building C">Building C</SelectItem>
+                        {buildings.map((building) => (
+                          <SelectItem
+                            key={building.id}
+                            value={building.id.toString()}
+                          >
+                            {building.name}
+                          </SelectItem>
+                        ))}
+                        {buildings.length === 0 && !buildingsLoading && (
+                          <SelectItem value="0" disabled>
+                            No buildings available
+                          </SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
-                    {errors[reunion.id]?.building_name && (
+                    {errors[reunion.id]?.immeuble && (
                       <p className="text-sm text-red-600 mt-1">
-                        {errors[reunion.id]?.building_name}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium text-slate-700">
-                      Max Participants *
-                    </Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={reunion.max_participants}
-                      onChange={(e) =>
-                        updateReunion(
-                          reunion.id,
-                          "max_participants",
-                          parseInt(e.target.value) || 0
-                        )
-                      }
-                      className="mt-1 border-slate-200 focus:border-green-500 focus:ring-green-500"
-                    />
-                    {errors[reunion.id]?.max_participants && (
-                      <p className="text-sm text-red-600 mt-1">
-                        {errors[reunion.id]?.max_participants}
+                        {errors[reunion.id]?.immeuble}
                       </p>
                     )}
                   </div>

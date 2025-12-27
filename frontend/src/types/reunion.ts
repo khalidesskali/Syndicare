@@ -1,16 +1,17 @@
 export interface Reunion {
+  max_participants: number;
+  participants_count: number;
   id: number;
   title: string;
-  description: string;
-  date: string;
-  time: string;
+  topic: string;
+  date_time: string;
   location: string;
+  immeuble: number;
   building_name: string;
-  status: "UPCOMING" | "ONGOING" | "COMPLETED" | "CANCELLED";
-  participants_count: number;
-  max_participants: number;
+  building_address: string;
+  status: "SCHEDULED" | "COMPLETED" | "CANCELLED";
   created_at: string;
-  organizer_name: string;
+  syndic: number;
 }
 
 export interface ReunionStats {
@@ -29,12 +30,10 @@ export interface ReunionFilters {
 }
 
 export interface UpdateReunionRequest {
+  immeuble: number;
   title: string;
-  description: string;
-  date: string;
-  time: string;
+  topic: string;
+  date_time: string;
   location: string;
-  building_name: string;
-  max_participants: number;
-  status: "UPCOMING" | "ONGOING" | "COMPLETED" | "CANCELLED";
+  status: "SCHEDULED" | "COMPLETED" | "CANCELLED";
 }

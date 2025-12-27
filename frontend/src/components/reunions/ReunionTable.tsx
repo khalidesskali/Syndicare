@@ -1,4 +1,4 @@
-import { Calendar, Users, MapPin, Clock, CalendarDays } from "lucide-react";
+import { Calendar, MapPin, Clock, CalendarDays, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -28,8 +28,7 @@ export function ReunionTable({
   onViewDetails,
 }: ReunionTableProps) {
   const statusVariant = {
-    UPCOMING: "default",
-    ONGOING: "secondary",
+    SCHEDULED: "default",
     COMPLETED: "outline",
     CANCELLED: "destructive",
   } as const;
@@ -53,9 +52,6 @@ export function ReunionTable({
             </TableHead>
             <TableHead className="font-semibold text-slate-900">
               Building
-            </TableHead>
-            <TableHead className="font-semibold text-slate-900">
-              Participants
             </TableHead>
             <TableHead className="font-semibold text-slate-900">
               Status
@@ -106,9 +102,9 @@ export function ReunionTable({
                         {reunion.title}
                       </div>
                       <div className="text-xs text-slate-500">
-                        {reunion.description.length > 50
-                          ? `${reunion.description.substring(0, 50)}...`
-                          : reunion.description}
+                        {reunion.topic.length > 50
+                          ? `${reunion.topic.substring(0, 50)}...`
+                          : reunion.topic}
                       </div>
                     </div>
                   </div>
@@ -118,10 +114,10 @@ export function ReunionTable({
                     <Clock className="mr-2 h-4 w-4 text-slate-400" />
                     <div>
                       <div className="text-slate-900">
-                        {format(new Date(reunion.date), "MMM dd, yyyy")}
+                        {format(new Date(reunion.date_time), "MMM dd, yyyy")}
                       </div>
                       <div className="text-xs text-slate-500">
-                        {reunion.time}
+                        {format(new Date(reunion.date_time), "h:mm a")}
                       </div>
                     </div>
                   </div>
@@ -133,23 +129,10 @@ export function ReunionTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="text-slate-900">{reunion.building_name}</div>
-                </TableCell>
-                <TableCell>
                   <div className="flex items-center">
-                    <Users className="mr-2 h-4 w-4 text-slate-400" />
-                    <div>
-                      <div className="font-medium text-slate-900">
-                        {reunion.participants_count}/{reunion.max_participants}
-                      </div>
-                      <div className="text-xs text-slate-500">
-                        {Math.round(
-                          (reunion.participants_count /
-                            reunion.max_participants) *
-                            100
-                        )}
-                        % filled
-                      </div>
+                    <Building className="mr-2 h-4 w-4 text-slate-400" />
+                    <div className="text-slate-900">
+                      {reunion.building_name}
                     </div>
                   </div>
                 </TableCell>
@@ -157,10 +140,8 @@ export function ReunionTable({
                   <Badge
                     variant={statusVariant[reunion.status]}
                     className={`${
-                      reunion.status === "UPCOMING"
+                      reunion.status === "SCHEDULED"
                         ? "bg-green-100 text-green-700 border-green-200"
-                        : reunion.status === "ONGOING"
-                        ? "bg-blue-100 text-blue-700 border-blue-200"
                         : reunion.status === "COMPLETED"
                         ? "bg-gray-100 text-gray-700 border-gray-200"
                         : "bg-red-100 text-red-700 border-red-200"

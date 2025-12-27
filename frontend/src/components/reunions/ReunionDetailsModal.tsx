@@ -12,7 +12,6 @@ import {
   MapPin,
   Users,
   Building,
-  User,
   Edit,
   Trash2,
   X,
@@ -41,10 +40,8 @@ export function ReunionDetailsModal({
 
   const getStatusColor = (status: Reunion["status"]) => {
     switch (status) {
-      case "UPCOMING":
+      case "SCHEDULED":
         return "bg-green-100 text-green-700 border-green-200";
-      case "ONGOING":
-        return "bg-blue-100 text-blue-700 border-blue-200";
       case "COMPLETED":
         return "bg-gray-100 text-gray-700 border-gray-200";
       case "CANCELLED":
@@ -53,10 +50,6 @@ export function ReunionDetailsModal({
         return "bg-gray-100 text-gray-700 border-gray-200";
     }
   };
-
-  const attendancePercentage = Math.round(
-    (reunion.participants_count / reunion.max_participants) * 100
-  );
 
   const handleStatusChange = (newStatus: Reunion["status"]) => {
     if (newStatus !== reunion.status) {
@@ -92,9 +85,7 @@ export function ReunionDetailsModal({
             <h3 className="text-lg font-semibold text-slate-900 mb-2">
               Description
             </h3>
-            <p className="text-slate-600 leading-relaxed">
-              {reunion.description}
-            </p>
+            <p className="text-slate-600 leading-relaxed">{reunion.topic}</p>
           </div>
 
           {/* Reunion Details Grid */}
@@ -105,7 +96,7 @@ export function ReunionDetailsModal({
                 <div>
                   <p className="font-medium text-slate-900">Date</p>
                   <p className="text-slate-600">
-                    {format(new Date(reunion.date), "EEEE, MMMM dd, yyyy")}
+                    {format(new Date(reunion.date_time), "EEEE, MMMM dd, yyyy")}
                   </p>
                 </div>
               </div>
@@ -114,7 +105,9 @@ export function ReunionDetailsModal({
                 <Clock className="h-5 w-5 text-slate-400 mt-0.5" />
                 <div>
                   <p className="font-medium text-slate-900">Time</p>
-                  <p className="text-slate-600">{reunion.time}</p>
+                  <p className="text-slate-600">
+                    {format(new Date(reunion.date_time), "h:mm a")}
+                  </p>
                 </div>
               </div>
 
@@ -140,26 +133,17 @@ export function ReunionDetailsModal({
                 <Users className="h-5 w-5 text-slate-400 mt-0.5" />
                 <div>
                   <p className="font-medium text-slate-900">Participants</p>
-                  <p className="text-slate-600">
-                    {reunion.participants_count} / {reunion.max_participants}
-                    <span className="text-sm text-slate-500 ml-2">
-                      ({attendancePercentage}% filled)
-                    </span>
-                  </p>
-                  <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
-                    <div
-                      className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${attendancePercentage}%` }}
-                    />
-                  </div>
+                  <p className="text-slate-600">{reunion.building_name}</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3">
-                <User className="h-5 w-5 text-slate-400 mt-0.5" />
+                <Calendar className="h-5 w-5 text-slate-400 mt-0.5" />
                 <div>
-                  <p className="font-medium text-slate-900">Organizer</p>
-                  <p className="text-slate-600">{reunion.organizer_name}</p>
+                  <p className="font-medium text-slate-900">Created</p>
+                  <p className="text-slate-600">
+                    {format(new Date(reunion.created_at), "MMM dd, yyyy")}
+                  </p>
                 </div>
               </div>
             </div>
@@ -171,7 +155,7 @@ export function ReunionDetailsModal({
               Status Management
             </h3>
             <div className="flex flex-wrap gap-2">
-              {(["UPCOMING", "ONGOING", "COMPLETED", "CANCELLED"] as const).map(
+              {(["SCHEDULED", "COMPLETED", "CANCELLED"] as const).map(
                 (status) => (
                   <Button
                     key={status}
@@ -180,10 +164,8 @@ export function ReunionDetailsModal({
                     onClick={() => handleStatusChange(status)}
                     className={
                       reunion.status === status
-                        ? status === "UPCOMING"
+                        ? status === "SCHEDULED"
                           ? "bg-green-600 hover:bg-green-700 text-white"
-                          : status === "ONGOING"
-                          ? "bg-blue-600 hover:bg-blue-700 text-white"
                           : status === "COMPLETED"
                           ? "bg-gray-600 hover:bg-gray-700 text-white"
                           : "bg-red-600 hover:bg-red-700 text-white"

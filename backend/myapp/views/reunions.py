@@ -34,13 +34,20 @@ class ReunionViewSet(viewsets.ModelViewSet):
         """
         queryset = self.get_queryset()
         
+        # Filter by search term (title, topic, location)
+        search_term = request.query_params.get('search', None)
+        if search_term:
+            queryset = queryset.filter(
+                title__icontains=search_term
+            )
+        
         # Filter by status
         status_filter = request.query_params.get('status', None)
         if status_filter:
             queryset = queryset.filter(status=status_filter)
         
         # Filter by building
-        building_id = request.query_params.get('building_id', None)
+        building_id = request.query_params.get('building', None)
         if building_id:
             queryset = queryset.filter(immeuble_id=building_id)
         
@@ -114,6 +121,7 @@ class ReunionViewSet(viewsets.ModelViewSet):
         """
         partial = kwargs.pop('partial', False)
         reunion = self.get_object()
+        
         serializer = self.get_serializer(reunion, data=request.data, partial=partial)
         
         if serializer.is_valid():

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +20,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import type { CreateReunionRequest } from "../../api/reunions";
+import { useBuilding } from "@/hooks/useBuilding";
 
 interface ReunionCreateModalProps {
   isOpen: boolean;
@@ -34,19 +35,30 @@ export function ReunionCreateModal({
   onCreateReunion,
   loading = false,
 }: ReunionCreateModalProps) {
+  const {
+    buildings,
+    loading: buildingsLoading,
+    refetch: refetchBuildings,
+  } = useBuilding();
+
   const [formData, setFormData] = useState<CreateReunionRequest>({
     title: "",
-    description: "",
-    date: "",
-    time: "",
+    topic: "",
+    date_time: "",
     location: "",
-    building_name: "",
-    max_participants: 10,
+    immeuble: 0,
   });
 
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [showCalendar, setShowCalendar] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Fetch buildings when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      refetchBuildings();
+    }
+  }, [isOpen, refetchBuildings]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -54,23 +66,17 @@ export function ReunionCreateModal({
     if (!formData.title.trim()) {
       newErrors.title = "Title is required";
     }
-    if (!formData.description.trim()) {
-      newErrors.description = "Description is required";
+    if (!formData.topic.trim()) {
+      newErrors.topic = "Topic is required";
     }
-    if (!formData.date) {
-      newErrors.date = "Date is required";
-    }
-    if (!formData.time) {
-      newErrors.time = "Time is required";
+    if (!formData.date_time) {
+      newErrors.date_time = "Date and time are required";
     }
     if (!formData.location.trim()) {
       newErrors.location = "Location is required";
     }
-    if (!formData.building_name) {
-      newErrors.building_name = "Building is required";
-    }
-    if (formData.max_participants < 1) {
-      newErrors.max_participants = "Max participants must be at least 1";
+    if (!formData.immeuble) {
+      newErrors.immeuble = "Building is required";
     }
 
     setErrors(newErrors);
@@ -88,12 +94,10 @@ export function ReunionCreateModal({
       // Reset form
       setFormData({
         title: "",
-        description: "",
-        date: "",
-        time: "",
+        topic: "",
+        date_time: "",
         location: "",
-        building_name: "",
-        max_participants: 10,
+        immeuble: 0,
       });
       setSelectedDate(undefined);
       setErrors({});
@@ -102,10 +106,17 @@ export function ReunionCreateModal({
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
+      // Keep existing time or set default time
+      const currentTime = formData.date_time
+        ? new Date(formData.date_time)
+        : new Date();
+      const dateTime = new Date(date);
+      dateTime.setHours(currentTime.getHours(), currentTime.getMinutes());
+
       setSelectedDate(date);
       setFormData((prev) => ({
         ...prev,
-        date: date.toISOString().split("T")[0],
+        date_time: dateTime.toISOString(),
       }));
       setShowCalendar(false);
     }
@@ -145,28 +156,26 @@ export function ReunionCreateModal({
 
             <div className="md:col-span-2">
               <Label
-                htmlFor="description"
+                htmlFor="topic"
                 className="text-sm font-medium text-slate-700"
               >
-                Description *
+                Topic *
               </Label>
               <Textarea
-                id="description"
-                value={formData.description}
+                id="topic"
+                value={formData.topic}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    description: e.target.value,
+                    topic: e.target.value,
                   }))
                 }
                 className="mt-1 border-slate-200 focus:border-green-500 focus:ring-green-500"
                 placeholder="Describe the reunion purpose and agenda"
                 rows={3}
               />
-              {errors.description && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.description}
-                </p>
+              {errors.topic && (
+                <p className="text-sm text-red-600 mt-1">{errors.topic}</p>
               )}
             </div>
 
@@ -199,8 +208,8 @@ export function ReunionCreateModal({
                   </div>
                 )}
               </div>
-              {errors.date && (
-                <p className="text-sm text-red-600 mt-1">{errors.date}</p>
+              {errors.date_time && (
+                <p className="text-sm text-red-600 mt-1">{errors.date_time}</p>
               )}
             </div>
 
@@ -214,14 +223,26 @@ export function ReunionCreateModal({
               <Input
                 id="time"
                 type="time"
-                value={formData.time}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, time: e.target.value }))
+                value={
+                  formData.date_time
+                    ? new Date(formData.date_time).toTimeString().slice(0, 5)
+                    : ""
                 }
+                onChange={(e) => {
+                  const currentDate = formData.date_time
+                    ? new Date(formData.date_time)
+                    : new Date();
+                  const [hours, minutes] = e.target.value.split(":");
+                  currentDate.setHours(parseInt(hours), parseInt(minutes));
+                  setFormData((prev) => ({
+                    ...prev,
+                    date_time: currentDate.toISOString(),
+                  }));
+                }}
                 className="mt-1 border-slate-200 focus:border-green-500 focus:ring-green-500"
               />
-              {errors.time && (
-                <p className="text-sm text-red-600 mt-1">{errors.time}</p>
+              {errors.date_time && (
+                <p className="text-sm text-red-600 mt-1">{errors.date_time}</p>
               )}
             </div>
 
@@ -254,51 +275,42 @@ export function ReunionCreateModal({
                 Building *
               </Label>
               <Select
-                value={formData.building_name}
+                value={formData.immeuble.toString()}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, building_name: value }))
-                }
-              >
-                <SelectTrigger className="mt-1 border-slate-200 focus:border-green-500 focus:ring-green-500">
-                  <SelectValue placeholder="Select building" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Building A">Building A</SelectItem>
-                  <SelectItem value="Building B">Building B</SelectItem>
-                  <SelectItem value="Building C">Building C</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.building_name && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.building_name}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <Label
-                htmlFor="max_participants"
-                className="text-sm font-medium text-slate-700"
-              >
-                Max Participants *
-              </Label>
-              <Input
-                id="max_participants"
-                type="number"
-                min="1"
-                value={formData.max_participants}
-                onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    max_participants: parseInt(e.target.value) || 0,
+                    immeuble: parseInt(value),
                   }))
                 }
-                className="mt-1 border-slate-200 focus:border-green-500 focus:ring-green-500"
-              />
-              {errors.max_participants && (
-                <p className="text-sm text-red-600 mt-1">
-                  {errors.max_participants}
-                </p>
+                disabled={buildingsLoading}
+              >
+                <SelectTrigger className="mt-1 border-slate-200 focus:border-green-500 focus:ring-green-500">
+                  <SelectValue
+                    placeholder={
+                      buildingsLoading
+                        ? "Loading buildings..."
+                        : "Select building"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {buildings.map((building) => (
+                    <SelectItem
+                      key={building.id}
+                      value={building.id.toString()}
+                    >
+                      {building.name}
+                    </SelectItem>
+                  ))}
+                  {buildings.length === 0 && !buildingsLoading && (
+                    <SelectItem value="0" disabled>
+                      No buildings available
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              {errors.immeuble && (
+                <p className="text-sm text-red-600 mt-1">{errors.immeuble}</p>
               )}
             </div>
           </div>

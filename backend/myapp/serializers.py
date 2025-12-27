@@ -665,6 +665,11 @@ class ReunionSerializer(serializers.ModelSerializer):
     building_name = serializers.CharField(source='immeuble.name', read_only=True)
     building_address = serializers.CharField(source='immeuble.address', read_only=True)
     
+    def validate(self, attrs):
+        print(f"Serializer validate called with attrs: {attrs}")
+        print(f"Attrs type: {type(attrs)}")
+        return super().validate(attrs)
+    
     class Meta:
         model = Reunion
         fields = [

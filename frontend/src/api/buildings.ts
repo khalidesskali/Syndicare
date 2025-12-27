@@ -46,26 +46,19 @@ const buildingAPI = {
     if (filters?.date_from) params.append("date_from", filters.date_from);
     if (filters?.date_to) params.append("date_to", filters.date_to);
 
-    const response = await axiosInstance.get<Building[]>(
-      `syndic/buildings/?${params.toString()}`
-    );
+    const response = await axiosInstance.get<{
+      success: boolean;
+      data: Building[];
+      count: number;
+    }>(`syndic/buildings/?${params.toString()}`);
 
-    // Handle different response formats
+    // Handle the known response format
     const data = response.data;
-    if (Array.isArray(data)) {
-      return data;
-    } else if (data && typeof data === "object" && "data" in data) {
-      const responseData = data as { data: Building[] };
-      if (Array.isArray(responseData.data)) {
-        return responseData.data;
-      }
-    } else if (data && typeof data === "object" && "results" in data) {
-      const responseData = data as { results: Building[] };
-      if (Array.isArray(responseData.results)) {
-        return responseData.results;
-      }
+    if (data && data.success && Array.isArray(data.data)) {
+      return data.data;
     }
-    // Log the actual response structure for debugging
+
+    // Fallback for unexpected formats
     console.error("Unexpected API response format:", {
       type: typeof data,
       isArray: Array.isArray(data),

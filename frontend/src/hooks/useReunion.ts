@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Reunion, ReunionStats } from "../types/reunion";
-import reunionAPI, {
-  type CreateReunionRequest,
-  type UpdateReunionRequest,
-} from "../api/reunions";
+import reunionAPI, { type CreateReunionRequest } from "../api/reunions";
+
+import type { UpdateReunionRequest } from "../types/reunion";
 
 // Helper function to calculate stats from reunions data
 const calculateStats = (reunions: Reunion[]): ReunionStats => {
@@ -12,7 +11,7 @@ const calculateStats = (reunions: Reunion[]): ReunionStats => {
 
   const totalReunions = reunionsArray.length;
   const upcomingReunions = reunionsArray.filter(
-    (r) => r.status === "UPCOMING"
+    (r) => r.status === "SCHEDULED"
   ).length;
   const completedReunions = reunionsArray.filter(
     (r) => r.status === "COMPLETED"
@@ -114,11 +113,15 @@ export const useReunion = () => {
   const updateReunion = useCallback(
     async (id: number, data: UpdateReunionRequest): Promise<Reunion | null> => {
       try {
+        console.log("useReunion updateReunion called with:", { id, data });
+        console.log("data type:", typeof data);
+        console.log("data keys:", Object.keys(data));
+
         const updatedReunion = await reunionAPI.updateReunion(id, data);
         setReunions((prev) =>
           prev.map((r) => (r.id === id ? updatedReunion : r))
         );
-        await fetchReunions(); // Refresh stats
+        await fetchReunions();
         return updatedReunion;
       } catch (err) {
         const errorMessage =
@@ -241,42 +244,6 @@ export const useReunion = () => {
     [fetchReunions]
   );
 
-  // Action handlers for UI
-  const handleCreateReunion = useCallback(() => {
-    console.log("Create new reunion");
-    // Future: Open create reunion modal
-  }, []);
-
-  const handleScheduleMultiple = useCallback(() => {
-    console.log("Schedule multiple reunions");
-    // Future: Open bulk schedule modal
-  }, []);
-
-  const handleEditReunion = useCallback((reunionId: number) => {
-    console.log("Edit reunion:", reunionId);
-    // Future: Open edit reunion modal
-  }, []);
-
-  const handleDeleteReunion = useCallback((reunionId: number) => {
-    console.log("Delete reunion:", reunionId);
-    // Future: Show delete confirmation and call deleteReunion
-  }, []);
-
-  const handleViewDetails = useCallback((reunionId: number) => {
-    console.log("View reunion details:", reunionId);
-    // Future: Navigate to reunion details page or open details modal
-  }, []);
-
-  const handleSearch = useCallback(() => {
-    console.log("Search reunions with term:", searchTerm);
-    // Search is handled by the reactive fetchReunions
-  }, [searchTerm]);
-
-  // Clear error
-  const clearError = useCallback(() => {
-    setError(null);
-  }, []);
-
   // Initialize data and refetch when filters change
   useEffect(() => {
     fetchReunions();
@@ -310,16 +277,7 @@ export const useReunion = () => {
     addParticipant,
     removeParticipant,
 
-    // UI actions
-    handleCreateReunion,
-    handleScheduleMultiple,
-    handleEditReunion,
-    handleDeleteReunion,
-    handleViewDetails,
-    handleSearch,
-
     // Utility
     refetch: fetchReunions,
-    clearError,
   };
 };

@@ -9,7 +9,8 @@ import { ReunionEditModal } from "@/components/reunions/ReunionEditModal";
 import { ReunionDetailsModal } from "@/components/reunions/ReunionDetailsModal";
 import { ReunionBulkCreateModal } from "@/components/reunions/ReunionBulkCreateModal";
 import { useReunion } from "../../hooks/useReunion";
-import type { Reunion } from "../../types/reunion";
+import { useBuilding } from "../../hooks/useBuilding";
+import type { Reunion, UpdateReunionRequest } from "../../types/reunion";
 
 const ReunionPage: React.FC = () => {
   const {
@@ -30,8 +31,9 @@ const ReunionPage: React.FC = () => {
     deleteReunion,
     bulkCreateReunions,
     updateReunionStatus,
-    clearError,
   } = useReunion();
+
+  const { buildings, loading: buildingsLoading } = useBuilding();
 
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -89,10 +91,6 @@ const ReunionPage: React.FC = () => {
     }
   };
 
-  const handleSearch = () => {
-    // Search is handled by the reactive hook
-  };
-
   // Modal form handlers
   const handleCreateSubmit = async (data: any) => {
     setModalLoading(true);
@@ -106,11 +104,13 @@ const ReunionPage: React.FC = () => {
     return false;
   };
 
-  const handleEditSubmit = async (data: any) => {
-    if (!selectedReunion) return false;
+  const handleEditSubmit = async (id: number, data: UpdateReunionRequest) => {
+    console.log("handleEditSubmit called with:", { id, data });
+    console.log("data type:", typeof data);
+    console.log("data keys:", Object.keys(data || {}));
 
     setModalLoading(true);
-    const result = await updateReunion(selectedReunion.id, data);
+    const result = await updateReunion(id, data);
     setModalLoading(false);
 
     if (result) {
@@ -148,7 +148,7 @@ const ReunionPage: React.FC = () => {
     setShowDetailsModal(false);
     setShowBulkCreateModal(false);
     setSelectedReunion(null);
-    clearError();
+    // clearError();
   };
 
   return (
@@ -159,7 +159,7 @@ const ReunionPage: React.FC = () => {
           <div className="flex justify-between items-center">
             <p className="text-red-700">{error}</p>
             <button
-              onClick={clearError}
+              // onClick={clearError}
               className="text-red-500 hover:text-red-700"
             >
               ×
@@ -184,7 +184,8 @@ const ReunionPage: React.FC = () => {
         onBuildingChange={setBuildingFilter}
         dateRange={dateRange}
         onDateRangeChange={setDateRange}
-        onSearch={handleSearch}
+        buildings={buildings}
+        buildingsLoading={buildingsLoading}
       />
 
       <ReunionTable

@@ -11,6 +11,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { useState } from "react";
+import type { Building } from "../../types/building";
 
 interface ReunionFiltersProps {
   searchTerm: string;
@@ -21,7 +22,8 @@ interface ReunionFiltersProps {
   onBuildingChange: (value: string) => void;
   dateRange: { from?: Date; to?: Date } | undefined;
   onDateRangeChange: (range: { from?: Date; to?: Date } | undefined) => void;
-  onSearch: () => void;
+  buildings: Building[];
+  buildingsLoading: boolean;
 }
 
 export function ReunionFilters({
@@ -33,7 +35,8 @@ export function ReunionFilters({
   onBuildingChange,
   dateRange,
   onDateRangeChange,
-  onSearch,
+  buildings,
+  buildingsLoading,
 }: ReunionFiltersProps) {
   const [showStartCalendar, setShowStartCalendar] = useState(false);
   const [showEndCalendar, setShowEndCalendar] = useState(false);
@@ -49,7 +52,6 @@ export function ReunionFilters({
             className="w-full pl-10 border-slate-200 focus:border-green-500 focus:ring-green-500 bg-slate-50"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && onSearch()}
           />
         </div>
 
@@ -60,8 +62,7 @@ export function ReunionFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="UPCOMING">Upcoming</SelectItem>
-              <SelectItem value="ONGOING">Ongoing</SelectItem>
+              <SelectItem value="SCHEDULED">Scheduled</SelectItem>
               <SelectItem value="COMPLETED">Completed</SelectItem>
               <SelectItem value="CANCELLED">Cancelled</SelectItem>
             </SelectContent>
@@ -73,9 +74,17 @@ export function ReunionFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Buildings</SelectItem>
-              <SelectItem value="Building A">Building A</SelectItem>
-              <SelectItem value="Building B">Building B</SelectItem>
-              <SelectItem value="Building C">Building C</SelectItem>
+              {buildingsLoading ? (
+                <SelectItem value="loading" disabled>
+                  Loading...
+                </SelectItem>
+              ) : (
+                buildings.map((building) => (
+                  <SelectItem key={building.id} value={building.id.toString()}>
+                    {building.name}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
 
