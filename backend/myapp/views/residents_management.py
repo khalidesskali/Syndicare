@@ -159,12 +159,8 @@ class ResidentViewSet(viewsets.ModelViewSet):
         """
         resident = self.get_object()
         
-        # Check if resident is assigned to any apartment
-        if resident.appartements.filter(immeuble__syndic=request.user).exists():
-            return Response({
-                'success': False,
-                'message': 'Cannot delete resident assigned to apartments. Remove from apartments first.'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        # Clear the resident's apartment associations
+        resident.appartements.clear()
         
         resident.delete()
         
