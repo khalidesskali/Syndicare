@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface ChargeFiltersProps {
   searchTerm: string;
@@ -20,6 +20,7 @@ interface ChargeFiltersProps {
   dateRange: { from?: Date; to?: Date } | undefined;
   onDateRangeChange: (range: { from?: Date; to?: Date } | undefined) => void;
   onSearch: () => void;
+  onClearFilters: () => void;
 }
 
 export function ChargeFilters({
@@ -30,9 +31,33 @@ export function ChargeFilters({
   dateRange,
   onDateRangeChange,
   onSearch,
+  onClearFilters,
 }: ChargeFiltersProps) {
   const [showStartCalendar, setShowStartCalendar] = useState(false);
   const [showEndCalendar, setShowEndCalendar] = useState(false);
+  const startCalendarRef = useRef<HTMLDivElement>(null);
+  const endCalendarRef = useRef<HTMLDivElement>(null);
+
+  // Close calendars when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        startCalendarRef.current &&
+        !startCalendarRef.current.contains(event.target as Node)
+      ) {
+        setShowStartCalendar(false);
+      }
+      if (
+        endCalendarRef.current &&
+        !endCalendarRef.current.contains(event.target as Node)
+      ) {
+        setShowEndCalendar(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
@@ -89,18 +114,21 @@ export function ChargeFilters({
           </Select>
 
           <div className="flex items-center space-x-2">
-            <div className="relative">
+            <div className="relative" ref={startCalendarRef}>
               <Button
                 variant="outline"
                 className="w-[140px] border-slate-200 focus:border-green-500 focus:ring-green-500 bg-green-50/50 text-sm justify-start text-left font-normal hover:bg-green-100"
-                onClick={() => setShowStartCalendar(!showStartCalendar)}
+                onClick={() => {
+                  setShowStartCalendar(!showStartCalendar);
+                  setShowEndCalendar(false);
+                }}
               >
                 {dateRange?.from
                   ? format(dateRange.from, "MMM dd, yyyy")
                   : "Start date"}
               </Button>
               {showStartCalendar && (
-                <div className="fixed z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-2">
+                <div className="absolute top-full left-0 z-50 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg p-2">
                   <Calendar
                     mode="single"
                     selected={dateRange?.from}
@@ -114,18 +142,21 @@ export function ChargeFilters({
               )}
             </div>
             <span className="text-slate-400 text-sm">to</span>
-            <div className="relative">
+            <div className="relative" ref={endCalendarRef}>
               <Button
                 variant="outline"
                 className="w-[140px] border-slate-200 focus:border-green-500 focus:ring-green-500 bg-green-50/50 text-sm justify-start text-left font-normal hover:bg-green-100"
-                onClick={() => setShowEndCalendar(!showEndCalendar)}
+                onClick={() => {
+                  setShowEndCalendar(!showEndCalendar);
+                  setShowStartCalendar(false);
+                }}
               >
                 {dateRange?.to
                   ? format(dateRange.to, "MMM dd, yyyy")
                   : "End date"}
               </Button>
               {showEndCalendar && (
-                <div className="fixed z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-2">
+                <div className="absolute top-full left-0 z-50 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg p-2">
                   <Calendar
                     mode="single"
                     selected={dateRange?.to}
@@ -139,6 +170,21 @@ export function ChargeFilters({
               )}
             </div>
           </div>
+
+          <Button
+            onClick={onSearch}
+            className="bg-green-600 hover:bg-green-700 text-white px-6"
+          >
+            Search
+          </Button>
+
+          <Button
+            onClick={onClearFilters}
+            variant="outline"
+            className="border-slate-200 hover:bg-slate-50 text-slate-600 px-6"
+          >
+            Clear Filters
+          </Button>
         </div>
       </div>
     </div>

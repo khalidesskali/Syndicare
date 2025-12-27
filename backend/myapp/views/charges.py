@@ -58,6 +58,34 @@ class ChargeViewSet(viewsets.ModelViewSet):
             today = timezone.now().date()
             queryset = queryset.filter(status='UNPAID', due_date__lt=today)
         
+        # Search functionality
+        search = request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(
+                description__icontains=search
+            ) | queryset.filter(
+                appartement__number__icontains=search
+            ) | queryset.filter(
+                appartement__immeuble__name__icontains=search
+            )
+        
+        # Date range filtering
+        date_from = request.query_params.get('date_from', None)
+        if date_from:
+            try:
+                date_from_obj = datetime.strptime(date_from, '%Y-%m-%d').date()
+                queryset = queryset.filter(due_date__gte=date_from_obj)
+            except ValueError:
+                pass  # Invalid date format, ignore filter
+        
+        date_to = request.query_params.get('date_to', None)
+        if date_to:
+            try:
+                date_to_obj = datetime.strptime(date_to, '%Y-%m-%d').date()
+                queryset = queryset.filter(due_date__lte=date_to_obj)
+            except ValueError:
+                pass  # Invalid date format, ignore filter
+        
         serializer = self.get_serializer(queryset, many=True)
         
         return Response({

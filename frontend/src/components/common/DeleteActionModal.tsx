@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,8 +7,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
 import type { DeleteModalConfig } from "@/types/common";
 
@@ -25,24 +23,14 @@ export function DeleteActionModal({
   config,
   loading = false,
 }: DeleteActionModalProps) {
-  const [confirmText, setConfirmText] = useState("");
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Check if confirmation text matches (if required)
-    if (config.confirmText && confirmText !== config.confirmText) {
-      return;
-    }
 
     const success = await config.action();
     if (success) {
       onClose();
-      setConfirmText("");
     }
   };
-
-  const isConfirmed = !config.confirmText || confirmText === config.confirmText;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -66,28 +54,6 @@ export function DeleteActionModal({
               <strong>Item to delete:</strong> {config.itemName}
             </p>
           </div>
-
-          {config.confirmText && (
-            <div className="space-y-2">
-              <Label
-                htmlFor="confirmText"
-                className="text-sm font-medium text-slate-700"
-              >
-                Type{" "}
-                <span className="font-mono bg-slate-100 px-1 rounded">
-                  {config.confirmText}
-                </span>{" "}
-                to confirm:
-              </Label>
-              <Input
-                id="confirmText"
-                value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
-                placeholder={config.confirmText}
-                className="border-slate-200 focus:border-red-500 focus:ring-red-500"
-              />
-            </div>
-          )}
         </div>
 
         <DialogFooter className="flex space-x-3 pt-6">
@@ -105,9 +71,9 @@ export function DeleteActionModal({
             onClick={handleSubmit}
             variant="destructive"
             className="bg-red-600 hover:bg-red-700 text-white shadow-sm"
-            disabled={loading || !isConfirmed}
+            disabled={loading}
           >
-            {loading ? "Deleting..." : "Delete"}
+            {loading ? "Confirming..." : "Confirm"}
           </Button>
         </DialogFooter>
       </DialogContent>

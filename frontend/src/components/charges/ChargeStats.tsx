@@ -15,7 +15,7 @@ export function ChargeStats({ stats }: ChargeStatsProps) {
           </div>
         </div>
         <div className="text-2xl font-bold text-slate-900">
-          ${stats.total_amount.toLocaleString()}
+          {stats.total_amount.toLocaleString()} DH
         </div>
         <p className="text-sm text-slate-600">All charges</p>
       </div>
@@ -27,7 +27,7 @@ export function ChargeStats({ stats }: ChargeStatsProps) {
           </div>
         </div>
         <div className="text-2xl font-bold text-slate-900">
-          ${stats.paid_amount.toLocaleString()}
+          {stats.paid_amount.toLocaleString()} DH
         </div>
         <p className="text-sm text-slate-600">Collected amount</p>
       </div>
@@ -39,7 +39,7 @@ export function ChargeStats({ stats }: ChargeStatsProps) {
           </div>
         </div>
         <div className="text-2xl font-bold text-slate-900">
-          ${stats.unpaid_amount.toLocaleString()}
+          {stats.unpaid_amount.toLocaleString()} DH
         </div>
         <p className="text-sm text-slate-600">Awaiting payment</p>
       </div>

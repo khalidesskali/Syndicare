@@ -16,12 +16,16 @@ interface ChargeTableProps {
   charges: Charge[];
   loading: boolean;
   onMarkAsPaid: (chargeId: number) => void;
+  onEditCharge: (charge: Charge) => void;
+  onDeleteCharge: (charge: Charge) => void;
 }
 
 export function ChargeTable({
   charges,
   loading,
   onMarkAsPaid,
+  onEditCharge,
+  onDeleteCharge,
 }: ChargeTableProps) {
   const statusVariant = {
     UNPAID: "destructive",
@@ -126,7 +130,7 @@ export function ChargeTable({
                 </TableCell>
                 <TableCell>
                   <div className="font-semibold text-slate-900">
-                    ${charge.amount.toFixed(2)}
+                    DH {Number(charge.amount).toFixed(2)}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -163,6 +167,22 @@ export function ChargeTable({
                         Mark Paid
                       </Button>
                     )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onEditCharge(charge)}
+                      className="border-slate-200 text-slate-700 hover:bg-slate-50"
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onDeleteCharge(charge)}
+                      className="border-red-200 text-red-700 hover:bg-red-50"
+                    >
+                      Delete
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>

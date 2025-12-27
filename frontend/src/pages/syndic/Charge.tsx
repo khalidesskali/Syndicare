@@ -1,138 +1,184 @@
-import React, { useState, useEffect } from "react";
-import { format } from "date-fns";
-import type { Charge as ChargeType, ChargeStats } from "../../types/charge";
+import React, { useState, useCallback, useEffect } from "react";
+import SyndicLayout from "@/components/SyndicLayout";
 import { ChargeHeader } from "@/components/charges/ChargeHeader";
-import { ChargeStats as ChargeStatsComponent } from "@/components/charges/ChargeStats";
+import { ChargeStats } from "@/components/charges/ChargeStats";
 import { ChargeFilters } from "@/components/charges/ChargeFilters";
 import { ChargeTable } from "@/components/charges/ChargeTable";
-import SyndicLayout from "@/components/SyndicLayout";
+import { ChargeModals } from "@/components/charges/ChargeModals";
+import { ChargeSkeleton } from "@/components/charges/ChargeSkeleton";
+import { SuccessMessage } from "@/components/ui/success-message";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { useCharge } from "@/hooks/useCharge";
+import type { Charge } from "@/types/charge";
+import { useBuilding } from "@/hooks/useBuilding";
+import { useApartment } from "@/hooks/useApartment";
 
 const Charge: React.FC = () => {
-  const [charges, setCharges] = useState<ChargeType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    charges,
+    stats,
+    loading,
+    successMessage,
+    errorMessage,
+    createCharge,
+    updateCharge,
+    deleteCharge,
+    markPaid,
+    bulkCreateCharges,
+    fetchFilteredCharges,
+    refetchStats,
+    clearError,
+  } = useCharge();
+
+  const { buildings } = useBuilding();
+  const { apartments } = useApartment();
+
+  // Transform apartments to match ChargeModals expected structure
+  const transformedApartments = apartments.map((apt) => ({
+    id: apt.id,
+    number: apt.number,
+    building_id: apt.immeuble, // Map immeuble to building_id
+    building_name: apt.building_name,
+  }));
+
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [selectedCharge, setSelectedCharge] = useState<Charge | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [dateRange, setDateRange] = useState<
-    { from?: Date; to?: Date } | undefined
-  >();
-  const [stats, setStats] = useState<ChargeStats>({
-    total_charges: 0,
-    paid: 0,
-    unpaid: 0,
-    overdue: 0,
-    partially_paid: 0,
-    total_amount: 0,
-    paid_amount: 0,
-    unpaid_amount: 0,
-    overdue_amount: 0,
-    collection_rate: 0,
-  });
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>();
 
-  // Fetch charges
-  const fetchCharges = async () => {
-    try {
-      setLoading(true);
-      // Build query params based on filters
-      const params = new URLSearchParams();
-      if (statusFilter !== "all") params.append("status", statusFilter);
-      if (dateRange?.from)
-        params.append("start_date", format(dateRange.from, "yyyy-MM-dd"));
-      if (dateRange?.to)
-        params.append("end_date", format(dateRange.to, "yyyy-MM-dd"));
-      if (searchTerm) params.append("search", searchTerm);
-
-      const response = await fetch(`/api/syndic/charges/?${params.toString()}`);
-      const data = await response.json();
-      setCharges(data.results || []);
-    } catch (error) {
-      console.error("Failed to fetch charges:", error);
-    } finally {
-      setLoading(false);
-    }
+  const handleMarkPaid = async (chargeId: number) => {
+    await markPaid(chargeId, {
+      paid_amount: charges.find((c) => c.id === chargeId)?.amount || 0,
+    });
   };
 
-  // Fetch statistics
-  const fetchStatistics = async () => {
-    try {
-      const response = await fetch("/api/syndic/charges/statistics/");
-      const data = await response.json();
-      setStats(data);
-    } catch (error) {
-      console.error("Error fetching statistics:", error);
-    }
+  const handleDeleteCharge = (charge: Charge) => {
+    setSelectedCharge(charge);
+    setShowDeleteModal(true);
   };
 
-  // Handle mark as paid
-  const handleMarkAsPaid = async (chargeId: number) => {
-    try {
-      const response = await fetch(
-        `/api/syndic/charges/${chargeId}/mark_paid/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            paid_amount: charges.find((c) => c.id === chargeId)?.amount,
-            paid_date: new Date().toISOString().split("T")[0],
-          }),
-        }
-      );
-
-      if (response.ok) {
-        console.log("Charge marked as paid successfully");
-        fetchCharges();
-        fetchStatistics();
-      } else {
-        throw new Error("Failed to mark as paid");
-      }
-    } catch (error) {
-      console.error("Failed to mark charge as paid:", error);
-    }
+  const handleEditCharge = (charge: Charge) => {
+    setSelectedCharge(charge);
+    setShowEditModal(true);
   };
 
-  // Handle bulk create
   const handleBulkCreate = () => {
-    // Implementation would open a modal or navigate to a bulk create form
-    console.log("Bulk create charges");
+    setShowBulkModal(true);
   };
 
-  // Handle create new charge
   const handleCreateCharge = () => {
-    // Implementation would open a modal or navigate to a create form
-    console.log("Create new charge");
+    setShowAddModal(true);
   };
 
-  // Fetch data on component mount and when filters change
+  const handleClearFilters = async () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setDateRange(undefined);
+    await fetchFilteredCharges({});
+  };
+
+  const handleModalSuccess = async () => {
+    // Refetch charges after any successful modal operation
+    await fetchFilteredCharges({
+      status: statusFilter !== "all" ? statusFilter : undefined,
+      search: searchTerm.trim() || undefined,
+      dateFrom: dateRange?.from
+        ? dateRange.from.toISOString().split("T")[0]
+        : undefined,
+      dateTo: dateRange?.to
+        ? dateRange.to.toISOString().split("T")[0]
+        : undefined,
+    });
+  };
+
+  const handleSearch = useCallback(async () => {
+    const filters = {
+      status: statusFilter !== "all" ? statusFilter : undefined,
+      search: searchTerm.trim() || undefined,
+      dateFrom: dateRange?.from
+        ? dateRange.from.toISOString().split("T")[0]
+        : undefined,
+      dateTo: dateRange?.to
+        ? dateRange.to.toISOString().split("T")[0]
+        : undefined,
+    };
+
+    await fetchFilteredCharges(filters);
+  }, [statusFilter, searchTerm, dateRange, fetchFilteredCharges]);
+
+  // Fetch initial data on mount
   useEffect(() => {
-    fetchCharges();
-    fetchStatistics();
-  }, [statusFilter, dateRange]);
+    fetchFilteredCharges({});
+    refetchStats(); // Fetch stats for initial load
+  }, [fetchFilteredCharges, refetchStats]);
 
   return (
     <SyndicLayout>
-      <ChargeHeader
-        onBulkCreate={handleBulkCreate}
-        onCreateCharge={handleCreateCharge}
+      {loading ? (
+        <ChargeSkeleton />
+      ) : (
+        <>
+          {/* Header */}
+          <ChargeHeader
+            onBulkCreate={handleBulkCreate}
+            onCreateCharge={handleCreateCharge}
+          />
+
+          {/* Stats */}
+          <ChargeStats stats={stats} />
+
+          {/* Filters */}
+          <ChargeFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onSearch={handleSearch}
+            onClearFilters={handleClearFilters}
+          />
+
+          {/* Table */}
+          <ChargeTable
+            charges={charges}
+            loading={loading}
+            onMarkAsPaid={handleMarkPaid}
+            onEditCharge={handleEditCharge}
+            onDeleteCharge={handleDeleteCharge}
+          />
+        </>
+      )}
+
+      {/* Charge Modals */}
+      <ChargeModals
+        showAddModal={showAddModal}
+        setShowAddModal={setShowAddModal}
+        showEditModal={showEditModal}
+        setShowEditModal={setShowEditModal}
+        showDeleteModal={showDeleteModal}
+        setShowDeleteModal={setShowDeleteModal}
+        showBulkModal={showBulkModal}
+        setShowBulkModal={setShowBulkModal}
+        selectedCharge={selectedCharge}
+        createCharge={createCharge}
+        updateCharge={updateCharge}
+        deleteCharge={deleteCharge}
+        bulkCreateCharges={bulkCreateCharges}
+        buildings={buildings}
+        apartments={transformedApartments}
+        onModalSuccess={handleModalSuccess}
       />
 
-      <ChargeStatsComponent stats={stats} />
-
-      <ChargeFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        statusFilter={statusFilter}
-        onStatusChange={setStatusFilter}
-        dateRange={dateRange}
-        onDateRangeChange={setDateRange}
-        onSearch={fetchCharges}
-      />
-
-      <ChargeTable
-        charges={charges}
-        loading={loading}
-        onMarkAsPaid={handleMarkAsPaid}
-      />
+      {/* Success and Error Messages */}
+      {successMessage && <SuccessMessage message={successMessage} />}
+      {errorMessage && (
+        <ErrorMessage message={errorMessage} onClose={clearError} />
+      )}
     </SyndicLayout>
   );
 };

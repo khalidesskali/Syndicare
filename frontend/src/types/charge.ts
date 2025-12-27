@@ -29,3 +29,69 @@ export interface ChargeStats {
   overdue_amount: number;
   collection_rate: number;
 }
+
+export interface CreateChargeRequest {
+  appartement: number;
+  description: string;
+  amount: number;
+  due_date: string;
+}
+
+export interface UpdateChargeRequest extends Partial<CreateChargeRequest> {
+  paid_amount?: number;
+  paid_date?: string;
+  status?: "UNPAID" | "PAID" | "PARTIALLY_PAID";
+}
+
+export interface MarkPaidRequest {
+  paid_amount: number;
+  paid_date?: string;
+}
+
+export interface BulkCreateRequest {
+  building_id: number;
+  description: string;
+  due_date: string;
+}
+
+// Response types
+export interface ChargeResponse {
+  success: boolean;
+  data: Charge;
+  message: string;
+}
+
+export interface ChargesListResponse {
+  success: boolean;
+  data: Charge[];
+  count: number;
+}
+
+export interface ChargeStatsResponse {
+  success: boolean;
+  data: ChargeStats;
+}
+
+export interface BulkCreateResponse {
+  success: boolean;
+  message: string;
+  data: Charge[];
+}
+
+export interface MarkPaidResponse {
+  success: boolean;
+  message: string;
+  data: Charge;
+}
+
+export interface DeleteChargeResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ChargeFilters {
+  status?: string;
+  building_id?: number;
+  apartment_id?: number;
+  overdue?: boolean;
+}
