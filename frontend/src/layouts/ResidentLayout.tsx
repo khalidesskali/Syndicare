@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import ResidentSidebar from "../components/ResidentSidebar";
+import ChatbotWidget from "../components/chatbot/ChatbotWidget";
 import { Bell, Search, Menu, X, LogOut, ChevronDown } from "lucide-react";
 
 interface ResidentLayoutProps {
@@ -107,6 +108,9 @@ const ResidentLayout: React.FC<ResidentLayoutProps> = ({ children }) => {
         {/* Page Content */}
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
+
+      {/* Chatbot Widget */}
+      <ChatbotWidget />
     </div>
   );
 };
