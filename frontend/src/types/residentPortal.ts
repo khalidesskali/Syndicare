@@ -17,11 +17,20 @@ export interface Charge {
 }
 
 export interface Payment {
-  id: string;
-  chargeReference: string;
+  id: number;
+  charge_reference: string;
   amount: number;
-  paymentDate: string;
-  paymentMethod: "CREDIT_CARD" | "BANK_TRANSFER" | "CASH" | "CHECK";
+  payment_date: string;
+  payment_method: "CASH" | "BANK_TRANSFER" | "CHECK" | "CREDIT_CARD";
+  reference?: string;
+  status: "PENDING" | "CONFIRMED" | "REJECTED" | "REFUNDED";
+  appartement: {
+    number: string;
+    building: {
+      name: string;
+    };
+  };
+  created_at: string;
 }
 
 export interface Reclamation {
