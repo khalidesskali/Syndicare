@@ -17,13 +17,6 @@ const ResidentDashboardStats: React.FC<ResidentDashboardStatsProps> = ({
   overdueCharges,
   lastPayment,
 }) => {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "MAD",
-    }).format(amount);
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -40,7 +33,7 @@ const ResidentDashboardStats: React.FC<ResidentDashboardStatsProps> = ({
           <div>
             <p className="text-sm text-slate-600 mb-1">Total Unpaid</p>
             <p className="text-2xl font-bold text-slate-900">
-              {formatCurrency(totalUnpaid)}
+              {totalUnpaid.toFixed(2)} MAD
             </p>
           </div>
           <div className="p-3 bg-red-100 rounded-lg">
@@ -80,7 +73,7 @@ const ResidentDashboardStats: React.FC<ResidentDashboardStatsProps> = ({
             <div className="flex justify-between items-center">
               <span className="text-sm text-slate-600">Amount:</span>
               <span className="font-semibold text-slate-900">
-                {formatCurrency(lastPayment.amount)}
+                {lastPayment.amount.toFixed(2)} MAD
               </span>
             </div>
             <div className="flex justify-between items-center">

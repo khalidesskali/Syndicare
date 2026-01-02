@@ -17,13 +17,6 @@ interface ResidentRecentChargesProps {
 const ResidentRecentCharges: React.FC<ResidentRecentChargesProps> = ({
   charges,
 }) => {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -110,7 +103,7 @@ const ResidentRecentCharges: React.FC<ResidentRecentChargesProps> = ({
 
                 <div className="text-right">
                   <p className="text-lg font-semibold text-slate-900">
-                    {formatCurrency(charge.amount)}
+                    {charge.amount} MAD
                   </p>
                 </div>
               </div>
