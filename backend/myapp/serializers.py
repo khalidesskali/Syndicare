@@ -11,6 +11,7 @@ from .models import (
     ResidentProfile, User
 )
 
+
 User = get_user_model()
 
 
@@ -738,32 +739,45 @@ class ChargeSerializer(serializers.ModelSerializer):
 # RESIDENT PAYMENT SERIALIZERS
 # ============================================
 
+
 class ResidentPaymentSerializer(serializers.ModelSerializer):
-    """
-    Serializer for ResidentPayment model
-    """
-    resident_email = serializers.EmailField(source='resident.email', read_only=True)
-    resident_name = serializers.SerializerMethodField()
-    charge_description = serializers.CharField(source='charge.description', read_only=True)
-    apartment_number = serializers.CharField(source='charge.appartement.number', read_only=True)
-    
     class Meta:
         model = ResidentPayment
         fields = [
             'id',
             'charge',
-            'charge_description',
-            'apartment_number',
-            'resident',
-            'resident_email',
-            'resident_name',
+            'appartement',
             'amount',
             'payment_method',
             'reference',
-            'payment_date',
-            'notes'
+            'paid_at',
+            'status',
+            'created_at'
         ]
-        read_only_fields = ['id', 'payment_date']
-    
-    def get_resident_name(self, obj):
-        return f"{obj.resident.first_name} {obj.resident.last_name}".strip() or obj.resident.email
+        read_only_fields = ['status', 'created_at']
+
+    def validate(self, data):
+        user = self.context['request'].user
+        appartement = data['appartement']
+        charge = data['charge']
+
+        # Ensure apartment belongs to resident
+        if not user.appartements.filter(id=appartement.id).exists():
+            raise serializers.ValidationError("This apartment does not belong to you.")
+
+        # Ensure charge belongs to apartment
+        if charge.appartement_id != appartement.id:
+            raise serializers.ValidationError("Charge does not belong to this apartment.")
+
+        return data
+
+class ResidentPaymentCreateSerializer(serializers.Serializer):
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = serializers.ChoiceField(
+        choices=ResidentPayment.PAYMENT_METHODS
+    )
+    reference = serializers.CharField(
+        required=False,
+        allow_blank=True
+    )
+    paid_at = serializers.DateTimeField(required=False)

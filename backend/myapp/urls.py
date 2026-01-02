@@ -21,8 +21,10 @@ from .views import (
     ResidentViewSet,
     ReclamationViewSet,
     ReunionViewSet,
-    ChargeViewSet
-)
+    ChargeViewSet,
+    ResidentPaymentViewSet,
+    ResidentChargeViewSet
+) 
 
 router = DefaultRouter()
 router.register(r'admin/syndics', SyndicAdminViewSet, basename='admin-syndic')
@@ -37,6 +39,15 @@ router.register(r'syndic/residents', ResidentViewSet, basename='syndic-resident'
 router.register(r'syndic/reclamations', ReclamationViewSet, basename='syndic-reclamation')
 router.register(r'syndic/reunions', ReunionViewSet, basename='syndic-reunion')
 router.register(r'syndic/charges', ChargeViewSet, basename='syndic-charge')
+
+# Resident endpoints
+router.register(r'resident/payments', ResidentPaymentViewSet, basename='resident-payment')
+router.register(
+    r'resident/charges',
+    ResidentChargeViewSet,
+    basename='resident-charge'
+)
+
 
 urlpatterns = [
     # Authentication endpoints

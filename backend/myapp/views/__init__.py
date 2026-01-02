@@ -53,6 +53,14 @@ from .charges import (
     ChargeViewSet
 )
 
+from .resident_payment import (
+    ResidentPaymentViewSet
+)
+
+from .resident_charge import (
+    ResidentChargeViewSet
+)
+
 __all__ = [
     # Authentication views
     'CustomTokenObtainPairView',
@@ -82,4 +90,7 @@ __all__ = [
     'ImmeubleViewSet',
     'AppartementViewSet',
     'ResidentViewSet',
+    'ChargeViewSet',
+    'ResidentPaymentViewSet',
+    'ResidentChargeViewSet',
 ]
