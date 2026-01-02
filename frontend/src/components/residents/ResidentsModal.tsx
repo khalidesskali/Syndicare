@@ -2,8 +2,6 @@ import { useState } from "react";
 import { FormModal, type FormField } from "../ui/form-modal";
 import { SuccessMessage } from "../ui/success-message";
 import { ErrorMessage } from "../ui/error-message";
-import { useBuilding } from "../../hooks/useBuilding";
-import { useApartment } from "../../hooks/useApartment";
 import type {
   Resident,
   CreateResidentRequest,
@@ -29,9 +27,6 @@ export function ResidentsModal({
 }: ResidentsModalProps) {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { buildings } = useBuilding();
-  const { apartments } = useApartment();
-
   const formFields: FormField[] = [
     {
       name: "first_name",

@@ -38,97 +38,48 @@ class ResidentChargeViewSet(viewsets.ReadOnlyModelViewSet):
     def pay(self, request, pk=None):
         """
         POST /api/resident/charges/{id}/pay/
-
+    
         Body:
         {
-            "amount": 300,
             "payment_method": "BANK_TRANSFER",
-            "reference": "BMCE-2394023",
-            "paid_at": "2026-01-01"   # optional
+            "reference": "BMCE-2394023"
         }
         """
-
+    
         charge = self.get_object()
         user = request.user
-
-        # Ownership check (multi-apartment safe)
+    
+        # Ownership check
         if charge.appartement.resident != user:
             return Response(
-                {
-                    "success": False,
-                    "message": "You do not have permission to pay this charge"
-                },
+                {"success": False, "message": "You do not have permission to pay this charge"},
                 status=status.HTTP_403_FORBIDDEN
             )
-
+    
         if charge.status == "PAID":
             return Response(
-                {
-                    "success": False,
-                    "message": "This charge is already fully paid"
-                },
+                {"success": False, "message": "This charge is already paid"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-        amount = request.data.get("amount")
+    
         payment_method = request.data.get("payment_method")
         reference = request.data.get("reference")
-        paid_at = request.data.get("paid_at")
-
-        if amount is None or payment_method is None:
+    
+        if not payment_method:
             return Response(
-                {
-                    "success": False,
-                    "message": "Amount and payment_method are required"
-                },
+                {"success": False, "message": "payment_method is required"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-        try:
-            amount = Decimal(str(amount))
-        except (InvalidOperation, TypeError):
-            return Response(
-                {
-                    "success": False,
-                    "message": "Invalid amount format"
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
+    
+        # Full remaining amount is paid (resident does not choose)
+        amount = charge.amount - charge.paid_amount
+    
         if amount <= 0:
             return Response(
-                {
-                    "success": False,
-                    "message": "Payment amount must be greater than zero"
-                },
+                {"success": False, "message": "No remaining amount to pay"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-        remaining_amount = charge.amount - charge.paid_amount
-
-        if amount > remaining_amount:
-            return Response(
-                {
-                    "success": False,
-                    "message": "Payment exceeds remaining charge amount"
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        if paid_at:
-            try:
-                paid_at = timezone.datetime.fromisoformat(paid_at)
-            except ValueError:
-                return Response(
-                    {
-                        "success": False,
-                        "message": "Invalid paid_at format (ISO 8601 required)"
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        else:
-            paid_at = timezone.now()
-
+    
         payment = ResidentPayment.objects.create(
             resident=user,
             syndic=charge.appartement.immeuble.syndic,
@@ -137,10 +88,15 @@ class ResidentChargeViewSet(viewsets.ReadOnlyModelViewSet):
             amount=amount,
             payment_method=payment_method,
             reference=reference,
-            paid_at=paid_at,
-            status="PENDING"
+            paid_at=timezone.now(),
+            status="PENDING",
+            notes=""
         )
-
+    
+        # Update charge amounts (business consistency)
+        charge.paid_amount += amount
+        charge.save(update_fields="paid_amount")
+    
         return Response(
             {
                 "success": True,
@@ -149,7 +105,6 @@ class ResidentChargeViewSet(viewsets.ReadOnlyModelViewSet):
                     "payment_id": payment.id,
                     "charge_id": charge.id,
                     "amount": float(payment.amount),
-                    "remaining_amount": float(remaining_amount - amount),
                     "payment_status": payment.status
                 }
             },

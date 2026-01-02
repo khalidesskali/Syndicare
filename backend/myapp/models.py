@@ -510,6 +510,12 @@ class ResidentPayment(models.Model):
         help_text="Date the resident claims payment was made"
     )
 
+    notes = models.TextField(
+        blank=True,
+        default='',
+        help_text="Additional notes about the payment"
+    )
+
     confirmed_at = models.DateTimeField(
         blank=True,
         null=True,

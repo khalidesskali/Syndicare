@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Filter, Eye } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Filter, Eye, CreditCard } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -9,18 +9,53 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { mockCharges } from "../../data/mockData";
+import { Alert, AlertDescription } from "../../components/ui/alert";
+import { PaymentModal } from "@/components/residents/PaymentModal";
+import { useResidentCharges } from "../../hooks/useResidentCharges";
 import type { Charge } from "../../types/residentPortal";
 
 const Charges: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<Charge["status"] | "ALL">(
     "ALL"
   );
+  const [selectedCharge, setSelectedCharge] = useState<Charge | null>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-  const filteredCharges =
-    statusFilter === "ALL"
-      ? mockCharges
-      : mockCharges.filter((charge) => charge.status === statusFilter);
+  const {
+    loading,
+    successMessage,
+    errorMessage,
+    payingChargeId,
+    fetchCharges,
+    payCharge,
+    getFilteredCharges,
+    getChargeStats,
+  } = useResidentCharges();
+
+  useEffect(() => {
+    fetchCharges();
+  }, [fetchCharges]);
+
+  const filteredCharges = getFilteredCharges(statusFilter);
+  const stats = getChargeStats();
+
+  const handlePayCharge = (charge: Charge) => {
+    setSelectedCharge(charge);
+    setIsPaymentModalOpen(true);
+  };
+
+  const handlePaymentSubmit = async (paymentData: any) => {
+    if (!selectedCharge) return false;
+    return await payCharge(selectedCharge.id, paymentData);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   const getStatusBadge = (status: Charge["status"]) => {
     const variants = {
@@ -32,16 +67,31 @@ const Charges: React.FC = () => {
     return <Badge variant={variants[status]}>{status}</Badge>;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">My Charges</h1>
+          <p className="text-slate-600 mt-2">Loading your charges...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
+      {/* Messages */}
+      {successMessage && (
+        <Alert>
+          <AlertDescription>{successMessage}</AlertDescription>
+        </Alert>
+      )}
+      {errorMessage && (
+        <Alert variant="destructive">
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+
       <div>
         <h1 className="text-3xl font-bold text-slate-900">My Charges</h1>
         <p className="text-slate-600 mt-2">
@@ -119,10 +169,10 @@ const Charges: React.FC = () => {
                       {charge.description}
                     </td>
                     <td className="p-2 text-sm font-semibold">
-                      {charge.amount}DH
+                      {charge.amount} MAD
                     </td>
                     <td className="p-2 text-sm">
-                      {formatDate(charge.dueDate)}
+                      {formatDate(charge.due_date)}
                     </td>
                     <td className="p-2 text-sm">
                       {getStatusBadge(charge.status)}
@@ -131,10 +181,30 @@ const Charges: React.FC = () => {
                       {charge.reference}
                     </td>
                     <td className="p-2 text-sm">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="mr-1 h-3 w-3" />
-                        View Details
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="hover:text-blue-700 hover:bg-blue-50 bg-blue-50 text-blue-700"
+                        >
+                          <Eye className="mr-1 h-3 w-3" />
+                          View Details
+                        </Button>
+                        {charge.status !== "PAID" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handlePayCharge(charge)}
+                            disabled={payingChargeId === charge.id}
+                            className="bg-indigo-600 text-white hover:bg-indigo-700 hover:text-white"
+                          >
+                            <CreditCard className="mr-1 h-3 w-3" />
+                            {payingChargeId === charge.id
+                              ? "Processing..."
+                              : "Pay"}
+                          </Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -161,33 +231,32 @@ const Charges: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="text-center p-4 border rounded-lg">
               <p className="text-sm text-muted-foreground">Total Charges</p>
-              <p className="text-2xl font-bold">
-                {mockCharges.reduce((sum, charge) => sum + charge.amount, 0)}DH
-              </p>
+              <p className="text-2xl font-bold">{stats.totalAmount} MAD</p>
             </div>
             <div className="text-center p-4 border rounded-lg">
               <p className="text-sm text-muted-foreground">Unpaid Amount</p>
               <p className="text-2xl font-bold text-yellow-600">
-                {mockCharges
-                  .filter(
-                    (c) => c.status === "UNPAID" || c.status === "OVERDUE"
-                  )
-                  .reduce((sum, charge) => sum + charge.amount, 0)}
-                DH
+                {stats.unpaidAmount} MAD
               </p>
             </div>
             <div className="text-center p-4 border rounded-lg">
               <p className="text-sm text-muted-foreground">Paid Amount</p>
               <p className="text-2xl font-bold text-green-600">
-                {mockCharges
-                  .filter((c) => c.status === "PAID")
-                  .reduce((sum, charge) => sum + charge.amount, 0)}
-                DH
+                {stats.paidAmount} MAD
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        charge={selectedCharge}
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onPayment={handlePaymentSubmit}
+        isProcessing={payingChargeId !== null}
+      />
     </div>
   );
 };

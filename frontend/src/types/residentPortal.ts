@@ -1,10 +1,19 @@
 export interface Charge {
-  id: string;
+  id: number;
   description: string;
   amount: number;
-  dueDate: string;
+  due_date: string;
   status: "PAID" | "UNPAID" | "OVERDUE";
   reference: string;
+  appartement: {
+    id: number;
+    number: string;
+    building: {
+      name: string;
+    };
+  };
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Payment {
