@@ -22,6 +22,7 @@ const Syndics: React.FC = () => {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [selectedSyndic, setSelectedSyndic] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -34,6 +35,7 @@ const Syndics: React.FC = () => {
     stats,
     createSyndic,
     updateSyndic,
+    deleteSyndic,
   } = useSyndics();
 
   useEffect(() => {
@@ -47,6 +49,11 @@ const Syndics: React.FC = () => {
   const handleEdit = (syndic: any) => {
     setSelectedSyndic(syndic);
     setIsEditModalOpen(true);
+  };
+
+  const handleDelete = (syndic: any) => {
+    setSelectedSyndic(syndic);
+    setIsDeleteModalOpen(true);
   };
 
   const handleAddSyndic = async (data: Record<string, any>) => {
@@ -78,6 +85,26 @@ const Syndics: React.FC = () => {
       return true;
     } catch (error) {
       console.error("Error editing syndic:", error);
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteSyndic = async () => {
+    if (!selectedSyndic?.id) {
+      console.error("No syndic selected for deletion");
+      return false;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await deleteSyndic(selectedSyndic.id);
+      setIsDeleteModalOpen(false);
+      setSelectedSyndic(null);
+      return true;
+    } catch (error) {
+      console.error("Error deleting syndic:", error);
       return false;
     } finally {
       setIsSubmitting(false);
@@ -146,7 +173,7 @@ const Syndics: React.FC = () => {
         error={error}
         pagination={pagination}
         onEdit={handleEdit}
-        onDelete={() => {}}
+        onDelete={handleDelete}
         onPageChange={handlePageChange}
         formatDate={formatDate}
         timeSince={timeSince}
@@ -175,6 +202,29 @@ const Syndics: React.FC = () => {
         loading={isSubmitting}
         submitText="Update Syndic"
         size="md"
+      />
+
+      {/* Delete Confirmation Modal */}
+      <FormModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Delete Syndic"
+        fields={[
+          {
+            name: "confirm",
+            label: `Are you sure you want to delete ${
+              selectedSyndic?.first_name || "this syndic"
+            } ${
+              selectedSyndic?.last_name || ""
+            }? This action cannot be undone.`,
+            type: "textarea",
+            required: false,
+          },
+        ]}
+        onSubmit={handleDeleteSyndic}
+        loading={isSubmitting}
+        submitText="Delete Syndic"
+        size="sm"
       />
     </AdminLayout>
   );
