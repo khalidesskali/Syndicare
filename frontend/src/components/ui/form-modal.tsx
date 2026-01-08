@@ -68,14 +68,14 @@ export function FormModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showCalendar, setShowCalendar] = useState<string | null>(null);
 
-  // Reset form when initial data changes or modal opens
+  // Reset form when modal opens
   React.useEffect(() => {
     if (isOpen) {
       setFormData(initialData);
       setErrors({});
       setShowCalendar(null);
     }
-  }, [initialData, isOpen]);
+  }, [isOpen]);
 
   const validateField = (field: FormField, value: any): string | null => {
     if (field.required && (!value || value === "")) {
@@ -283,27 +283,26 @@ export function FormModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {fields.map(renderField)}
           </div>
-        </form>
 
-        <DialogFooter className="flex space-x-3 pt-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            className="border-slate-200 text-slate-700 hover:bg-slate-50"
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            onClick={handleSubmit}
-            className="bg-green-600 hover:bg-green-700 text-white shadow-sm"
-            disabled={loading}
-          >
-            {loading ? "Processing..." : submitText}
-          </Button>
-        </DialogFooter>
+          <DialogFooter className="flex space-x-3 pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="border-slate-200 text-slate-700 hover:bg-slate-50"
+              disabled={loading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="bg-green-600 hover:bg-green-700 text-white shadow-sm"
+              disabled={loading}
+            >
+              {loading ? "Processing..." : submitText}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
