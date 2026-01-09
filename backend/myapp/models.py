@@ -208,7 +208,7 @@ class Payment(models.Model):
     notes = models.TextField(blank=True)
     rib = models.CharField(max_length=34, blank=True, null=True, help_text="RIB for bank transfers")
     payment_proof = models.FileField(
-        upload_to='payment_proofs/',
+        upload_to='',
         blank=True,
         null=True,
         help_text="Upload payment proof (receipt, screenshot, etc.)"

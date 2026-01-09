@@ -294,9 +294,10 @@ const Payments: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {payment.paymentProof ? (
                           <button
-                            onClick={() =>
-                              window.open(payment.paymentProof, "_blank")
-                            }
+                            onClick={() => {
+                              console.log(payment.paymentProof);
+                              window.open(payment.paymentProof, "_blank");
+                            }}
                             className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                           >
                             View Proof

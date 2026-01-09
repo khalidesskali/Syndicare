@@ -116,7 +116,9 @@ export function PaymentTable({
                   <TableCell className="text-sm text-muted-foreground">
                     {payment.paid_at
                       ? format(new Date(payment.paid_at), "MMM d, yyyy")
-                      : format(new Date(payment.created_at), "MMM d, yyyy")}
+                      : payment.created_at
+                      ? format(new Date(payment.created_at), "MMM d, yyyy")
+                      : "N/A"}
                   </TableCell>
                   <TableCell>
                     <Badge
