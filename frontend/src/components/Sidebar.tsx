@@ -5,8 +5,6 @@ import {
   Users,
   CreditCard,
   DollarSign,
-  Settings,
-  Bell,
   Shield,
   ChevronRight,
 } from "lucide-react";
@@ -31,6 +29,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
           name: "Subscriptions",
           icon: CreditCard,
           path: "/admin/subscriptions",
+        },
+        {
+          name: "Subscription Assignment",
+          icon: Shield,
+          path: "/admin/subscription-assignment",
         },
         { name: "Payments", icon: DollarSign, path: "/admin/payments" },
       ],

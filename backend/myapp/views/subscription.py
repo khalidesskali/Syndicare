@@ -197,6 +197,40 @@ class SubscriptionPlanAdminViewSet(viewsets.ModelViewSet):
 
 
 # ============================================
+# SYNDIC SUBSCRIPTION PLANS VIEW
+# ============================================
+
+class SubscriptionPlanViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for syndics to view available subscription plans
+    Only accessible by authenticated syndics
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionPlanSerializer
+    queryset = SubscriptionPlan.objects.all()
+
+    def get_queryset(self):
+        """
+        Only return active plans for syndics
+        """
+        return SubscriptionPlan.objects.filter(is_active=True).order_by('price')
+
+    def list(self, request, *args, **kwargs):
+        """
+        List all active subscription plans for syndics
+        GET /api/syndic/subscription-plans/
+        """
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        
+        return Response({
+            'success': True,
+            'results': serializer.data,
+            'count': queryset.count()
+        })
+
+
+# ============================================
 # SUBSCRIPTIONS MANAGEMENT
 # ============================================
 
@@ -468,6 +502,136 @@ class SubscriptionAdminViewSet(viewsets.ModelViewSet):
             'success': True,
             'message': 'Subscription activated successfully',
             'data': self.get_serializer(subscription).data
+        })
+
+    @action(detail=False, methods=['post'])
+    def assign_subscription(self, request):
+        """
+        Assign subscription plan to syndic
+        POST /api/admin/subscription-assignment/assign_subscription/
+        """
+        syndic_id = request.data.get('syndic_id')
+        plan_id = request.data.get('plan_id')
+        start_date = request.data.get('start_date')
+        
+        if not syndic_id or not plan_id:
+            return Response({
+                'success': False,
+                'message': 'Syndic ID and plan ID are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Get syndic and plan
+            syndic = User.objects.get(id=syndic_id, role='SYNDIC')
+            syndic_profile = syndic.syndic_profile
+            plan = SubscriptionPlan.objects.get(id=plan_id, is_active=True)
+            
+            # Calculate end date
+            if not start_date:
+                start_date = timezone.now().date()
+            else:
+                start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            
+            end_date = start_date + timedelta(days=plan.duration_days)
+            
+            # Create or update subscription
+            subscription, created = Subscription.objects.update_or_create(
+                syndic_profile=syndic_profile,
+                defaults={
+                    'plan': plan,
+                    'start_date': start_date,
+                    'end_date': end_date,
+                    'status': 'ACTIVE'
+                }
+            )
+            
+            # Create initial payment record
+            Payment.objects.create(
+                subscription=subscription,
+                amount=plan.price,
+                payment_method='BANK_TRANSFER',  # Default method
+                status='PENDING',
+                notes=f'Initial subscription payment for {plan.name}',
+                processed_by=request.user
+            )
+            
+            serializer = self.get_serializer(subscription)
+            return Response({
+                'success': True,
+                'message': 'Subscription assigned successfully',
+                'data': serializer.data
+            }, status=status.HTTP_201_CREATED)
+            
+        except User.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Syndic not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except SubscriptionPlan.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Subscription plan not found or inactive'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'])
+    def syndics_with_subscriptions(self, request):
+        """
+        Get all syndics with their subscription status
+        GET /api/admin/subscription-assignment/syndics_with_subscriptions/
+        """
+        syndics = User.objects.filter(role='SYNDIC').select_related('syndic_profile').prefetch_related(
+            'syndic_profile__subscription__plan'
+        )
+        
+        data = []
+        for syndic in syndics:
+            try:
+                subscription = syndic.syndic_profile.subscription
+                sub_data = None
+                if subscription:
+                    sub_data = {
+                        'id': subscription.id,
+                        'plan': {
+                            'id': subscription.plan.id,
+                            'name': subscription.plan.name,
+                            'price': str(subscription.plan.price),
+                            'duration_days': subscription.plan.duration_days
+                        },
+                        'start_date': subscription.start_date,
+                        'end_date': subscription.end_date,
+                        'status': subscription.status,
+                        'days_remaining': subscription.days_remaining,
+                        'is_active': subscription.is_active
+                    }
+                
+                data.append({
+                    'id': syndic.id,
+                    'email': syndic.email,
+                    'first_name': syndic.first_name,
+                    'last_name': syndic.last_name,
+                    'syndic_profile': {
+                        'subscription': sub_data
+                    }
+                })
+            except:
+                data.append({
+                    'id': syndic.id,
+                    'email': syndic.email,
+                    'first_name': syndic.first_name,
+                    'last_name': syndic.last_name,
+                    'syndic_profile': {
+                        'subscription': None
+                    }
+                })
+        
+        return Response({
+            'success': True,
+            'data': data
         })
 
     @action(detail=False, methods=['get'])

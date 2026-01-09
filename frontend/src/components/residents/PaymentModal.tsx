@@ -40,8 +40,6 @@ interface PaymentModalProps {
 const PAYMENT_METHODS = [
   { value: "CASH", label: "Cash" },
   { value: "BANK_TRANSFER", label: "Bank Transfer" },
-  { value: "CHECK", label: "Check" },
-  { value: "CREDIT_CARD", label: "Credit Card" },
 ] as const;
 
 export const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -151,7 +149,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     reference: e.target.value,
                   }))
                 }
-                placeholder="Transaction reference, check number, etc."
+                placeholder="Transaction reference, etc."
               />
             </div>
 

@@ -47,9 +47,8 @@ def admin_dashboard(request):
     # Conversion rate (percentage of syndics with active subscriptions)
     conversion_rate = round((active_subscriptions / total_syndics * 100), 1) if total_syndics > 0 else 0
     
-    # 3. Monthly Revenue
+    # 3. Monthly Revenue (include all payments: pending + completed)
     current_month_payments = Payment.objects.filter(
-        status='COMPLETED',
         payment_date__gte=current_month_start
     )
     monthly_revenue = current_month_payments.aggregate(
@@ -58,7 +57,6 @@ def admin_dashboard(request):
     
     # Last month revenue for comparison
     last_month_payments = Payment.objects.filter(
-        status='COMPLETED',
         payment_date__gte=last_month_start,
         payment_date__lt=current_month_start
     )
@@ -103,7 +101,11 @@ def admin_dashboard(request):
             time_ago = f"{time_diff.days} day{'s' if time_diff.days > 1 else ''} ago"
         else:
             hours = time_diff.seconds // 3600
-            time_ago = f"{hours} hour{'s' if hours > 1 else ''} ago"
+            minutes = (time_diff.seconds % 3600) // 60
+            if hours > 0:
+                time_ago = f"{hours} hour{'s' if hours > 1 else ''} ago"
+            else:
+                time_ago = f"{minutes} minute{'s' if minutes > 1 else ''} ago"
         
         recent_syndics_data.append({
             'id': syndic.id,
@@ -133,7 +135,14 @@ def admin_dashboard(request):
             time_ago = f"{time_diff.days} day{'s' if time_diff.days > 1 else ''} ago"
         else:
             hours = time_diff.seconds // 3600
-            time_ago = f"{hours} hour{'s' if hours > 1 else ''} ago"
+            minutes = (time_diff.seconds % 3600) // 60
+            seconds = (time_diff.seconds % 60)
+            if hours > 0:
+                time_ago = f"{hours} hour{'s' if hours > 1 else ''} ago"
+            elif minutes > 0:
+                time_ago = f"{minutes} minute{'s' if minutes > 1 else ''} ago"
+            else:
+                time_ago = f"{seconds} second{'s' if seconds > 1 else ''} ago"
         
         recent_payments_data.append({
             'id': payment.id,

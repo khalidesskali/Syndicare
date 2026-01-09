@@ -45,7 +45,7 @@ const syndicPaymentAPI = {
     building_id?: string;
     apartment_id?: string;
     payment_method?: string;
-    search?: string;
+    searchTerm?: string;
   }): Promise<SyndicPayment[]> => {
     const params = new URLSearchParams();
     if (filters) {

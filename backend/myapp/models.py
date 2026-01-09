@@ -91,6 +91,13 @@ class SyndicProfile(models.Model):
         limit_choices_to={'role': 'SYNDIC'}
     )
     
+    rib = models.CharField(
+        max_length=34,
+        blank=True,
+        null=True,
+        help_text="RIB (Bank Identifier) for bank transfers"
+    )
+    
     class Meta:
         verbose_name = 'Syndic Profile'
         verbose_name_plural = 'Syndic Profiles'
@@ -178,10 +185,7 @@ class Payment(models.Model):
     Payment records for Syndic subscriptions - Managed by Admin
     """
     PAYMENT_METHOD_CHOICES = [
-        ('CASH', 'Cash'),
         ('BANK_TRANSFER', 'Bank Transfer'),
-        ('CHECK', 'Check'),
-        ('CARD', 'Card'),
     ]
     
     STATUS_CHOICES = [
@@ -197,11 +201,18 @@ class Payment(models.Model):
         related_name='payments'
     )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='BANK_TRANSFER')
     payment_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     reference = models.CharField(max_length=100, blank=True)
     notes = models.TextField(blank=True)
+    rib = models.CharField(max_length=34, blank=True, null=True, help_text="RIB for bank transfers")
+    payment_proof = models.FileField(
+        upload_to='payment_proofs/',
+        blank=True,
+        null=True,
+        help_text="Upload payment proof (receipt, screenshot, etc.)"
+    )
     processed_by = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -446,10 +457,7 @@ User = get_user_model()
 
 class ResidentPayment(models.Model):
     PAYMENT_METHODS = [
-        ('CASH', 'Cash'),
         ('BANK_TRANSFER', 'Bank Transfer'),
-        ('CHECK', 'Check'),
-        ('ONLINE', 'Online'),
     ]
 
     PAYMENT_STATUS = [
@@ -513,13 +521,27 @@ class ResidentPayment(models.Model):
     notes = models.TextField(
         blank=True,
         default='',
-        help_text="Additional notes about the payment"
+        help_text="Additional notes about payment"
+    )
+
+    rib = models.CharField(
+        max_length=34,
+        blank=True,
+        null=True,
+        help_text="RIB for bank transfers"
+    )
+
+    payment_proof = models.FileField(
+        upload_to='resident_payment_proofs/',
+        blank=True,
+        null=True,
+        help_text="Upload payment proof (receipt, screenshot, etc.)"
     )
 
     confirmed_at = models.DateTimeField(
         blank=True,
         null=True,
-        help_text="Date the syndic confirmed the payment"
+        help_text="Date syndic confirmed payment"
     )
 
     created_at = models.DateTimeField(auto_now_add=True)

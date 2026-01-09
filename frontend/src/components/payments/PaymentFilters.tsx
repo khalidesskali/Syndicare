@@ -82,8 +82,6 @@ export function PaymentFilters({
                 <SelectItem value="all">All Methods</SelectItem>
                 <SelectItem value="CASH">Cash</SelectItem>
                 <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
-                <SelectItem value="CHECK">Check</SelectItem>
-                <SelectItem value="ONLINE">Online</SelectItem>
               </SelectContent>
             </Select>
 

@@ -352,6 +352,8 @@ class PaymentSerializer(serializers.ModelSerializer):
             'status',
             'reference',
             'notes',
+            'rib',
+            'payment_proof',
             'processed_by',
             'processed_by_email',
             'processed_by_name'

@@ -1,4 +1,6 @@
 export interface Payment {
+  [x: string]: ReactNode;
+  syndic_name: ReactNode;
   id: string;
   subscriptionId: string;
   amount: number;
@@ -9,6 +11,8 @@ export interface Payment {
   notes?: string;
   paymentDate: string;
   processedBy: string;
+  paymentProof?: string;
+  rib?: string;
   subscription?: {
     id: string;
     planName: string;

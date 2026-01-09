@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     SyndicAdminViewSet,
     SubscriptionPlanAdminViewSet,
+    SubscriptionPlanViewSet,
     SubscriptionAdminViewSet,
     PaymentAdminViewSet,
     CustomTokenObtainPairView,
@@ -31,10 +32,11 @@ from .views import (
 router = DefaultRouter()
 router.register(r'admin/syndics', SyndicAdminViewSet, basename='admin-syndic')
 router.register(r'admin/subscription-plans', SubscriptionPlanAdminViewSet, basename='admin-subscription-plan')
-router.register(r'admin/subscriptions', SubscriptionAdminViewSet, basename='admin-subscription')
+router.register(r'admin/subscription-assignment', SubscriptionAdminViewSet, basename='admin-subscription-assignment')
 router.register(r'admin/payments', PaymentAdminViewSet, basename='admin-payment')
 
 # Syndic endpoints
+router.register(r'syndic/subscription-plans', SubscriptionPlanViewSet, basename='syndic-subscription-plan')
 router.register(r'syndic/buildings', ImmeubleViewSet, basename='syndic-building')
 router.register(r'syndic/apartments', AppartementViewSet, basename='syndic-apartment')
 router.register(r'syndic/residents', ResidentViewSet, basename='syndic-resident')

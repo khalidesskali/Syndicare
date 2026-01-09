@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CreditCard, Banknote, Building2, FileText } from "lucide-react";
+import { Banknote, Building2 } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -54,20 +54,16 @@ const Payments: React.FC = () => {
 
   const getPaymentMethodIcon = (method: Payment["payment_method"]) => {
     const icons = {
-      CREDIT_CARD: CreditCard,
       BANK_TRANSFER: Building2,
       CASH: Banknote,
-      CHECK: FileText,
     };
     return icons[method];
   };
 
   const getPaymentMethodBadge = (method: Payment["payment_method"]) => {
     const variants = {
-      CREDIT_CARD: "default",
       BANK_TRANSFER: "secondary",
       CASH: "outline",
-      CHECK: "destructive",
       PENDING: "secondary",
       CONFIRMED: "default",
       REJECTED: "destructive",
@@ -183,7 +179,7 @@ const Payments: React.FC = () => {
             <CardDescription>Complete payment history</CardDescription>
           </div>
           <div className="bg-green-100 rounded-lg p-3">
-            <CreditCard className="h-8 w-8 text-green-600" />
+            <Banknote className="h-8 w-8 text-green-600" />
           </div>
         </CardHeader>
         <CardContent>
@@ -261,37 +257,35 @@ const Payments: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {(["CREDIT_CARD", "BANK_TRANSFER", "CASH", "CHECK"] as const).map(
-              (method) => {
-                const methodPayments = (payments || []).filter(
-                  (p) => p.payment_method === method
-                );
-                const total = methodPayments.reduce(
-                  (sum, p) => sum + Number(p.amount),
-                  0
-                );
-                const Icon = getPaymentMethodIcon(method);
+            {(["BANK_TRANSFER", "CASH"] as const).map((method) => {
+              const methodPayments = (payments || []).filter(
+                (p) => p.payment_method === method
+              );
+              const total = methodPayments.reduce(
+                (sum, p) => sum + Number(p.amount),
+                0
+              );
+              const Icon = getPaymentMethodIcon(method);
 
-                return (
-                  <Card key={method}>
-                    <CardContent className="pt-6">
-                      <div className="text-center">
-                        <Icon className="h-8 w-8 mx-auto mb-2 text-slate-600" />
-                        <p className="text-sm text-muted-foreground">
-                          {method.replace("_", " ")}
-                        </p>
-                        <p className="text-lg font-bold">
-                          {total.toFixed(2)} MAD
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {methodPayments.length} transactions
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              }
-            )}
+              return (
+                <Card key={method}>
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <Icon className="h-8 w-8 mx-auto mb-2 text-slate-600" />
+                      <p className="text-sm text-muted-foreground">
+                        {method.replace("_", " ")}
+                      </p>
+                      <p className="text-lg font-bold">
+                        {total.toFixed(2)} MAD
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {methodPayments.length} transactions
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </CardContent>
       </Card>

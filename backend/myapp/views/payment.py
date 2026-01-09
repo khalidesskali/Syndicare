@@ -184,6 +184,380 @@ class PaymentAdminViewSet(viewsets.ModelViewSet):
             'data': self.get_serializer(payment).data
         })
 
+    @action(detail=True, methods=['post'])
+    def syndic_make_payment(self, request):
+        """
+        Create a new payment from syndic
+        POST /api/syndic/payments/
+        """
+        syndic_id = request.data.get('syndic_id')
+        amount = request.data.get('amount')
+        payment_method = request.data.get('payment_method')
+        reference = request.data.get('reference')
+        notes = request.data.get('notes')
+        subscription_id = request.data.get('subscription_id')
+        
+        if not syndic_id or not amount or not payment_method:
+            return Response({
+                'success': False,
+                'message': 'Syndic ID, amount, and payment method are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Get syndic user and profile
+            syndic = User.objects.get(id=syndic_id, role='SYNDIC')
+            syndic_profile = syndic.syndic_profile
+            
+            # Get subscription if provided
+            subscription = None
+            if subscription_id:
+                subscription = Subscription.objects.get(id=subscription_id)
+            
+            # Create payment
+            payment = Payment.objects.create(
+                subscription=subscription,
+                amount=amount,
+                payment_method=payment_method,
+                reference=reference,
+                notes=notes,
+                status='PENDING',
+                processed_by=request.user
+            )
+            
+            serializer = self.get_serializer(payment)
+            return Response({
+                'success': True,
+                'message': 'Payment submitted successfully',
+                'data': serializer.data
+            }, status=status.HTTP_201_CREATED)
+            
+        except User.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Syndic not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Subscription.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Subscription not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def approve_syndic_payment(self, request, pk=None):
+        """
+        Approve a pending payment from syndic
+        POST /api/syndic/payments/{id}/approve/
+        """
+        payment = self.get_object()
+        
+        if payment.status != 'PENDING':
+            return Response({
+                'success': False,
+                'message': 'Only pending payments can be approved'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        payment.status = 'COMPLETED'
+        payment.save()
+        
+        return Response({
+            'success': True,
+            'message': 'Payment approved successfully',
+            'data': self.get_serializer(payment).data
+        })
+
+    @action(detail=True, methods=['post'])
+    def reject_syndic_payment(self, request, pk=None):
+        """
+        Reject a pending payment from syndic
+        POST /api/syndic/payments/{id}/reject/
+        """
+        payment = self.get_object()
+        reason = request.data.get('reason')
+        
+        if payment.status != 'PENDING':
+            return Response({
+                'success': False,
+                'message': 'Only pending payments can be rejected'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not reason:
+            return Response({
+                'success': False,
+                'message': 'Rejection reason is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        payment.status = 'FAILED'
+        payment.notes += f"\nRejected on {timezone.now().date()}: {reason}"
+        payment.save()
+        
+        return Response({
+            'success': True,
+            'message': 'Payment rejected successfully',
+            'data': self.get_serializer(payment).data
+        })
+
+    @action(detail=False, methods=['post'])
+    def assign_subscription(self, request):
+        """
+        Assign subscription plan to syndic
+        POST /api/admin/subscription-assignment/assign_subscription/
+        """
+        syndic_id = request.data.get('syndic_id')
+        plan_id = request.data.get('plan_id')
+        start_date = request.data.get('start_date')
+        
+        if not syndic_id or not plan_id:
+            return Response({
+                'success': False,
+                'message': 'Syndic ID and plan ID are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Get syndic and plan
+            syndic = User.objects.get(id=syndic_id, role='SYNDIC')
+            syndic_profile = syndic.syndic_profile
+            plan = SubscriptionPlan.objects.get(id=plan_id, is_active=True)
+            
+            # Calculate end date
+            if not start_date:
+                start_date = timezone.now().date()
+            else:
+                start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            
+            end_date = start_date + timedelta(days=plan.duration_days)
+            
+            # Create or update subscription
+            subscription, created = Subscription.objects.update_or_create(
+                syndic_profile=syndic_profile,
+                defaults={
+                    'plan': plan,
+                    'start_date': start_date,
+                    'end_date': end_date,
+                    'status': 'ACTIVE'
+                }
+            )
+            
+            # Create initial payment record
+            Payment.objects.create(
+                subscription=subscription,
+                amount=plan.price,
+                payment_method='BANK_TRANSFER',  # Default method
+                status='PENDING',
+                notes=f'Initial subscription payment for {plan.name}',
+                processed_by=request.user
+            )
+            
+            serializer = SubscriptionSerializer(subscription)
+            return Response({
+                'success': True,
+                'message': 'Subscription assigned successfully',
+                'data': serializer.data
+            }, status=status.HTTP_201_CREATED)
+            
+        except User.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Syndic not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except SubscriptionPlan.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Subscription plan not found or inactive'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'])
+    def syndics_with_subscriptions(self, request):
+        """
+        Get all syndics with their subscription status
+        GET /api/admin/subscription-assignment/syndics_with_subscriptions/
+        """
+        syndics = User.objects.filter(role='SYNDIC').select_related('syndic_profile').prefetch_related(
+            'syndic_profile__subscription__plan'
+        )
+        
+        data = []
+        for syndic in syndics:
+            try:
+                subscription = syndic.syndic_profile.subscription
+                sub_data = None
+                if subscription:
+                    sub_data = {
+                        'id': subscription.id,
+                        'plan': {
+                            'id': subscription.plan.id,
+                            'name': subscription.plan.name,
+                            'price': str(subscription.plan.price),
+                            'duration_days': subscription.plan.duration_days
+                        },
+                        'start_date': subscription.start_date,
+                        'end_date': subscription.end_date,
+                        'status': subscription.status,
+                        'days_remaining': subscription.days_remaining,
+                        'is_active': subscription.is_active
+                    }
+                
+                data.append({
+                    'id': syndic.id,
+                    'email': syndic.email,
+                    'first_name': syndic.first_name,
+                    'last_name': syndic.last_name,
+                    'syndic_profile': {
+                        'subscription': sub_data
+                    }
+                })
+            except:
+                data.append({
+                    'id': syndic.id,
+                    'email': syndic.email,
+                    'first_name': syndic.first_name,
+                    'last_name': syndic.last_name,
+                    'syndic_profile': {
+                        'subscription': None
+                    }
+                })
+        
+        return Response({
+            'success': True,
+            'data': data
+        })
+
+    @action(detail=True, methods=['post'])
+    def process_payment(self, request, pk=None):
+        """
+        Process payment for subscription
+        POST /api/admin/payments/{id}/process_payment/
+        """
+        payment = self.get_object()
+        action_type = request.data.get('action')  # 'approve' or 'reject'
+        notes = request.data.get('notes', '')
+        
+        if action_type not in ['approve', 'reject']:
+            return Response({
+                'success': False,
+                'message': 'Action must be either approve or reject'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if payment.status != 'PENDING':
+            return Response({
+                'success': False,
+                'message': 'Only pending payments can be processed'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if action_type == 'approve':
+            payment.status = 'COMPLETED'
+            payment.notes += f"\nApproved on {timezone.now().date()} by {request.user.email}"
+            if notes:
+                payment.notes += f"\nNotes: {notes}"
+            message = 'Payment approved successfully'
+        elif action_type == 'reject':
+            payment.status = 'REJECTED'
+            if not notes:
+                return Response({
+                    'success': False,
+                    'message': 'Rejection reason is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            payment.notes += f"\nRejected on {timezone.now().date()} by {request.user.email}: {notes}"
+            message = 'Payment rejected successfully'
+        
+        payment.save()
+        
+        return Response({
+            'success': True,
+            'message': message,
+            'data': self.get_serializer(payment).data
+        })
+
+    @action(detail=False, methods=['post'])
+    def create_payment(self, request):
+        """
+        Create new payment for subscription
+        POST /api/admin/payments/create_payment/
+        """
+        subscription_id = request.data.get('subscription_id')
+        amount = request.data.get('amount')
+        payment_method = request.data.get('payment_method')
+        reference = request.data.get('reference', '')
+        notes = request.data.get('notes', '')
+        
+        if not subscription_id or not amount or not payment_method:
+            return Response({
+                'success': False,
+                'message': 'Subscription ID, amount, and payment method are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            subscription = Subscription.objects.get(id=subscription_id)
+            
+            payment = Payment.objects.create(
+                subscription=subscription,
+                amount=amount,
+                payment_method=payment_method,
+                reference=reference,
+                notes=notes,
+                status='PENDING',
+                processed_by=request.user
+            )
+            
+            serializer = self.get_serializer(payment)
+            return Response({
+                'success': True,
+                'message': 'Payment created successfully',
+                'data': serializer.data
+            }, status=status.HTTP_201_CREATED)
+            
+        except Subscription.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Subscription not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'])
+    def syndic_payments(self, request):
+        """
+        Get payments for a specific syndic
+        GET /api/admin/payments/syndic_payments/?syndic_id={id}
+        """
+        syndic_id = request.query_params.get('syndic_id')
+        
+        if not syndic_id:
+            return Response({
+                'success': False,
+                'message': 'Syndic ID is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            syndic = User.objects.get(id=syndic_id, role='SYNDIC')
+            payments = Payment.objects.filter(
+                subscription__syndic_profile__user=syndic
+            ).select_related('subscription__plan', 'processed_by')
+            
+            serializer = self.get_serializer(payments, many=True)
+            return Response({
+                'success': True,
+                'data': serializer.data
+            })
+            
+        except User.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Syndic not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
     @action(detail=False, methods=['get'])
     def revenue_stats(self, request):
         """
@@ -211,7 +585,7 @@ class PaymentAdminViewSet(viewsets.ModelViewSet):
         }
         
         # Revenue by payment method
-        for method in ['CASH', 'BANK_TRANSFER', 'CHECK', 'CARD']:
+        for method in ['CASH', 'BANK_TRANSFER']:
             amount = payments.filter(payment_method=method).aggregate(
                 total=Sum('amount')
             )['total'] or 0

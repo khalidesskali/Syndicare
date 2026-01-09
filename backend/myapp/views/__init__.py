@@ -21,6 +21,7 @@ from .syndic_admin import (
 )
 
 from .subscription import (
+    SubscriptionPlanViewSet,
     SubscriptionPlanAdminViewSet,
     SubscriptionAdminViewSet
 )
@@ -89,6 +90,7 @@ __all__ = [
     'SyndicAdminViewSet',
     
     # Subscription views
+    'SubscriptionPlanViewSet',
     'SubscriptionPlanAdminViewSet',
     'SubscriptionAdminViewSet',
     

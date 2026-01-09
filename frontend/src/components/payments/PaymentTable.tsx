@@ -37,8 +37,6 @@ interface PaymentTableProps {
 const paymentMethodIcons = {
   CASH: "💵",
   BANK_TRANSFER: "🏦",
-  CHECK: "📝",
-  ONLINE: "💳",
 };
 
 export function PaymentTable({

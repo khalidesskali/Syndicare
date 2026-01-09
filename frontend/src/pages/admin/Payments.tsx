@@ -4,7 +4,6 @@ import {
   Filter,
   ChevronDown,
   Download,
-  CreditCard,
   DollarSign,
   CheckCircle,
   Clock,
@@ -12,7 +11,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
-import usePayments from "@/hooks/usePayments";
+import useAdminPayments from "@/hooks/useAdminPayments";
 import { format } from "date-fns";
 
 const Payments: React.FC = () => {
@@ -24,20 +23,15 @@ const Payments: React.FC = () => {
     updatePaymentStatus,
     refundPayment,
     stats,
-  } = usePayments();
+  } = useAdminPayments();
 
   const statusBadgeClasses = {
     COMPLETED: "bg-green-100 text-green-800",
+    COMPLETE: "bg-green-100 text-green-800",
     PENDING: "bg-yellow-100 text-yellow-800",
     FAILED: "bg-red-100 text-red-800",
+    REJECTED: "bg-red-100 text-red-800",
     REFUNDED: "bg-blue-100 text-blue-800",
-  };
-
-  const paymentMethodIcons = {
-    CASH: "💵",
-    BANK_TRANSFER: "🏦",
-    CARD: "💳",
-    CHECK: "📝",
   };
 
   return (
@@ -156,6 +150,7 @@ const Payments: React.FC = () => {
                 >
                   <option value="all">All Status</option>
                   <option value="COMPLETED">Completed</option>
+                  <option value="COMPLETE">Complete</option>
                   <option value="PENDING">Pending</option>
                   <option value="FAILED">Failed</option>
                   <option value="REFUNDED">Refunded</option>
@@ -176,8 +171,6 @@ const Payments: React.FC = () => {
                   <option value="all">All Methods</option>
                   <option value="CASH">Cash</option>
                   <option value="BANK_TRANSFER">Bank Transfer</option>
-                  <option value="CARD">Card</option>
-                  <option value="CHECK">Check</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-700">
                   <ChevronDown className="h-4 w-4" />
@@ -201,12 +194,6 @@ const Payments: React.FC = () => {
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
                 <tr>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
-                  >
-                    Reference
-                  </th>
                   <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
@@ -235,6 +222,12 @@ const Payments: React.FC = () => {
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
                   >
+                    Payment Proof
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider"
+                  >
                     Status
                   </th>
                   <th scope="col" className="relative px-6 py-3">
@@ -256,7 +249,7 @@ const Payments: React.FC = () => {
                   <tr>
                     <td colSpan={7} className="px-6 py-8 text-center">
                       <div className="flex flex-col items-center justify-center space-y-2 text-slate-500">
-                        <CreditCard className="h-8 w-8 text-slate-400" />
+                        <DollarSign className="h-8 w-8 text-slate-400" />
                         <p className="text-sm">No payments found</p>
                         <p className="text-xs text-slate-400">
                           {filters.searchTerm ||
@@ -271,16 +264,13 @@ const Payments: React.FC = () => {
                 ) : (
                   payments.map((payment) => (
                     <tr key={payment.id} className="hover:bg-slate-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                        {payment.reference}
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-slate-900">
-                            {payment.subscription?.company_name}
+                            {payment.planName}
                           </div>
                           <div className="text-sm text-slate-500">
-                            {payment.subscription?.syndic_name}
+                            {payment.syndicName}
                           </div>
                         </div>
                       </td>
@@ -289,15 +279,10 @@ const Payments: React.FC = () => {
                           style: "currency",
                           currency: "MAD",
                           minimumFractionDigits: 2,
-                        }).format(payment.amount)}
+                        }).format(parseFloat(payment.amount))}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center">
-                          {
-                            paymentMethodIcons[
-                              payment.paymentMethod as keyof typeof paymentMethodIcons
-                            ]
-                          }
                           <span className="ml-2 text-sm text-slate-900">
                             {payment.paymentMethod.replace("_", " ")}
                           </span>
@@ -305,6 +290,22 @@ const Payments: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                         {format(new Date(payment.paymentDate), "MMM d, yyyy")}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {payment.paymentProof ? (
+                          <button
+                            onClick={() =>
+                              window.open(payment.paymentProof, "_blank")
+                            }
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            View Proof
+                          </button>
+                        ) : (
+                          <span className="text-slate-400 text-sm">
+                            No proof
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -321,22 +322,35 @@ const Payments: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end space-x-2">
                           {payment.status === "PENDING" && (
-                            <button
-                              onClick={() =>
-                                updatePaymentStatus(
-                                  parseInt(payment.id),
-                                  "COMPLETED"
-                                )
-                              }
-                              className="text-green-600 hover:text-green-900"
-                            >
-                              Mark Complete
-                            </button>
+                            <>
+                              <button
+                                onClick={() =>
+                                  updatePaymentStatus(
+                                    payment.id.toString(),
+                                    "approve"
+                                  )
+                                }
+                                className="text-green-600 hover:text-green-900 mr-2"
+                              >
+                                Confirm
+                              </button>
+                              <button
+                                onClick={() =>
+                                  updatePaymentStatus(
+                                    payment.id.toString(),
+                                    "reject"
+                                  )
+                                }
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Reject
+                              </button>
+                            </>
                           )}
                           {payment.status === "COMPLETED" && (
                             <button
                               onClick={() =>
-                                refundPayment(parseInt(payment.id))
+                                refundPayment(payment.id.toString())
                               }
                               className="text-blue-600 hover:text-blue-900"
                             >
@@ -347,7 +361,7 @@ const Payments: React.FC = () => {
                             <button
                               onClick={() =>
                                 updatePaymentStatus(
-                                  parseInt(payment.id),
+                                  payment.id.toString(),
                                   "COMPLETED"
                                 )
                               }

@@ -5,34 +5,130 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from myapp.models import ResidentPayment
-from myapp.permissions import IsSyndic
-from myapp.serializers import SyndicPaymentSerializer
+from myapp.models import ResidentPayment, Payment, Subscription, SubscriptionPlan
+from myapp.permissions import IsAdminOrSyndic
+from myapp.serializers import PaymentSerializer
 
 
-class SyndicPaymentViewSet(viewsets.ReadOnlyModelViewSet):
+class SyndicPaymentViewSet(viewsets.ModelViewSet):
     """
-    Syndic can:
-    - List resident payments for their buildings
-    - Confirm a payment
-    - Reject a payment
+    Admin and Syndic can:
+    - List syndic subscription payments
+    - Create new payments for subscriptions (syndic only)
+    - Confirm a payment (admin only)
+    - Reject a payment (admin only)
     """
 
-    serializer_class = SyndicPaymentSerializer
-    permission_classes = [IsAuthenticated, IsSyndic]
+    serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrSyndic]
 
     def get_queryset(self):
+        # For listing, show syndic subscription payments (not resident payments)
         # Swagger safety
         if getattr(self, "swagger_fake_view", False):
-            return ResidentPayment.objects.none()
-
+            return Payment.objects.none()
+        
         user = self.request.user
+        
+        # If this is a create action, we don't need queryset
+        if self.action == 'create':
+            return Payment.objects.none()
+            
+        # For list/retrieve actions, show syndic subscription payments
+        if user.is_admin:
+            # Admin can see all syndic payments
+            return Payment.objects.all().select_related(
+                'subscription', 'subscription__plan', 'processed_by'
+            )
+        else:
+            # Syndic can only see their own payments
+            return Payment.objects.filter(
+                subscription__syndic_profile__user=user
+            ).select_related(
+                'subscription', 'subscription__plan', 'processed_by'
+            )
 
-        return ResidentPayment.objects.filter(
-            syndic=user
-        ).select_related(
-            "charge", "resident", "appartement"
-        )
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new payment for syndic subscription
+        POST /api/syndic/payments/
+        """
+        subscription_id = request.data.get('subscription_id')
+        amount = request.data.get('amount')
+        payment_method = request.data.get('payment_method')
+        reference = request.data.get('reference', '')
+        notes = request.data.get('notes', '')
+        rib = request.data.get('rib', '')
+        payment_proof = request.FILES.get('payment_proof')
+
+        if not subscription_id or not amount or not payment_method:
+            return Response({
+                'success': False,
+                'message': 'Subscription ID, amount, and payment method are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Get subscription - ensure it belongs to the current syndic
+            try:
+                subscription = Subscription.objects.get(
+                    id=subscription_id,
+                    syndic_profile__user=request.user
+                )
+            except Subscription.DoesNotExist:
+                # If subscription doesn't exist, check if it's a plan ID instead
+                try:
+                    plan = SubscriptionPlan.objects.get(id=subscription_id)
+                    # Get or create syndic profile
+                    syndic_profile = request.user.syndic_profile
+                    
+                    # Check if syndic already has a subscription and extend it
+                    try:
+                        existing_subscription = Subscription.objects.get(syndic_profile=syndic_profile)
+                        # Extend existing subscription by adding new plan's duration to current end date
+                        existing_subscription.plan = plan
+                        existing_subscription.end_date = existing_subscription.end_date + timezone.timedelta(days=plan.duration_days)
+                        existing_subscription.status = 'ACTIVE'
+                        existing_subscription.save()
+                        subscription = existing_subscription
+                    except Subscription.DoesNotExist:
+                        # Create a new subscription for this syndic
+                        subscription = Subscription.objects.create(
+                            syndic_profile=syndic_profile,
+                            plan=plan,
+                            start_date=timezone.now().date(),
+                            end_date=timezone.now().date() + timezone.timedelta(days=plan.duration_days),
+                            status='ACTIVE'
+                        )
+                except SubscriptionPlan.DoesNotExist:
+                    return Response({
+                        'success': False,
+                        'message': 'Subscription plan not found'
+                    }, status=status.HTTP_404_NOT_FOUND)
+            
+            # Create payment
+            payment = Payment.objects.create(
+                subscription=subscription,
+                amount=amount,
+                payment_method=payment_method,
+                reference=reference,
+                notes=notes,
+                rib=rib,
+                payment_proof=payment_proof,
+                status='PENDING'
+            )
+
+            serializer = PaymentSerializer(payment)
+            return Response({
+                'success': True,
+                'message': 'Payment created successfully',
+                'data': serializer.data
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': f'Error creating payment: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
     # -----------------------------
     # CONFIRM PAYMENT
@@ -51,7 +147,9 @@ class SyndicPaymentViewSet(viewsets.ReadOnlyModelViewSet):
         payment.confirmed_at = timezone.now()
         payment.save()
 
-        self._update_charge_status(payment.charge)
+        # Update charge status if this is a resident payment
+        if hasattr(payment, 'charge'):
+            self._update_charge_status(payment.charge)
 
         return Response(
             {
@@ -59,9 +157,7 @@ class SyndicPaymentViewSet(viewsets.ReadOnlyModelViewSet):
                 "message": "Payment confirmed successfully",
                 "data": {
                     "payment_id": payment.id,
-                    "charge_id": payment.charge.id,
                     "payment_status": payment.status,
-                    "charge_status": payment.charge.status,
                 }
             },
             status=status.HTTP_200_OK
@@ -85,7 +181,6 @@ class SyndicPaymentViewSet(viewsets.ReadOnlyModelViewSet):
         payment.confirmed_at = timezone.now()
         payment.save()
 
-        # No charge update needed on rejection
         return Response(
             {
                 "success": True,

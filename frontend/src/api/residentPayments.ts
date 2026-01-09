@@ -16,7 +16,7 @@ export interface Payment {
   charge_reference: string;
   amount: number;
   paid_at: string;
-  payment_method: "CASH" | "BANK_TRANSFER" | "CHECK" | "CREDIT_CARD";
+  payment_method: "CASH" | "BANK_TRANSFER";
   reference?: string;
   status: "PENDING" | "CONFIRMED" | "REJECTED" | "REFUNDED";
   appartement: {
