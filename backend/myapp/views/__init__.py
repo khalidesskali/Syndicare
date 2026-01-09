@@ -54,6 +54,10 @@ from .reunions import (
     ReunionViewSet
 )
 
+from .resident_reunions import (
+    ResidentReunionViewSet
+)
+
 from .charges import (
     ChargeViewSet
 )
@@ -103,6 +107,8 @@ __all__ = [
     'ResidentViewSet',
     'ReclamationViewSet',
     'ResidentReclamationViewSet',
+    'ReunionViewSet',
+    'ResidentReunionViewSet',
     'ChargeViewSet',
     'ResidentPaymentViewSet',
     'ResidentChargeViewSet',

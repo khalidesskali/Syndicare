@@ -50,6 +50,20 @@ export interface Announcement {
   author: string;
 }
 
+export interface Meeting {
+  id: number;
+  syndic: number;
+  immeuble: number;
+  building_name: string;
+  building_address: string;
+  title: string;
+  topic: string;
+  date_time: string;
+  location: string;
+  status: "SCHEDULED" | "COMPLETED" | "CANCELLED";
+  created_at: string;
+}
+
 export interface DashboardSummary {
   totalUnpaid: number;
   overdueChargesCount: number;
