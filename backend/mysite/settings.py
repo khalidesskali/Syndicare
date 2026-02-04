@@ -53,7 +53,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg', 
     'myapp',
-    'chatbot'
+    'chatbot',
+    'payments.apps.PaymentsConfig',
+    'subscriptions.apps.SubscriptionsConfig',
 ]
 
 # Swagger settings
@@ -153,6 +155,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://127.0.0.1:3000",
 ]
+
+# settings.py
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 
 CORS_ALLOW_CREDENTIALS = True
 
