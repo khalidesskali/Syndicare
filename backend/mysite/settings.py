@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,13 +53,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
+    'payments',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-    'corsheaders',
     'drf_yasg', 
     'myapp',
     'chatbot',
-    'payments.apps.PaymentsConfig',
     'subscriptions.apps.SubscriptionsConfig',
 ]
 
@@ -146,9 +151,7 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
 }
 
-CORS_ALLOW_CREDENTIALS = True
-
-# CORS Configuration (for Vue.js frontend)
+# CORS Configuration 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  
     "http://localhost:3000",  
@@ -222,7 +225,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.ngrok-free.app',
     'https://*.ngrok.io',
     'https://*.ngrok-free.dev',  
-    'https://unsagely-debatable-paityn.ngrok-free.dev',  
+    'https://unsagely-debatable-paityn.ngrok-free.dev',
 ]
 
 # Security settings for production
