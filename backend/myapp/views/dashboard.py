@@ -7,7 +7,7 @@ from ..permissions import IsAdmin, IsSyndic, IsResident
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
-from ..models import User, Subscription, Payment, Immeuble, Appartement, Reclamation, Reunion, Charge, ResidentProfile, ResidentPayment
+from ..models import User, Subscription, SubscriptionPayment, Immeuble, Appartement, Reclamation, Reunion, Charge, ResidentProfile, ChargePayment
 from ..serializers import ChargeSerializer
 
 User = get_user_model()

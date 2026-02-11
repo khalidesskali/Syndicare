@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from myapp.models import Charge, ResidentPayment
+from myapp.models import Charge, ChargePayment
 from myapp.permissions import IsResident
 from myapp.serializers import ChargeSerializer
 

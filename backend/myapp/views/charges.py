@@ -7,7 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 from datetime import datetime
 
-from ..models import Charge, Appartement, Immeuble, ResidentPayment
+from ..models import Charge, Appartement, Immeuble, ChargePayment
 from ..serializers import ChargeSerializer
 from ..permissions import IsSyndic
 

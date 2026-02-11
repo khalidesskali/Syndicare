@@ -9,12 +9,12 @@ from django.utils import timezone
 
 from ..models import (
     User, SyndicProfile, Subscription, SubscriptionPlan, 
-    Payment, Immeuble, Appartement
+    SubscriptionPayment, Immeuble, Appartement
 )
 from ..serializers import (
     SubscriptionPlanSerializer, 
     SubscriptionSerializer, 
-    PaymentSerializer,
+    SubscriptionPaymentSerializer,
     UserSerializer
 )
 from ..permissions import IsAdmin
@@ -387,7 +387,7 @@ class SubscriptionAdminViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(subscription)
         
         # Get payment history
-        payments = Payment.objects.filter(subscription=subscription)
+        payments = SubscriptionPayment.objects.filter(subscription=subscription)
         payment_stats = {
             'total_payments': payments.count(),
             'total_paid': payments.filter(status='COMPLETED').aggregate(
@@ -546,10 +546,10 @@ class SubscriptionAdminViewSet(viewsets.ModelViewSet):
             )
             
             # Create initial payment record
-            Payment.objects.create(
+            SubscriptionPayment.objects.create(
                 subscription=subscription,
                 amount=plan.price,
-                payment_method='BANK_TRANSFER',  # Default method
+                payment_method='PAYPAL',  # Default method
                 status='PENDING',
                 notes=f'Initial subscription payment for {plan.name}',
                 processed_by=request.user
@@ -653,7 +653,7 @@ class SubscriptionAdminViewSet(viewsets.ModelViewSet):
                 end_date__gte=today,
                 end_date__lte=week_later
             ).count(),
-            'total_revenue': Payment.objects.filter(
+            'total_revenue': SubscriptionPayment.objects.filter(
                 status='COMPLETED'
             ).aggregate(total=Sum('amount'))['total'] or 0
         }

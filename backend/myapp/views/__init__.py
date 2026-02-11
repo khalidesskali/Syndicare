@@ -26,9 +26,6 @@ from .subscription import (
     SubscriptionAdminViewSet
 )
 
-from .payment import (
-    PaymentAdminViewSet
-)
 
 from .immeubles import (
     ImmeubleViewSet
@@ -95,9 +92,7 @@ __all__ = [
     'SubscriptionPlanAdminViewSet',
     'SubscriptionAdminViewSet',
     
-    # Payment views
-    'PaymentAdminViewSet',
-    
+        
     # Building management views
     'ImmeubleViewSet',
     'AppartementViewSet',

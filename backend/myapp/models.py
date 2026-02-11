@@ -188,12 +188,13 @@ class Subscription(models.Model):
         return (self.end_date - today).days
 
 
-class Payment(models.Model):
+class SubscriptionPayment(models.Model):
     """
     Payment records for Syndic subscriptions - Managed by Admin
     """
     PAYMENT_METHOD_CHOICES = [
-        ('BANK_TRANSFER', 'Bank Transfer'),
+        ('PAYPAL', 'Paypal'),
+        ('STRIPE', 'Stripe')
     ]
     
     STATUS_CHOICES = [
@@ -215,12 +216,7 @@ class Payment(models.Model):
     reference = models.CharField(max_length=100, blank=True)
     notes = models.TextField(blank=True)
     rib = models.CharField(max_length=34, blank=True, null=True, help_text="RIB for bank transfers")
-    payment_proof = models.FileField(
-        upload_to='',
-        blank=True,
-        null=True,
-        help_text="Upload payment proof (receipt, screenshot, etc.)"
-    )
+
     processed_by = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -248,7 +244,6 @@ class ResidentProfile(models.Model):
         related_name='resident_profile',
         limit_choices_to={'role': 'RESIDENT'}
     )
-    cin = models.CharField(max_length=20, blank=True, help_text="National ID Card")
     
     class Meta:
         verbose_name = 'Resident Profile'
@@ -463,9 +458,10 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-class ResidentPayment(models.Model):
+class ChargePayment(models.Model):
     PAYMENT_METHODS = [
         ('BANK_TRANSFER', 'Bank Transfer'),
+        ('PAYPAL', 'Paypal')
     ]
 
     PAYMENT_STATUS = [
@@ -477,7 +473,7 @@ class ResidentPayment(models.Model):
     resident = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='payments',
+        related_name='charge_payments',
         limit_choices_to={'role': 'RESIDENT'}
     )
 
@@ -539,12 +535,6 @@ class ResidentPayment(models.Model):
         help_text="RIB for bank transfers"
     )
 
-    payment_proof = models.FileField(
-        upload_to='resident_payment_proofs/',
-        blank=True,
-        null=True,
-        help_text="Upload payment proof (receipt, screenshot, etc.)"
-    )
 
     confirmed_at = models.DateTimeField(
         blank=True,
@@ -556,8 +546,8 @@ class ResidentPayment(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        verbose_name = 'Resident Payment'
-        verbose_name_plural = 'Resident Payments'
+        verbose_name = 'Charge Payment'
+        verbose_name_plural = 'Charge Payments'
 
     def __str__(self):
         return f"{self.resident.email} - {self.amount} ({self.status})"

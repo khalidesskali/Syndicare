@@ -7,10 +7,10 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 
 from .models import (
     Immeuble, Appartement, Reclamation, Reunion, 
-    Charge, ResidentPayment, 
-    ResidentProfile, User
+    Charge, ChargePayment, 
+    ResidentProfile, User, SyndicProfile, SubscriptionPlan, Subscription, 
+    SubscriptionPayment
 )
-
 
 User = get_user_model()
 
@@ -209,11 +209,9 @@ class LogoutSerializer(serializers.Serializer):
             raise serializers.ValidationError({'detail': 'Invalid or expired token.'})
 
 
-from rest_framework import serializers
-from .models import (
-    User, SyndicProfile, SubscriptionPlan, Subscription, 
-    Payment, Immeuble, Appartement
-)
+# ============================================
+# SUBSCRIPTION SERIALIZERS
+# ============================================
 
 class SubscriptionPlanSerializer(serializers.ModelSerializer):
     """
@@ -325,9 +323,9 @@ class SubscriptionDetailSerializer(SubscriptionSerializer):
 # PAYMENT SERIALIZERS
 # ============================================
 
-class PaymentSerializer(serializers.ModelSerializer):
+class SubscriptionPaymentSerializer(serializers.ModelSerializer):
     """
-    Serializer for Payment model
+    Serializer for SubscriptionPayment model
     """
     syndic_email = serializers.EmailField(
         source='subscription.syndic_profile.user.email', 
@@ -339,7 +337,7 @@ class PaymentSerializer(serializers.ModelSerializer):
     processed_by_name = serializers.SerializerMethodField()
     
     class Meta:
-        model = Payment
+        model = SubscriptionPayment
         fields = [
             'id',
             'subscription',
@@ -353,7 +351,6 @@ class PaymentSerializer(serializers.ModelSerializer):
             'reference',
             'notes',
             'rib',
-            'payment_proof',
             'processed_by',
             'processed_by_email',
             'processed_by_name'
@@ -370,17 +367,57 @@ class PaymentSerializer(serializers.ModelSerializer):
         return None
 
 
-class PaymentDetailSerializer(PaymentSerializer):
+class SubscriptionPaymentDetailSerializer(SubscriptionPaymentSerializer):
     """
-    Detailed serializer for Payment with subscription information
+    Detailed serializer for SubscriptionPayment with subscription information
     """
     subscription_details = SubscriptionSerializer(source='subscription', read_only=True)
     
-    class Meta(PaymentSerializer.Meta):
-        fields = PaymentSerializer.Meta.fields + ['subscription_details']
+    class Meta(SubscriptionPaymentSerializer.Meta):
+        fields = SubscriptionPaymentSerializer.Meta.fields + ['subscription_details']
 
 
-
+class ChargePaymentSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ChargePayment model
+    """
+    resident_email = serializers.EmailField(source='resident.email', read_only=True)
+    resident_name = serializers.SerializerMethodField()
+    syndic_email = serializers.EmailField(source='syndic.email', read_only=True)
+    apartment_number = serializers.CharField(source='appartement.number', read_only=True)
+    building_name = serializers.CharField(source='appartement.immeuble.name', read_only=True)
+    charge_title = serializers.CharField(source='charge.title', read_only=True)
+    
+    class Meta:
+        model = ChargePayment
+        fields = [
+            'id',
+            'resident',
+            'resident_email',
+            'resident_name',
+            'syndic',
+            'syndic_email',
+            'appartement',
+            'apartment_number',
+            'building_name',
+            'charge',
+            'charge_title',
+            'amount',
+            'payment_method',
+            'status',
+            'reference',
+            'paid_at',
+            'notes',
+            'rib',
+            'confirmed_at',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+    
+    def get_resident_name(self, obj):
+        if obj.resident:
+            return f"{obj.resident.first_name} {obj.resident.last_name}".strip() or obj.resident.email
+        return None
 
 
 # ============================================
@@ -486,7 +523,7 @@ class ResidentProfileSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = ResidentProfile
-        fields = ['id', 'cin']
+        fields = ['id']
         read_only_fields = ['id']
 
 
@@ -541,8 +578,8 @@ class ResidentSerializer(serializers.ModelSerializer):
             user.set_password(password)
             user.save()
         
-        # Create resident profile with empty CIN (or remove if not needed)
-        ResidentProfile.objects.create(user=user, cin='')
+        # Create resident profile
+        ResidentProfile.objects.create(user=user)
         
         return user
 
@@ -588,7 +625,7 @@ class ResidentUpdateSerializer(serializers.ModelSerializer):
         
         if password2 and not password:
             raise serializers.ValidationError({
-                "password": "Please provide the password."
+                "password": "Please provide password."
             })
         
         return attrs
@@ -601,22 +638,52 @@ class ResidentUpdateSerializer(serializers.ModelSerializer):
             'building': apt.immeuble.name,
             'monthly_charge': float(apt.monthly_charge)
         } for apt in apartments]
+
+
+# ============================================
+# CHARGE SERIALIZERS
+# ============================================
+
+class ChargeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Charge model
+    """
+    building_name = serializers.CharField(source='immeuble.name', read_only=True)
+    total_amount = serializers.DecimalField(
+        source='amount', 
+        max_digits=10, 
+        decimal_places=2, 
+        read_only=True
+    )
+    paid_amount = serializers.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        read_only=True
+    )
+    remaining_amount = serializers.SerializerMethodField()
+    is_overdue = serializers.BooleanField(read_only=True)
     
-    def update(self, instance, validated_data):
-        """Update user with optional password change"""
-        password = validated_data.pop('password', None)
-        password2 = validated_data.pop('password2', None)
-        
-        # Update user fields
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        
-        # Update password if provided
-        if password:
-            instance.set_password(password)
-        
-        instance.save()
-        return instance
+    class Meta:
+        model = Charge
+        fields = [
+            'id',
+            'immeuble',
+            'building_name',
+            'title',
+            'description',
+            'amount',
+            'total_amount',
+            'paid_amount',
+            'remaining_amount',
+            'due_date',
+            'status',
+            'is_overdue',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+    
+    def get_remaining_amount(self, obj):
+        return obj.amount - obj.paid_amount
 
 
 # ============================================
@@ -639,22 +706,39 @@ class ReclamationSerializer(serializers.ModelSerializer):
             'resident',
             'resident_email',
             'resident_name',
-            'syndic',
             'appartement',
             'apartment_number',
             'building_name',
             'title',
-            'content',
+            'description',
             'status',
-            'priority',
-            'response',
             'created_at',
             'updated_at'
         ]
-        read_only_fields = ['id', 'syndic', 'resident', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
     
     def get_resident_name(self, obj):
-        return f"{obj.resident.first_name} {obj.resident.last_name}".strip() or obj.resident.email
+        if obj.resident:
+            return f"{obj.resident.first_name} {obj.resident.last_name}".strip() or obj.resident.email
+        return None
+
+
+class ResidentReclamationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for residents to create reclamations
+    """
+    class Meta:
+        model = Reclamation
+        fields = [
+            'appartement',
+            'title',
+            'description'
+        ]
+    
+    def create(self, validated_data):
+        user = self.context['request'].user
+        validated_data['resident'] = user
+        return super().create(validated_data)
 
 
 # ============================================
@@ -666,151 +750,27 @@ class ReunionSerializer(serializers.ModelSerializer):
     Serializer for Reunion model
     """
     building_name = serializers.CharField(source='immeuble.name', read_only=True)
-    building_address = serializers.CharField(source='immeuble.address', read_only=True)
-    
-    def validate(self, attrs):
-        print(f"Serializer validate called with attrs: {attrs}")
-        print(f"Attrs type: {type(attrs)}")
-        return super().validate(attrs)
     
     class Meta:
         model = Reunion
         fields = [
             'id',
-            'syndic',
             'immeuble',
             'building_name',
-            'building_address',
             'title',
-            'topic',
-            'date_time',
+            'description',
+            'date',
+            'time',
             'location',
             'status',
             'created_at'
         ]
-        read_only_fields = ['id', 'syndic', 'created_at']
-
-
-# ============================================
-# CHARGE SERIALIZERS
-# ============================================
-
-class ChargeSerializer(serializers.ModelSerializer):
-    """
-    Serializer for Charge model
-    """
-    apartment_number = serializers.CharField(source='appartement.number', read_only=True)
-    building_name = serializers.CharField(source='appartement.immeuble.name', read_only=True)
-    resident_email = serializers.SerializerMethodField()
-    resident_name = serializers.SerializerMethodField()
-    is_overdue = serializers.ReadOnlyField()
-    
-    class Meta:
-        model = Charge
-        fields = [
-            'id',
-            'appartement',
-            'apartment_number',
-            'building_name',
-            'resident_email',
-            'resident_name',
-            'description',
-            'amount',
-            'due_date',
-            'status',
-            'paid_amount',
-            'paid_date',
-            'is_overdue',
-            'created_at'
-        ]
         read_only_fields = ['id', 'created_at']
-    
-    def get_resident_email(self, obj):
-        if obj.appartement.resident:
-            return obj.appartement.resident.email
-        return None
-    
-    def get_resident_name(self, obj):
-        if obj.appartement.resident:
-            resident = obj.appartement.resident
-            return f"{resident.first_name} {resident.last_name}".strip() or resident.email
-        return None
 
 
-# ============================================
-# RESIDENT PAYMENT SERIALIZERS
-# ============================================
-
-
-class ResidentPaymentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ResidentPayment
-        fields = [
-            'id',
-            'charge',
-            'appartement',
-            'amount',
-            'payment_method',
-            'reference',
-            'paid_at',
-            'status',
-            'created_at'
-        ]
-        read_only_fields = ['status', 'created_at']
-
-    def validate(self, data):
-        user = self.context['request'].user
-        appartement = data['appartement']
-        charge = data['charge']
-
-        # Ensure apartment belongs to resident
-        if not user.appartements.filter(id=appartement.id).exists():
-            raise serializers.ValidationError("This apartment does not belong to you.")
-
-        # Ensure charge belongs to apartment
-        if charge.appartement_id != appartement.id:
-            raise serializers.ValidationError("Charge does not belong to this apartment.")
-
-        return data
-
-class SyndicPaymentSerializer(serializers.ModelSerializer):
-    """Detailed serializer for syndic payments with apartment and resident details"""
-    apartment_number = serializers.CharField(source='appartement.number', read_only=True)
-    building_name = serializers.CharField(source='appartement.immeuble.name', read_only=True)
-    resident_email = serializers.EmailField(source='appartement.resident.email', read_only=True)
-    resident_name = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = ResidentPayment
-        fields = [
-            'id',
-            'charge',
-            'appartement',
-            'amount',
-            'payment_method',
-            'reference',
-            'paid_at',
-            'status',
-            'created_at',
-            'apartment_number',
-            'building_name',
-            'resident_email',
-            'resident_name',
-        ]
-        read_only_fields = ['status', 'created_at']
-    
-    def get_resident_name(self, obj):
-        if obj.appartement.resident:
-            return f"{obj.appartement.resident.first_name} {obj.appartement.resident.last_name}".strip()
-        return None
-
-class ResidentPaymentCreateSerializer(serializers.Serializer):
-    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
-    payment_method = serializers.ChoiceField(
-        choices=ResidentPayment.PAYMENT_METHODS
-    )
-    reference = serializers.CharField(
-        required=False,
-        allow_blank=True
-    )
-    paid_at = serializers.DateTimeField(required=False)
+class ResidentReunionSerializer(ReunionSerializer):
+    """
+    Serializer for residents to view reunions
+    """
+    class Meta(ReunionSerializer.Meta):
+        fields = ReunionSerializer.Meta.fields

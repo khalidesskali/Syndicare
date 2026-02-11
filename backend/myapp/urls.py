@@ -6,7 +6,6 @@ from .views import (
     SubscriptionPlanAdminViewSet,
     SubscriptionPlanViewSet,
     SubscriptionAdminViewSet,
-    PaymentAdminViewSet,
     CustomTokenObtainPairView,
     RegisterView,
     LogoutView,
@@ -33,7 +32,6 @@ router = DefaultRouter()
 router.register(r'admin/syndics', SyndicAdminViewSet, basename='admin-syndic')
 router.register(r'admin/subscription-plans', SubscriptionPlanAdminViewSet, basename='admin-subscription-plan')
 router.register(r'admin/subscription-assignment', SubscriptionAdminViewSet, basename='admin-subscription-assignment')
-router.register(r'admin/payments', PaymentAdminViewSet, basename='admin-payment')
 
 # Syndic endpoints
 router.register(r'syndic/subscription-plans', SubscriptionPlanViewSet, basename='syndic-subscription-plan')

@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from ..models import (
     User, SyndicProfile, Subscription, SubscriptionPlan, 
-    Payment, Immeuble, Appartement
+    SubscriptionPayment, Immeuble, Appartement
 )
 from ..serializers import UserSerializer
 from ..permissions import IsAdmin
