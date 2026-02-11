@@ -54,13 +54,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'payments',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'drf_yasg', 
     'myapp',
     'chatbot',
-    'subscriptions.apps.SubscriptionsConfig',
 ]
 
 # Swagger settings

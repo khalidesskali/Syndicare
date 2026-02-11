@@ -70,9 +70,6 @@ from .resident_charge import (
     ResidentChargeViewSet
 )
 
-from .Syndic_payment import (
-    SyndicPaymentViewSet
-)
 
 
 __all__ = [
@@ -112,7 +109,6 @@ __all__ = [
     'ChargeViewSet',
     'ResidentPaymentViewSet',
     'ResidentChargeViewSet',
-    'SyndicPaymentViewSet',
     
     # Chatbot views
     'chatbot_message',

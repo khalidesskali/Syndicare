@@ -27,7 +27,6 @@ from .views import (
     ChargeViewSet,
     ResidentPaymentViewSet,
     ResidentChargeViewSet,
-    SyndicPaymentViewSet,
 ) 
 
 router = DefaultRouter()
@@ -53,12 +52,6 @@ router.register(
     r'resident/charges',
     ResidentChargeViewSet,
     basename='resident-charge'
-)
-
-router.register(
-    r"syndic/payments",
-    SyndicPaymentViewSet,
-    basename="syndic-payments"
 )
 
 
