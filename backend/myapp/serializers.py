@@ -759,9 +759,8 @@ class ReunionSerializer(serializers.ModelSerializer):
             'immeuble',
             'building_name',
             'title',
-            'description',
-            'date',
-            'time',
+            'topic',
+            'date_time',
             'location',
             'status',
             'created_at'
