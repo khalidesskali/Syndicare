@@ -102,7 +102,7 @@ class ChargeViewSet(viewsets.ModelViewSet):
         charge = self.get_object()
         serializer = self.get_serializer(charge)
 
-        payments = ResidentPayment.objects.filter(
+        payments = ChargePayment.objects.filter(
             charge=charge
         ).select_related('resident')
 
@@ -229,7 +229,7 @@ class ChargeViewSet(viewsets.ModelViewSet):
             total=Sum('amount')
         )['total'] or 0
 
-        confirmed_payments = ResidentPayment.objects.filter(
+        confirmed_payments = ChargePayment.objects.filter(
             charge__in=queryset,
             status='CONFIRMED'
         ).aggregate(total=Sum('amount'))['total'] or 0

@@ -16,7 +16,7 @@ class ResidentChargeViewSet(viewsets.ReadOnlyModelViewSet):
     Resident can:
     - List all charges for ALL of their apartments
     - Retrieve a single charge
-    - Pay a charge (creates a ResidentPayment)
+    - Pay a charge (creates a ChargePayment)
     """
 
     serializer_class = ChargeSerializer
@@ -80,7 +80,7 @@ class ResidentChargeViewSet(viewsets.ReadOnlyModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
     
-        payment = ResidentPayment.objects.create(
+        payment = ChargePayment.objects.create(
             resident=user,
             syndic=charge.appartement.immeuble.syndic,
             appartement=charge.appartement,

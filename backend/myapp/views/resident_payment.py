@@ -22,11 +22,11 @@ class ResidentPaymentViewSet(viewsets.ViewSet):
         """
         user = request.user
         
-        payments = ResidentPayment.objects.filter(
+        payments = ChargePayment.objects.filter(
             resident=user
         ).select_related('charge', 'appartement', 'syndic')
         
-        serializer = ResidentPaymentSerializer(payments, many=True)
+        serializer = ChargePaymentSerializer(payments, many=True)
         
         return Response({
             'success': True,
@@ -40,12 +40,12 @@ class ResidentPaymentViewSet(viewsets.ViewSet):
         View a single payment detail
         """
         payment = get_object_or_404(
-            ResidentPayment,
+            ChargePayment,
             pk=pk,
             resident=request.user
         )
         
         return Response({
             'success': True,
-            'payment': ResidentPaymentSerializer(payment).data
+            'payment': ChargePaymentSerializer(payment).data
         })

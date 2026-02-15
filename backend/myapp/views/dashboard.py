@@ -351,7 +351,7 @@ def resident_dashboard(request):
     ).count()
 
     # Last payment across all apartments
-    last_payment = ResidentPayment.objects.filter(
+    last_payment = ChargePayment.objects.filter(
         resident=user,
         appartement__in=apartments
     ).select_related('charge').order_by('-created_at').first()
