@@ -711,7 +711,7 @@ class ReclamationSerializer(serializers.ModelSerializer):
             'apartment_number',
             'building_name',
             'title',
-            'description',
+            'content',
             'status',
             'created_at',
             'updated_at'
@@ -733,7 +733,7 @@ class ResidentReclamationSerializer(serializers.ModelSerializer):
         fields = [
             'appartement',
             'title',
-            'description'
+            'content'
         ]
     
     def create(self, validated_data):
