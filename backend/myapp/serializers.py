@@ -648,7 +648,8 @@ class ChargeSerializer(serializers.ModelSerializer):
     """
     Serializer for Charge model
     """
-    building_name = serializers.CharField(source='immeuble.name', read_only=True)
+    building_name = serializers.CharField(source='appartement.immeuble.name', read_only=True)
+    apartment_number = serializers.CharField(source='appartement.number', read_only=True)
     total_amount = serializers.DecimalField(
         source='amount', 
         max_digits=10, 
@@ -667,9 +668,9 @@ class ChargeSerializer(serializers.ModelSerializer):
         model = Charge
         fields = [
             'id',
-            'immeuble',
+            'appartement',
             'building_name',
-            'title',
+            'apartment_number',
             'description',
             'amount',
             'total_amount',
