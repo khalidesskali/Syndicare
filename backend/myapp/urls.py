@@ -26,15 +26,19 @@ from .views import (
     ChargeViewSet,
     ResidentPaymentViewSet,
     ResidentChargeViewSet,
+    PaymentAdminViewSet,
+    SyndicSubscriptionPaymentViewSet,
 ) 
 
 router = DefaultRouter()
 router.register(r'admin/syndics', SyndicAdminViewSet, basename='admin-syndic')
 router.register(r'admin/subscription-plans', SubscriptionPlanAdminViewSet, basename='admin-subscription-plan')
 router.register(r'admin/subscription-assignment', SubscriptionAdminViewSet, basename='admin-subscription-assignment')
+router.register(r'admin/payments', PaymentAdminViewSet, basename='admin-payment')
 
 # Syndic endpoints
 router.register(r'syndic/subscription-plans', SubscriptionPlanViewSet, basename='syndic-subscription-plan')
+router.register(r'syndic/payments', SyndicSubscriptionPaymentViewSet, basename='syndic-payment')
 router.register(r'syndic/buildings', ImmeubleViewSet, basename='syndic-building')
 router.register(r'syndic/apartments', AppartementViewSet, basename='syndic-apartment')
 router.register(r'syndic/residents', ResidentViewSet, basename='syndic-resident')

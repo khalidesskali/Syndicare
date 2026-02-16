@@ -67,6 +67,11 @@ from .resident_charge import (
     ResidentChargeViewSet
 )
 
+from .payment import (
+    PaymentAdminViewSet,
+    SyndicSubscriptionPaymentViewSet
+)
+
 
 
 __all__ = [
@@ -86,11 +91,13 @@ __all__ = [
     
     # Admin management views
     'SyndicAdminViewSet',
+    'PaymentAdminViewSet',
     
     # Subscription views
     'SubscriptionPlanViewSet',
     'SubscriptionPlanAdminViewSet',
     'SubscriptionAdminViewSet',
+    'SyndicSubscriptionPaymentViewSet',
     
         
     # Building management views

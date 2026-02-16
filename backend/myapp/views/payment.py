@@ -9,15 +9,15 @@ from django.utils import timezone
 
 from ..models import (
     User, SyndicProfile, Subscription, SubscriptionPlan, 
-    Payment, Immeuble, Appartement
+    SubscriptionPayment as Payment, Immeuble, Appartement
 )
 from ..serializers import (
     SubscriptionPlanSerializer, 
     SubscriptionSerializer, 
-    PaymentSerializer,
+    SubscriptionPaymentSerializer as PaymentSerializer,
     UserSerializer
 )
-from ..permissions import IsAdmin
+from ..permissions import IsAdmin, IsSyndic
 
 
 # ============================================
@@ -595,3 +595,79 @@ class PaymentAdminViewSet(viewsets.ModelViewSet):
             'success': True,
             'data': stats
         })
+
+
+class SyndicSubscriptionPaymentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Syndics to manage their subscription payments.
+    Only accessible by Syndics.
+    """
+    # Assuming IsSyndic or similar permission exists, or just use IsAuthenticated and filter
+    # For now, using IsAuthenticated as a base.
+    permission_classes = [IsAuthenticated] 
+    serializer_class = PaymentSerializer
+    # We will control the queryset in get_queryset
+
+    def get_queryset(self):
+        """
+        Return payments for the current syndic's subscription only.
+        """
+        return Payment.objects.filter(
+            subscription__syndic_profile__user=self.request.user
+        ).order_by('-payment_date')
+
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new payment for the syndic's subscription.
+        """
+        # Extract data
+        subscription_id = request.data.get('subscription_id')
+        amount = request.data.get('amount')
+        payment_method = request.data.get('payment_method', 'BANK_TRANSFER')
+        reference = request.data.get('reference')
+        notes = request.data.get('notes')
+        
+        # Validation
+        if not subscription_id or not amount:
+             return Response({
+                'success': False,
+                'message': 'Subscription ID and amount are required.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Ensure the subscription belongs to this user
+        try:
+            subscription = Subscription.objects.get(
+                id=subscription_id, 
+                syndic_profile__user=request.user
+            )
+        except Subscription.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': 'Subscription not found or does not belong to you.'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Create Payment
+        try:
+            payment = Payment.objects.create(
+                subscription=subscription,
+                amount=amount,
+                payment_method=payment_method,
+                reference=reference,
+                notes=notes,
+                status='PENDING',
+                # processed_by remains null or could be set to self if desired, 
+                # but usually processed_by implies admin approval. Leaving it null for now.
+            )
+            
+            serializer = self.get_serializer(payment)
+            return Response({
+                'success': True,
+                'message': 'Payment submitted successfully',
+                'data': serializer.data
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
