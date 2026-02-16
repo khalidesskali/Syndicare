@@ -48,9 +48,9 @@ const SyndicSidebar: React.FC<SyndicSidebarProps> = ({ isOpen }) => {
         },
         { name: "Payments", icon: CreditCard, path: "/syndic/payments" },
         {
-          name: "Payment Management",
+          name: "Subscription Management",
           icon: Settings,
-          path: "/syndic/payment-management",
+          path: "/syndic/subscription-management",
         },
       ],
     },

@@ -12,7 +12,6 @@ import ApartmentPage from "../pages/syndic/Apartment";
 import ComplaintPage from "../pages/syndic/Complaint";
 import Residents from "../pages/syndic/Residents";
 import SyndicPayments from "../pages/syndic/Payments";
-import PaymentManagement from "../pages/syndic/PaymentManagement";
 import ResidentLayout from "../layouts/ResidentLayout";
 import ResidentDashboard from "../pages/ResidentDashboard";
 import Charges from "../pages/resident/Charges";
@@ -20,6 +19,7 @@ import ResidentPayments from "../pages/resident/Payments";
 import Reclamations from "../pages/resident/Reclamations";
 import Announcements from "../pages/resident/Announcements";
 import Profile from "../pages/resident/Profile";
+import SubscriptionManagement from "@/pages/syndic/SubscriptionManagement";
 
 export interface RouteConfig {
   path: string;
@@ -83,8 +83,8 @@ export const syndicRoutes: RouteConfig[] = [
     element: <SyndicPayments />,
   },
   {
-    path: "/syndic/payment-management",
-    element: <PaymentManagement />,
+    path: "/syndic/subscription-management",
+    element: <SubscriptionManagement />,
   },
 ];
 

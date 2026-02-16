@@ -64,7 +64,7 @@ interface UsePaymentsReturn {
   setFilters: (filters: Partial<any>) => void;
 }
 
-const usePayments = (): UsePaymentsReturn => {
+const useSyndicSubscriptionPayments = (): UsePaymentsReturn => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(false);
@@ -78,10 +78,10 @@ const usePayments = (): UsePaymentsReturn => {
   // Calculate stats from payments
   const calculateStats = () => {
     const completedPayments = payments.filter(
-      (p) => p.status === "COMPLETED"
+      (p) => p.status === "COMPLETED",
     ).length;
     const pendingPayments = payments.filter(
-      (p) => p.status === "PENDING"
+      (p) => p.status === "PENDING",
     ).length;
     const totalRevenue = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
@@ -104,7 +104,7 @@ const usePayments = (): UsePaymentsReturn => {
       setPlans(response.data.results || []);
     } catch (err: any) {
       setError(
-        err.response?.data?.message || "Failed to fetch subscription plans"
+        err.response?.data?.message || "Failed to fetch subscription plans",
       );
       console.error("Error fetching plans:", err);
     } finally {
@@ -136,7 +136,7 @@ const usePayments = (): UsePaymentsReturn => {
       });
 
       const response = await axiosInstance.get(
-        `/syndic/payments/?${params.toString()}`
+        `/syndic/payments/?${params.toString()}`,
       );
 
       setPayments(response.data.results || []);
@@ -245,7 +245,7 @@ const usePayments = (): UsePaymentsReturn => {
       setError(null);
 
       const response = await axiosInstance.post(
-        `/syndic/payments/${id}/approve/`
+        `/syndic/payments/${id}/approve/`,
       );
 
       if (response.data.success) {
@@ -274,7 +274,7 @@ const usePayments = (): UsePaymentsReturn => {
         `/syndic/payments/${id}/reject/`,
         {
           reason,
-        }
+        },
       );
 
       if (response.data.success) {
@@ -311,4 +311,4 @@ const usePayments = (): UsePaymentsReturn => {
   };
 };
 
-export default usePayments;
+export default useSyndicSubscriptionPayments;

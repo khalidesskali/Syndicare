@@ -21,11 +21,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import usePayments from "@/hooks/usePayments";
-import type { PaymentFormData } from "@/hooks/usePayments";
-
-const PaymentManagement: React.FC = () => {
-  const { payments, plans, loading, error, createPayment } = usePayments();
+import useSyndicSubscriptionPayments from "@/hooks/useSyndicSubscriptionPayments";
+import type { PaymentFormData } from "@/hooks/useSyndicSubscriptionPayments";
+const SubscriptionManagement = () => {
+  const { payments, plans, loading, error, createPayment } =
+    useSyndicSubscriptionPayments();
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [formData, setFormData] = useState<PaymentFormData>({
@@ -130,7 +130,6 @@ const PaymentManagement: React.FC = () => {
     const config = statusConfig[status as keyof typeof statusConfig];
     return config || statusConfig.PENDING;
   };
-
   return (
     <SyndicLayout>
       <div className="space-y-6">
@@ -543,4 +542,4 @@ const PaymentManagement: React.FC = () => {
   );
 };
 
-export default PaymentManagement;
+export default SubscriptionManagement;
