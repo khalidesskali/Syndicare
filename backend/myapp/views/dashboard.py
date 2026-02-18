@@ -48,7 +48,7 @@ def admin_dashboard(request):
     conversion_rate = round((active_subscriptions / total_syndics * 100), 1) if total_syndics > 0 else 0
     
     # 3. Monthly Revenue (include all payments: pending + completed)
-    current_month_payments = Payment.objects.filter(
+    current_month_payments = SubscriptionPayment.objects.filter(
         payment_date__gte=current_month_start
     )
     monthly_revenue = current_month_payments.aggregate(
@@ -56,7 +56,7 @@ def admin_dashboard(request):
     )['total'] or 0
     
     # Last month revenue for comparison
-    last_month_payments = Payment.objects.filter(
+    last_month_payments = SubscriptionPayment.objects.filter(
         payment_date__gte=last_month_start,
         payment_date__lt=current_month_start
     )
@@ -68,7 +68,7 @@ def admin_dashboard(request):
     revenue_change = monthly_revenue - last_month_revenue
     
     # 4. Pending Payments
-    pending_payments_queryset = Payment.objects.filter(status='PENDING')
+    pending_payments_queryset = SubscriptionPayment.objects.filter(status='PENDING')
     pending_payments_count = pending_payments_queryset.count()
     pending_payments_total = pending_payments_queryset.aggregate(
         total=Sum('amount')
@@ -117,7 +117,7 @@ def admin_dashboard(request):
     # ====================
     # RECENT PAYMENTS (Last 5)
     # ====================
-    recent_payments_queryset = Payment.objects.select_related(
+    recent_payments_queryset = SubscriptionPayment.objects.select_related(
         'subscription__syndic_profile__user',
         'subscription__plan'
     ).order_by('-payment_date')[:5]
