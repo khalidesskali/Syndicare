@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Plus } from "lucide-react";
-import SyndicLayout from "../../components/SyndicLayout";
+import SyndicLayout from "../../layouts/SyndicLayout";
 import { BuildingModals } from "../../components/buildings/BuildingModals";
 import { BuildingStats } from "../../components/buildings/BuildingStats";
 import { BuildingFilters } from "../../components/buildings/BuildingFilters";
@@ -34,7 +34,7 @@ const Buildings: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(
-    null
+    null,
   );
 
   // Action handlers

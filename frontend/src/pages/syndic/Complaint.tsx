@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SyndicLayout from "@/components/SyndicLayout";
+import SyndicLayout from "@/layouts/SyndicLayout";
 import { ComplaintHeader } from "@/components/complaints/ComplaintHeader";
 import { ComplaintStats } from "@/components/complaints/ComplaintStats";
 import { ComplaintFilters } from "@/components/complaints/ComplaintFilters";
@@ -38,7 +38,7 @@ const ComplaintPage: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(
-    null
+    null,
   );
   const [modalLoading, setModalLoading] = useState(false);
 
@@ -107,7 +107,7 @@ const ComplaintPage: React.FC = () => {
   const handleRespond = async (
     complaintId: number,
     response: string,
-    status?: string
+    status?: string,
   ) => {
     setModalLoading(true);
     const result = await respondToComplaint(complaintId, response, status);
@@ -117,7 +117,7 @@ const ComplaintPage: React.FC = () => {
 
   const handleStatusUpdate = async (
     complaintId: number,
-    status: Complaint["status"]
+    status: Complaint["status"],
   ) => {
     setModalLoading(true);
     await updateComplaint(complaintId, { status });

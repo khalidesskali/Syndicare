@@ -1,5 +1,5 @@
 import React from "react";
-import SyndicLayout from "@/components/SyndicLayout";
+import SyndicLayout from "@/layouts/SyndicLayout";
 import { AlertCircle } from "lucide-react";
 import { useSyndicDashboard } from "../hooks/useSyndicDashboard";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";

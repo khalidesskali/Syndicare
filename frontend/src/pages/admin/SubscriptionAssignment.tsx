@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AdminLayout from "@/components/AdminLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 import { UserPlus, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -138,7 +138,7 @@ const SubscriptionAssignment: React.FC = () => {
                 value={selectedSyndic?.id || ""}
                 onValueChange={(value) =>
                   setSelectedSyndic(
-                    syndics.find((s) => s.id === Number(value)) || null
+                    syndics.find((s) => s.id === Number(value)) || null,
                   )
                 }
               >
@@ -200,7 +200,7 @@ const SubscriptionAssignment: React.FC = () => {
                           getSubscriptionBadge(selectedSyndic).icon,
                           {
                             className: "h-4 w-4",
-                          }
+                          },
                         )}
                         <span>
                           {getSubscriptionBadge(selectedSyndic).label}
@@ -313,7 +313,7 @@ const SubscriptionAssignment: React.FC = () => {
                             setSelectedSyndic(syndic);
                             setSelectedPlan(
                               syndic.syndic_profile?.subscription?.plan?.id?.toString() ||
-                                ""
+                                "",
                             );
                           }}
                           variant="outline"

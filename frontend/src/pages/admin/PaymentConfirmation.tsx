@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "@/components/AdminLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 import { Eye, X, AlertCircle, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,7 +32,7 @@ const PaymentConfirmation: React.FC = () => {
   const [pendingPayments, setPendingPayments] = useState<PendingPayment[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PendingPayment | null>(
-    null
+    null,
   );
   const [rejectionReason, setRejectionReason] = useState("");
   const [showRejectionForm, setShowRejectionForm] = useState(false);
@@ -124,7 +124,7 @@ const PaymentConfirmation: React.FC = () => {
 
       // Remove from pending list
       setPendingPayments((prev) =>
-        prev.filter((p) => p.id !== selectedPayment?.id)
+        prev.filter((p) => p.id !== selectedPayment?.id),
       );
       setSelectedPayment(null);
       setRejectionReason("");
@@ -239,7 +239,7 @@ const PaymentConfirmation: React.FC = () => {
                             <span className="text-slate-500">Date:</span>
                             <span className="font-medium text-slate-900">
                               {new Date(
-                                payment.payment_date
+                                payment.payment_date,
                               ).toLocaleDateString()}
                             </span>
                           </div>
@@ -330,7 +330,7 @@ const PaymentConfirmation: React.FC = () => {
                             getMethodIcon(selectedPayment.payment_method),
                             {
                               className: "h-4 w-4 text-slate-400",
-                            }
+                            },
                           )}
                           <span>
                             {selectedPayment.payment_method.replace("_", " ")}
@@ -341,7 +341,7 @@ const PaymentConfirmation: React.FC = () => {
                         <span className="text-slate-500">Date:</span>
                         <span className="font-medium text-slate-900">
                           {new Date(
-                            selectedPayment.payment_date
+                            selectedPayment.payment_date,
                           ).toLocaleDateString()}
                         </span>
                       </div>

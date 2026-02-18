@@ -1,6 +1,6 @@
 import React from "react";
 import { Plus, Search, Filter, ChevronDown, X } from "lucide-react";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from "../../layouts/AdminLayout";
 import useSubscriptionPlans from "@/hooks/useSubscriptionPlans";
 
 const SubscriptionPlans: React.FC = () => {
@@ -244,13 +244,13 @@ const SubscriptionPlans: React.FC = () => {
                     description: formData.get("description") as string,
                     price: parseFloat(formData.get("price") as string),
                     duration_days: parseInt(
-                      formData.get("duration_days") as string
+                      formData.get("duration_days") as string,
                     ),
                     max_buildings: parseInt(
-                      formData.get("max_buildings") as string
+                      formData.get("max_buildings") as string,
                     ),
                     max_apartments: parseInt(
-                      formData.get("max_apartments") as string
+                      formData.get("max_apartments") as string,
                     ),
                     is_active: formData.get("is_active") === "on",
                   };

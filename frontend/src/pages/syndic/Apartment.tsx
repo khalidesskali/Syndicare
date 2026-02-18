@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SyndicLayout from "@/components/SyndicLayout";
+import SyndicLayout from "@/layouts/SyndicLayout";
 import { ApartmentHeader } from "@/components/apartments/ApartmentHeader";
 import { ApartmentStats as ApartmentStatsComponent } from "@/components/apartments/ApartmentStats";
 import { ApartmentFilters } from "@/components/apartments/ApartmentFilters";
@@ -41,7 +41,7 @@ const ApartmentPage: React.FC = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showAssignResidentModal, setShowAssignResidentModal] = useState(false);
   const [selectedApartment, setSelectedApartment] = useState<Apartment | null>(
-    null
+    null,
   );
   const [modalLoading, setModalLoading] = useState(false);
 
@@ -60,7 +60,7 @@ const ApartmentPage: React.FC = () => {
   const handleDeleteApartment = async (apartment: Apartment) => {
     if (
       window.confirm(
-        `Are you sure you want to delete apartment "${apartment.number}"?`
+        `Are you sure you want to delete apartment "${apartment.number}"?`,
       )
     ) {
       setModalLoading(true);
@@ -90,7 +90,7 @@ const ApartmentPage: React.FC = () => {
   const handleRemoveResident = async (apartment: Apartment) => {
     if (
       window.confirm(
-        `Are you sure you want to remove resident from apartment "${apartment.number}"?`
+        `Are you sure you want to remove resident from apartment "${apartment.number}"?`,
       )
     ) {
       setModalLoading(true);
@@ -123,7 +123,7 @@ const ApartmentPage: React.FC = () => {
 
   const handleAssignResidentSubmit = async (
     apartmentId: number,
-    residentId: number
+    residentId: number,
   ) => {
     setModalLoading(true);
     const result = await assignResident(apartmentId, residentId);

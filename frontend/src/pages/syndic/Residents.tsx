@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SyndicLayout from "@/components/SyndicLayout";
+import SyndicLayout from "@/layouts/SyndicLayout";
 import { ResidentsHeader } from "@/components/residents/ResidentsHeader";
 import { ResidentsStats } from "@/components/residents/ResidentsStats";
 import { ResidentsFilters } from "@/components/residents/ResidentsFilters";

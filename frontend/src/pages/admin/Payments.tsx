@@ -10,7 +10,7 @@ import {
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
-import AdminLayout from "@/components/AdminLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 import useAdminPayments from "@/hooks/useAdminPayments";
 import { format } from "date-fns";
 
@@ -328,7 +328,7 @@ const Payments: React.FC = () => {
                                 onClick={() =>
                                   updatePaymentStatus(
                                     payment.id.toString(),
-                                    "approve"
+                                    "approve",
                                   )
                                 }
                                 className="text-green-600 hover:text-green-900 mr-2"
@@ -339,7 +339,7 @@ const Payments: React.FC = () => {
                                 onClick={() =>
                                   updatePaymentStatus(
                                     payment.id.toString(),
-                                    "reject"
+                                    "reject",
                                   )
                                 }
                                 className="text-red-600 hover:text-red-900"
@@ -363,7 +363,7 @@ const Payments: React.FC = () => {
                               onClick={() =>
                                 updatePaymentStatus(
                                   payment.id.toString(),
-                                  "COMPLETED"
+                                  "COMPLETED",
                                 )
                               }
                               className="text-green-600 hover:text-green-900"

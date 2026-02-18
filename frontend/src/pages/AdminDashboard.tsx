@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import AdminLayout from "@/components/AdminLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 import { Users, CheckCircle2, DollarSign, Clock } from "lucide-react";
 import axiosInstance from "@/api/axios";
 import type { AdminDashboardResponse } from "@/types/admin";
@@ -7,7 +7,7 @@ import type { AdminDashboardResponse } from "@/types/admin";
 const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AdminDashboardResponse["data"] | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -15,7 +15,7 @@ const AdminDashboard: React.FC = () => {
       try {
         setLoading(true);
         const response = await axiosInstance.get(
-          "http://localhost:8000/api/admin/dashboard/"
+          "http://localhost:8000/api/admin/dashboard/",
         );
         if (response.data.success) {
           setStats(response.data.data);

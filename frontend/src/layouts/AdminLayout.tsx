@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import AppSidebar from "../components/sidebars/AppSidebar";
+import { useAuth } from "@/context/AuthContext";
+import AppSidebar from "@/components/sidebars/AppSidebar";
 import AppHeader from "@/components/sidebars/AppHeader";
-import { residentNavConfig } from "@/components/sidebars/navConfigs";
-import ChatbotWidget from "@/components/chatbot/ChatbotWidget";
+import { adminNavConfig } from "@/components/sidebars/navConfigs";
 
-interface ResidentLayoutProps {
-  children?: React.ReactNode;
+interface AdminLayoutProps {
+  children: React.ReactNode;
 }
 
-const ResidentLayout: React.FC<ResidentLayoutProps> = ({ children }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -25,36 +24,31 @@ const ResidentLayout: React.FC<ResidentLayoutProps> = ({ children }) => {
       <AppSidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen((p) => !p)}
-        brandName={residentNavConfig.brandName}
-        brandLabel={residentNavConfig.brandLabel}
-        logoIcon={residentNavConfig.logoIcon}
-        logoGradient={residentNavConfig.logoGradient}
-        logoShadow={residentNavConfig.logoShadow}
-        accent={residentNavConfig.sidebarAccent}
-        sections={residentNavConfig.sections}
+        brandName={adminNavConfig.brandName}
+        brandLabel={adminNavConfig.brandLabel}
+        logoIcon={adminNavConfig.logoIcon}
+        logoGradient={adminNavConfig.logoGradient}
+        logoShadow={adminNavConfig.logoShadow}
+        accent={adminNavConfig.sidebarAccent}
+        sections={adminNavConfig.sections}
       />
-
       <div
         className={`transition-all duration-300 ${
           sidebarOpen ? "ml-[220px]" : "ml-[68px]"
         }`}
       >
         <AppHeader
-          accent={residentNavConfig.headerAccent}
+          accent={adminNavConfig.headerAccent}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={() => setSidebarOpen((p) => !p)}
           user={user}
           onLogout={handleLogout}
-          searchPlaceholder={residentNavConfig.searchPlaceholder}
+          searchPlaceholder={adminNavConfig.searchPlaceholder}
         />
-
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
-
-      {/* Chatbot Widget */}
-      <ChatbotWidget />
     </div>
   );
 };
 
-export default ResidentLayout;
+export default AdminLayout;

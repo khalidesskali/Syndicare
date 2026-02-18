@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "@/components/AdminLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 import useSyndics from "@/hooks/useSyndics";
 import type { SyndicFilters } from "@/types/syndics";
 import SyndicsHeader from "@/components/syndic/SyndicsHeader";

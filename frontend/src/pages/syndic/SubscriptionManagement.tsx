@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SyndicLayout from "@/components/SyndicLayout";
+import SyndicLayout from "@/layouts/SyndicLayout";
 import { Button } from "@/components/ui/button";
 import {
   Card,

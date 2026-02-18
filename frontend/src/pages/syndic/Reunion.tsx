@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SyndicLayout from "@/components/SyndicLayout";
+import SyndicLayout from "@/layouts/SyndicLayout";
 import { ReunionHeader } from "@/components/reunions/ReunionHeader";
 import { ReunionStats as ReunionStatsComponent } from "@/components/reunions/ReunionStats";
 import { ReunionFilters } from "@/components/reunions/ReunionFilters";
@@ -135,7 +135,7 @@ const ReunionPage: React.FC = () => {
 
   const handleStatusUpdate = async (
     reunionId: number,
-    status: Reunion["status"]
+    status: Reunion["status"],
   ) => {
     setModalLoading(true);
     await updateReunionStatus(reunionId, status);

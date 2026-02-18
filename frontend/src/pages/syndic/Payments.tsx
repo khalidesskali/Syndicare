@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SyndicLayout from "../../components/SyndicLayout";
+import SyndicLayout from "../../layouts/SyndicLayout";
 import { useSyndicPayments } from "@/hooks/useSyndicPayments";
 import type { SyndicPayment } from "@/api/syndicPayments";
 import { PaymentFilters } from "../../components/payments/PaymentFilters";
@@ -20,7 +20,7 @@ const SyndicPayments: React.FC = () => {
   } = useSyndicPayments();
 
   const [selectedPayment, setSelectedPayment] = useState<SyndicPayment | null>(
-    null
+    null,
   );
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");

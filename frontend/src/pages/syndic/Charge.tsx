@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import SyndicLayout from "@/components/SyndicLayout";
+import SyndicLayout from "@/layouts/SyndicLayout";
 import { ChargeHeader } from "@/components/charges/ChargeHeader";
 import { ChargeStats } from "@/components/charges/ChargeStats";
 import { ChargeFilters } from "@/components/charges/ChargeFilters";
