@@ -3,7 +3,7 @@ import axiosInstance from "../api/axios";
 
 const API_BASE_URL = "http://localhost:8000/api";
 
-interface Plan {
+export interface Plan {
   id: number;
   name: string;
   description: string;
@@ -27,13 +27,12 @@ const useSubscriptionPlans = () => {
     status: "all",
   });
 
-  // Fetch plans from API
   useEffect(() => {
     const fetchPlans = async () => {
       setLoading(true);
       try {
         const response = await axiosInstance.get(
-          `${API_BASE_URL}/admin/subscription-plans/`
+          `${API_BASE_URL}/admin/subscription-plans/`,
         );
 
         if (response.data.success) {
@@ -41,7 +40,6 @@ const useSubscriptionPlans = () => {
         }
       } catch (error) {
         console.error("Error fetching plans:", error);
-        // Fallback to empty array on error
         setPlans([]);
       } finally {
         setLoading(false);
@@ -80,8 +78,8 @@ const useSubscriptionPlans = () => {
         // Update local state
         setPlans(
           plans.map((p) =>
-            p.id === planId ? { ...p, is_active: !p.is_active } : p
-          )
+            p.id === planId ? { ...p, is_active: !p.is_active } : p,
+          ),
         );
       }
     } catch (error) {
@@ -93,7 +91,7 @@ const useSubscriptionPlans = () => {
     if (window.confirm("Are you sure you want to delete this plan?")) {
       try {
         const response = await axiosInstance.delete(
-          `${API_BASE_URL}/admin/subscription-plans/${planId}/`
+          `${API_BASE_URL}/admin/subscription-plans/${planId}/`,
         );
 
         if (response.data.success) {
@@ -107,7 +105,7 @@ const useSubscriptionPlans = () => {
 
   const handleSubmitPlan = async (
     e: React.FormEvent,
-    planData?: Partial<Plan>
+    planData?: Partial<Plan>,
   ) => {
     e.preventDefault();
 
@@ -116,22 +114,22 @@ const useSubscriptionPlans = () => {
         // Update existing plan
         const response = await axiosInstance.patch(
           `${API_BASE_URL}/admin/subscription-plans/${editingPlan.id}/`,
-          planData
+          planData,
         );
 
         if (response.data.success) {
           // Update local state
           setPlans(
             plans.map((p) =>
-              p.id === editingPlan.id ? { ...p, ...response.data.data } : p
-            )
+              p.id === editingPlan.id ? { ...p, ...response.data.data } : p,
+            ),
           );
         }
       } else {
         // Create new plan
         const response = await axiosInstance.post(
           `${API_BASE_URL}/admin/subscription-plans/`,
-          planData
+          planData,
         );
 
         if (response.data.success) {
