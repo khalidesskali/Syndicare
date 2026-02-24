@@ -62,6 +62,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             try:
                 subscription = self.user.syndic_profile.subscription
                 data['user']['subscription'] = {
+                    'id': subscription.id,
                     'plan_name': subscription.plan.name,
                     'status': subscription.status,
                     'days_remaining': subscription.days_remaining,
