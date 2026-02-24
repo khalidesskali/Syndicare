@@ -28,6 +28,10 @@ from .views import (
     ResidentChargeViewSet,
     PaymentAdminViewSet,
     SyndicSubscriptionPaymentViewSet,
+    paypal_create_order,
+    paypal_capture_order,
+    paypal_payment_details,
+    paypal_refund,
 ) 
 
 router = DefaultRouter()
@@ -75,6 +79,12 @@ urlpatterns = [
     path('resident/dashboard/', resident_dashboard, name='resident_dashboard'),
     
     path("chatbot/", include("chatbot.urls")),
+
+    # PayPal payment endpoints
+    path('paypal/create-order/', paypal_create_order, name='paypal-create-order'),
+    path('paypal/capture-order/', paypal_capture_order, name='paypal-capture-order'),
+    path('paypal/payment/<str:payment_id>/', paypal_payment_details, name='paypal-payment-details'),
+    path('paypal/refund/', paypal_refund, name='paypal-refund'),
 
     path('', include(router.urls)),
 ]
