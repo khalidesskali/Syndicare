@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import type { AxiosRequestConfig } from "axios";
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   _retry?: boolean;
@@ -42,7 +42,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response interceptor - Handle token refresh
@@ -108,7 +108,7 @@ axiosInstance.interceptors.response.use(
         window.dispatchEvent(
           new CustomEvent("tokenRefreshed", {
             detail: { access, refresh },
-          })
+          }),
         );
 
         // Process queued requests
@@ -139,7 +139,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

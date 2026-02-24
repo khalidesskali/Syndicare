@@ -8,8 +8,6 @@ import type {
 } from "../types/syndics";
 import axiosInstance from "../api/axios";
 
-const API_URL = "http://localhost:8000/api";
-
 const useSyndics = () => {
   const { isAuthenticated } = useAuth();
   const [syndics, setSyndics] = useState<Syndic[]>([]);
@@ -40,7 +38,7 @@ const useSyndics = () => {
 
         // The axiosInstance interceptor will handle adding the auth token
         const response = await axiosInstance.get(
-          `${API_URL}/admin/syndics/?${params.toString()}`
+          `/admin/syndics/?${params.toString()}`,
         );
 
         setSyndics(response.data.results);
@@ -57,7 +55,7 @@ const useSyndics = () => {
         setLoading(false);
       }
     },
-    [isAuthenticated]
+    [isAuthenticated],
   );
 
   const fetchSyndicStats = useCallback(async () => {
@@ -65,7 +63,7 @@ const useSyndics = () => {
 
     try {
       const response = await axiosInstance.get(
-        `${API_URL}/admin/syndics/dashboard_stats/`
+        "/admin/syndics/dashboard_stats/",
       );
       const data = response.data.data;
       setStats(data);
@@ -80,9 +78,7 @@ const useSyndics = () => {
       if (!isAuthenticated) return null;
 
       try {
-        const response = await axiosInstance.get(
-          `${API_URL}/admin/syndics/${id}/`
-        );
+        const response = await axiosInstance.get(`/admin/syndics/${id}/`);
         return response.data;
       } catch (err: any) {
         console.error(`Error fetching syndic ${id}:`, err);
@@ -90,17 +86,14 @@ const useSyndics = () => {
         return null;
       }
     },
-    [isAuthenticated]
+    [isAuthenticated],
   );
 
   const createSyndic = async (data: SyndicFormData): Promise<Syndic | null> => {
     if (!isAuthenticated) return null;
 
     try {
-      const response = await axiosInstance.post(
-        `${API_URL}/admin/syndics/`,
-        data
-      );
+      const response = await axiosInstance.post("/admin/syndics/", data);
       await fetchSyndics(); // Refresh the list
       return response.data;
     } catch (err: any) {
@@ -111,17 +104,14 @@ const useSyndics = () => {
 
   const updateSyndic = async (
     id: number,
-    data: Partial<SyndicFormData>
+    data: Partial<SyndicFormData>,
   ): Promise<Syndic | null> => {
     if (!isAuthenticated) return null;
 
     try {
-      const response = await axiosInstance.patch(
-        `${API_URL}/admin/syndics/${id}/`,
-        data
-      );
+      const response = await axiosInstance.patch(`/admin/syndics/${id}/`, data);
       setSyndics(
-        syndics.map((s) => (s.id === id ? { ...s, ...response.data } : s))
+        syndics.map((s) => (s.id === id ? { ...s, ...response.data } : s)),
       );
       return response.data;
     } catch (err: any) {
@@ -134,7 +124,7 @@ const useSyndics = () => {
     if (!isAuthenticated) return false;
 
     try {
-      const res = await axiosInstance.delete(`${API_URL}/admin/syndics/${id}/`);
+      const res = await axiosInstance.delete(`/admin/syndics/${id}/`);
       console.log(res);
       setSyndics(syndics.filter((s) => s.id !== id));
       console.log("user deleted");
@@ -147,16 +137,16 @@ const useSyndics = () => {
 
   const toggleSyndicStatus = async (
     id: number,
-    isActive: boolean
+    isActive: boolean,
   ): Promise<boolean> => {
     if (!isAuthenticated) return false;
 
     try {
-      await axiosInstance.patch(`${API_URL}/admin/syndics/${id}/status/`, {
+      await axiosInstance.patch(`/admin/syndics/${id}/status/`, {
         is_active: isActive,
       });
       setSyndics(
-        syndics.map((s) => (s.id === id ? { ...s, is_active: isActive } : s))
+        syndics.map((s) => (s.id === id ? { ...s, is_active: isActive } : s)),
       );
       return true;
     } catch (err: any) {
@@ -171,7 +161,7 @@ const useSyndics = () => {
       fetchSyndics();
       fetchSyndicStats();
     }
-  }, [isAuthenticated, fetchSyndics]);
+  }, [isAuthenticated, fetchSyndics, fetchSyndicStats]);
 
   return {
     syndics,

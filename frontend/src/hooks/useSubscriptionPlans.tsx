@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../api/axios";
 
-const API_BASE_URL = "http://localhost:8000/api";
-
 export interface Plan {
   id: number;
   name: string;
@@ -31,9 +29,7 @@ const useSubscriptionPlans = () => {
     const fetchPlans = async () => {
       setLoading(true);
       try {
-        const response = await axiosInstance.get(
-          `${API_BASE_URL}/admin/subscription-plans/`,
-        );
+        const response = await axiosInstance.get("/admin/subscription-plans/");
 
         if (response.data.success) {
           setPlans(response.data.data);
@@ -69,8 +65,8 @@ const useSubscriptionPlans = () => {
       if (!plan) return;
 
       const endpoint = plan.is_active
-        ? `${API_BASE_URL}/admin/subscription-plans/${planId}/deactivate/`
-        : `${API_BASE_URL}/admin/subscription-plans/${planId}/activate/`;
+        ? `/admin/subscription-plans/${planId}/deactivate/`
+        : `/admin/subscription-plans/${planId}/activate/`;
 
       const response = await axiosInstance.post(endpoint, {});
 
@@ -91,7 +87,7 @@ const useSubscriptionPlans = () => {
     if (window.confirm("Are you sure you want to delete this plan?")) {
       try {
         const response = await axiosInstance.delete(
-          `${API_BASE_URL}/admin/subscription-plans/${planId}/`,
+          `/admin/subscription-plans/${planId}/`,
         );
 
         if (response.data.success) {
@@ -113,7 +109,7 @@ const useSubscriptionPlans = () => {
       if (editingPlan) {
         // Update existing plan
         const response = await axiosInstance.patch(
-          `${API_BASE_URL}/admin/subscription-plans/${editingPlan.id}/`,
+          `/admin/subscription-plans/${editingPlan.id}/`,
           planData,
         );
 
@@ -128,7 +124,7 @@ const useSubscriptionPlans = () => {
       } else {
         // Create new plan
         const response = await axiosInstance.post(
-          `${API_BASE_URL}/admin/subscription-plans/`,
+          "/admin/subscription-plans/",
           planData,
         );
 

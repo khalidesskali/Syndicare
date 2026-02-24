@@ -14,9 +14,7 @@ const AdminDashboard: React.FC = () => {
     const getStats = async (): Promise<void> => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get(
-          "http://localhost:8000/api/admin/dashboard/",
-        );
+        const response = await axiosInstance.get("/admin/dashboard/");
         if (response.data.success) {
           setStats(response.data.data);
         }
