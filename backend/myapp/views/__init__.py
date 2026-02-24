@@ -72,7 +72,12 @@ from .payment import (
     SyndicSubscriptionPaymentViewSet
 )
 
-
+from .paypal_views import (
+    paypal_create_order,
+    paypal_capture_order,
+    paypal_payment_details,
+    paypal_refund,
+)
 
 __all__ = [
     # Authentication views
