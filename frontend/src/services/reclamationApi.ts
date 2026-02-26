@@ -4,11 +4,37 @@ export interface Reclamation {
   id: number;
   title: string;
   content: string;
-  priority: "LOW" | "MEDIUM" | "HIGH";
+  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   status: "PENDING" | "IN_PROGRESS" | "RESOLVED" | "REJECTED";
   created_at: string;
   updated_at: string;
   response?: string;
+  category?:
+    | "PLUMBING"
+    | "ELECTRICITY"
+    | "NOISE"
+    | "SECURITY"
+    | "ELEVATOR"
+    | "CLEANLINESS"
+    | "ADMINISTRATIVE"
+    | "PARKING"
+    | "OTHER"
+    | null;
+  ai_urgency_level?: string | null;
+  priority_score?: number | null;
+  ai_summary?: string | null;
+  suggested_department?:
+    | "MAINTENANCE"
+    | "SECURITY"
+    | "ADMINISTRATION"
+    | "FINANCE"
+    | "CLEANING"
+    | "MANAGEMENT"
+    | null;
+  sentiment?: string | null;
+  confidence_score?: number | null;
+  ai_processed?: boolean;
+  ai_processed_at?: string | null;
   appartement?: {
     id: number;
     number: string;
@@ -22,7 +48,6 @@ export interface Reclamation {
 export interface ReclamationCreateData {
   title: string;
   content: string;
-  priority: "LOW" | "MEDIUM" | "HIGH";
 }
 
 export interface ReclamationStatistics {

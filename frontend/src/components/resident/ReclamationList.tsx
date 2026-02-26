@@ -46,6 +46,7 @@ const ReclamationList: React.FC<ReclamationListProps> = ({
       LOW: "outline" as const,
       MEDIUM: "secondary" as const,
       HIGH: "destructive" as const,
+      URGENT: "destructive" as const,
     };
 
     return <Badge variant={variants[priority]}>{priority}</Badge>;
@@ -91,11 +92,43 @@ const ReclamationList: React.FC<ReclamationListProps> = ({
                       {reclamation.title}
                     </h3>
                     {getPriorityBadge(reclamation.priority)}
+                    {reclamation.ai_processed === false && (
+                      <Badge variant="outline">AI processing</Badge>
+                    )}
+                    {reclamation.ai_processed === true &&
+                      reclamation.category && (
+                        <Badge variant="secondary">
+                          {reclamation.category}
+                        </Badge>
+                      )}
                   </div>
 
                   <p className="text-slate-600 mb-4 line-clamp-2 leading-relaxed">
                     {reclamation.content}
                   </p>
+
+                  {reclamation.ai_processed === true &&
+                    (reclamation.ai_summary ||
+                      reclamation.suggested_department) && (
+                      <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        {reclamation.ai_summary && (
+                          <div className="text-sm text-slate-700 leading-relaxed">
+                            <span className="font-medium text-slate-900">
+                              Summary:
+                            </span>{" "}
+                            {reclamation.ai_summary}
+                          </div>
+                        )}
+                        {reclamation.suggested_department && (
+                          <div className="mt-2 text-sm text-slate-700">
+                            <span className="font-medium text-slate-900">
+                              Department:
+                            </span>{" "}
+                            {reclamation.suggested_department}
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                   <div className="flex items-center gap-6 text-sm text-slate-500">
                     <div className="flex items-center gap-1">

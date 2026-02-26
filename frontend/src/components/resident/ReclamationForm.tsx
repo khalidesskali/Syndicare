@@ -12,13 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import type { ReclamationCreateData } from "@/services/reclamationApi";
 import { reclamationApi } from "@/services/reclamationApi";
@@ -41,7 +34,6 @@ const ReclamationForm: React.FC<ReclamationFormProps> = ({
   const [formData, setFormData] = useState<ReclamationCreateData>({
     title: "",
     content: "",
-    priority: "MEDIUM",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,7 +44,7 @@ const ReclamationForm: React.FC<ReclamationFormProps> = ({
       await reclamationApi.createReclamation(formData);
 
       // Reset form
-      setFormData({ title: "", content: "", priority: "MEDIUM" });
+      setFormData({ title: "", content: "" });
       setOpen(false);
 
       // Notify parent
@@ -120,29 +112,6 @@ const ReclamationForm: React.FC<ReclamationFormProps> = ({
                 required
                 disabled={loading || externalLoading}
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select
-                value={formData.priority}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    priority: value as ReclamationCreateData["priority"],
-                  })
-                }
-                disabled={loading || externalLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="LOW">Low</SelectItem>
-                  <SelectItem value="MEDIUM">Medium</SelectItem>
-                  <SelectItem value="HIGH">High</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
 

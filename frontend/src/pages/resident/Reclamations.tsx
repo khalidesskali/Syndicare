@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ReclamationForm from "@/components/resident/ReclamationForm";
 import ReclamationList from "@/components/resident/ReclamationList";
 import ReclamationStats from "@/components/resident/ReclamationStats";
@@ -20,36 +20,62 @@ const Reclamations: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const fetchReclamations = async () => {
+  const fetchReclamations = useCallback(async () => {
     try {
       setError(null);
       const response = await reclamationApi.getReclamations();
-      setReclamations(response.data);
+      const payload = (response as any)?.data;
+      const reclamationsData = Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload)
+        ? payload
+        : [];
+      setReclamations(reclamationsData);
     } catch (err) {
       console.error("Failed to fetch reclamations:", err);
       setError("Failed to load reclamations");
       setErrorMessage("Failed to load your reclamations. Please try again.");
     }
-  };
+  }, []);
 
-  const fetchStatistics = async () => {
+  const fetchStatistics = useCallback(async () => {
     try {
       const response = await reclamationApi.getStatistics();
-      setStatistics(response.data);
+      const payload = (response as any)?.data;
+      const statisticsData = payload?.data ?? payload ?? null;
+      setStatistics(statisticsData);
     } catch (err) {
       console.error("Failed to fetch statistics:", err);
     }
-  };
+  }, []);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     await Promise.all([fetchReclamations(), fetchStatistics()]);
     setLoading(false);
-  };
+  }, [fetchReclamations, fetchStatistics]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
+
+  useEffect(() => {
+    const hasUnprocessed = reclamations.some((r) => r.ai_processed === false);
+    if (!hasUnprocessed) return;
+
+    let attempts = 0;
+    const intervalId = window.setInterval(() => {
+      attempts += 1;
+      fetchReclamations();
+      fetchStatistics();
+
+      if (attempts >= 6) {
+        window.clearInterval(intervalId);
+      }
+    }, 3000);
+
+    return () => window.clearInterval(intervalId);
+  }, [reclamations, fetchReclamations, fetchStatistics]);
 
   const handleReclamationCreated = () => {
     // Refresh data when a new reclamation is created
