@@ -8,6 +8,7 @@ from django.utils import timezone
 from ..models import Reclamation, ReclamationStatusHistory
 from ..serializers import ReclamationSerializer
 from ..permissions import IsSyndic
+from ..services.ai_triage_service import process_reclamation_ai
 
 
 # ==========================
@@ -218,6 +219,21 @@ class ReclamationViewSet(viewsets.ModelViewSet):
         ]
 
         return Response({'success': True, 'data': data})
+
+    @action(detail=True, methods=['post'])
+    def triage_ai(self, request, pk=None):
+        reclamation = self.get_object()
+
+        try:
+            process_reclamation_ai(reclamation.id)
+            reclamation.refresh_from_db()
+        except Exception:
+            return Response(
+                {'success': False, 'message': 'AI triage failed'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response({'success': True, 'data': self.get_serializer(reclamation).data})
 
     # ==========================
     # Statistics

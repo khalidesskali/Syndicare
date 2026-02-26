@@ -5,9 +5,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 from django.db.models import Q
 from django.utils import timezone
+import logging
 
 from ..models import Reclamation, ReclamationStatusHistory, Appartement, Immeuble
 from ..permissions import IsResident
+from ..services.ai_triage_service import process_reclamation_ai
+
+
+logger = logging.getLogger(__name__)
 
 
 class ResidentReclamationSerializer(serializers.ModelSerializer):
@@ -35,10 +40,38 @@ class ResidentReclamationSerializer(serializers.ModelSerializer):
             'status',
             'priority',
             'response',
+            'category',
+            'ai_urgency_level',
+            'priority_score',
+            'ai_summary',
+            'suggested_department',
+            'sentiment',
+            'confidence_score',
+            'ai_processed',
+            'ai_processed_at',
             'created_at',
             'updated_at'
         ]
-        read_only_fields = ['id', 'syndic', 'resident', 'appartement', 'created_at', 'updated_at']
+        read_only_fields = [
+            'id',
+            'syndic',
+            'resident',
+            'appartement',
+            'status',
+            'priority',
+            'response',
+            'category',
+            'ai_urgency_level',
+            'priority_score',
+            'ai_summary',
+            'suggested_department',
+            'sentiment',
+            'confidence_score',
+            'ai_processed',
+            'ai_processed_at',
+            'created_at',
+            'updated_at',
+        ]
 
     def get_resident_name(self, obj):
         return f"{obj.resident.first_name} {obj.resident.last_name}".strip()
@@ -142,7 +175,12 @@ class ResidentReclamationViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         # This is handled by the serializer's create method
-        serializer.save()
+        reclamation = serializer.save()
+        try:
+            process_reclamation_ai(reclamation.id)
+            reclamation.refresh_from_db()
+        except Exception:
+            logger.exception("AI triage failed during resident reclamation create (reclamation_id=%s)", reclamation.id)
 
     # ==========================
     # Statistics

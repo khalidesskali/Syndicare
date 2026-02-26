@@ -714,10 +714,36 @@ class ReclamationSerializer(serializers.ModelSerializer):
             'title',
             'content',
             'status',
+            'priority',
+            'response',
+            'category',
+            'ai_urgency_level',
+            'priority_score',
+            'ai_summary',
+            'suggested_department',
+            'sentiment',
+            'confidence_score',
+            'ai_processed',
+            'ai_processed_at',
             'created_at',
             'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = [
+            'id',
+            'resident',
+            'appartement',
+            'created_at',
+            'updated_at',
+            'category',
+            'ai_urgency_level',
+            'priority_score',
+            'ai_summary',
+            'suggested_department',
+            'sentiment',
+            'confidence_score',
+            'ai_processed',
+            'ai_processed_at',
+        ]
     
     def get_resident_name(self, obj):
         if obj.resident:
@@ -734,7 +760,36 @@ class ResidentReclamationSerializer(serializers.ModelSerializer):
         fields = [
             'appartement',
             'title',
-            'content'
+            'content',
+            'status',
+            'priority',
+            'category',
+            'ai_urgency_level',
+            'priority_score',
+            'ai_summary',
+            'suggested_department',
+            'sentiment',
+            'confidence_score',
+            'ai_processed',
+            'ai_processed_at',
+            'created_at',
+            'updated_at',
+        ]
+
+        read_only_fields = [
+            'status',
+            'priority',
+            'category',
+            'ai_urgency_level',
+            'priority_score',
+            'ai_summary',
+            'suggested_department',
+            'sentiment',
+            'confidence_score',
+            'ai_processed',
+            'ai_processed_at',
+            'created_at',
+            'updated_at',
         ]
     
     def create(self, validated_data):
