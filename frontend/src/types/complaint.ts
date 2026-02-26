@@ -27,6 +27,32 @@ export interface Complaint {
   status: "PENDING" | "IN_PROGRESS" | "RESOLVED" | "REJECTED";
   priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   response?: string;
+  category?:
+    | "PLUMBING"
+    | "ELECTRICITY"
+    | "NOISE"
+    | "SECURITY"
+    | "ELEVATOR"
+    | "CLEANLINESS"
+    | "ADMINISTRATIVE"
+    | "PARKING"
+    | "OTHER"
+    | null;
+  ai_urgency_level?: string | null;
+  priority_score?: number | null;
+  ai_summary?: string | null;
+  suggested_department?:
+    | "MAINTENANCE"
+    | "SECURITY"
+    | "ADMINISTRATION"
+    | "FINANCE"
+    | "CLEANING"
+    | "MANAGEMENT"
+    | null;
+  sentiment?: string | null;
+  confidence_score?: number | null;
+  ai_processed?: boolean;
+  ai_processed_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -48,9 +74,9 @@ export interface ComplaintStats {
 export interface CreateComplaintRequest {
   title: string;
   content: string;
-  priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
-  appartement_id: number;
-  resident_email: string;
+  priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+  appartement_id?: number;
+  resident_email?: string;
 }
 
 export interface UpdateComplaintRequest {
