@@ -1,6 +1,6 @@
 import { type ReactElement } from "react";
 import AdminDashboard from "../pages/AdminDashboard";
-import Syndics from "../pages/admin/Synidc";
+import Syndics from "../pages/admin/Syndics";
 import SubscriptionPlans from "../pages/admin/SubscriptionPlans";
 import Payments from "../pages/admin/Payments";
 import SubscriptionAssignment from "../pages/admin/SubscriptionAssignment";
