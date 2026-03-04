@@ -9,16 +9,19 @@ import {
   type Reclamation,
   type ReclamationStatistics,
 } from "@/services/reclamationApi";
+import DeleteConfirmation from "@/components/resident/DeleteConfirmation";
 
 const Reclamations: React.FC = () => {
   const [reclamations, setReclamations] = useState<Reclamation[]>([]);
   const [statistics, setStatistics] = useState<ReclamationStatistics | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Reclamation | null>(null);
 
   const fetchReclamations = useCallback(async () => {
     try {
@@ -28,8 +31,8 @@ const Reclamations: React.FC = () => {
       const reclamationsData = Array.isArray(payload?.data)
         ? payload.data
         : Array.isArray(payload)
-        ? payload
-        : [];
+          ? payload
+          : [];
       setReclamations(reclamationsData);
     } catch (err) {
       console.error("Failed to fetch reclamations:", err);
@@ -92,6 +95,29 @@ const Reclamations: React.FC = () => {
     console.log("Reclamation clicked:", reclamation);
   };
 
+  const handleDeleteRequest = (reclamation: Reclamation) => {
+    setConfirmDelete(reclamation);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDelete) return;
+    const id = confirmDelete.id;
+    setConfirmDelete(null);
+    setDeletingId(id);
+    try {
+      await reclamationApi.deleteReclamation(id);
+      setSuccessMessage("Complaint deleted successfully.");
+      loadData();
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ||
+        "Failed to delete complaint. Please try again.";
+      setErrorMessage(message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -135,6 +161,8 @@ const Reclamations: React.FC = () => {
       <ReclamationList
         reclamations={reclamations}
         onReclamationClick={handleReclamationClick}
+        onDelete={handleDeleteRequest}
+        deletingId={deletingId}
       />
 
       {/* Success and Error Messages */}
@@ -143,6 +171,13 @@ const Reclamations: React.FC = () => {
       )}
 
       {errorMessage && <ErrorMessage message={errorMessage} duration={5000} />}
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmation
+        confirmDelete={confirmDelete}
+        setConfirmDelete={setConfirmDelete}
+        handleConfirmDelete={handleConfirmDelete}
+      />
     </div>
   );
 };

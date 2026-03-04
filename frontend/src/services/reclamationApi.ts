@@ -99,7 +99,7 @@ export const reclamationApi = {
   // Get reclamation statistics
   getStatistics: async () => {
     const response = await axiosInstance.get(
-      "/resident/reclamations/statistics/"
+      "/resident/reclamations/statistics/",
     );
     return response.data;
   },
@@ -107,7 +107,15 @@ export const reclamationApi = {
   // Get reclamation history
   getHistory: async (id: number) => {
     const response = await axiosInstance.get(
-      `/resident/reclamations/${id}/history/`
+      `/resident/reclamations/${id}/history/`,
+    );
+    return response.data;
+  },
+
+  // Delete a reclamation (only PENDING ones can be deleted)
+  deleteReclamation: async (id: number) => {
+    const response = await axiosInstance.delete(
+      `/resident/reclamations/${id}/`,
     );
     return response.data;
   },

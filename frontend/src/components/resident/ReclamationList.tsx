@@ -1,17 +1,22 @@
 import React from "react";
-import { Clock, AlertCircle, CheckCircle, XCircle } from "lucide-react";
+import { Clock, AlertCircle, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { Reclamation } from "@/services/reclamationApi";
 
 interface ReclamationListProps {
   reclamations: Reclamation[];
   onReclamationClick?: (reclamation: Reclamation) => void;
+  onDelete?: (reclamation: Reclamation) => void;
+  deletingId?: number | null;
 }
 
 const ReclamationList: React.FC<ReclamationListProps> = ({
   reclamations,
   onReclamationClick,
+  onDelete,
+  deletingId,
 }) => {
   const getStatusIcon = (status: Reclamation["status"]) => {
     const icons = {
@@ -174,21 +179,60 @@ const ReclamationList: React.FC<ReclamationListProps> = ({
 
                 <div className="flex flex-col items-end gap-2">
                   {getStatusBadge(reclamation.status)}
-                  {onReclamationClick && (
-                    <svg
-                      className="w-5 h-5 text-slate-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {reclamation.status === "PENDING" && onDelete && (
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                        disabled={deletingId === reclamation.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(reclamation);
+                        }}
+                        title="Delete complaint"
+                      >
+                        {deletingId === reclamation.id ? (
+                          <svg
+                            className="w-4 h-4 animate-spin"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                            />
+                          </svg>
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </Button>
+                    )}
+                    {onReclamationClick && (
+                      <svg
+                        className="w-5 h-5 text-slate-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    )}
+                  </div>
                 </div>
               </div>
 
