@@ -8,7 +8,7 @@ import {
   reclamationApi,
   type Reclamation,
   type ReclamationStatistics,
-} from "@/services/reclamationApi";
+} from "@/api/reclamationApi";
 import DeleteConfirmation from "@/components/resident/DeleteConfirmation";
 
 const Reclamations: React.FC = () => {

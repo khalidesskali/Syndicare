@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ReclamationStatistics } from "@/services/reclamationApi";
+import type { ReclamationStatistics } from "@/api/reclamationApi";
 
 interface ReclamationStatsProps {
   statistics: ReclamationStatistics;

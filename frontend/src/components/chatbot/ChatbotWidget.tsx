@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import ChatbotButton from "./ChatbotButton";
 import ChatbotPanel from "./ChatbotPanel";
-import { chatbotApi } from "@/services/chatbotApi";
+import { chatbotApi } from "@/api/chatbotApi";
 import type { Message } from "./types";
 
 const ChatbotWidget: React.FC = () => {

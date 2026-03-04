@@ -13,8 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import type { ReclamationCreateData } from "@/services/reclamationApi";
-import { reclamationApi } from "@/services/reclamationApi";
+import type { ReclamationCreateData } from "@/api/reclamationApi";
+import { reclamationApi } from "@/api/reclamationApi";
 
 interface ReclamationFormProps {
   onReclamationCreated?: () => void;
