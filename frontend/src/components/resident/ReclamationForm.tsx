@@ -13,8 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import type { ReclamationCreateData } from "@/api/reclamationApi";
-import { reclamationApi } from "@/api/reclamationApi";
+import type { ReclamationCreateData } from "@/api/residentReclamationApi";
+import { residentReclamationApi } from "@/api/residentReclamationApi";
 
 interface ReclamationFormProps {
   onReclamationCreated?: () => void;
@@ -41,7 +41,7 @@ const ReclamationForm: React.FC<ReclamationFormProps> = ({
     setLoading(true);
 
     try {
-      await reclamationApi.createReclamation(formData);
+      await residentReclamationApi.createReclamation(formData);
 
       // Reset form
       setFormData({ title: "", content: "" });

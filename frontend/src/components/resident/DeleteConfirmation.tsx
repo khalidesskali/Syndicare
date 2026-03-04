@@ -8,7 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import type { Reclamation } from "@/api/reclamationApi";
+import type { Reclamation } from "@/api/residentReclamationApi";
 
 const DeleteConfirmation = ({
   confirmDelete,

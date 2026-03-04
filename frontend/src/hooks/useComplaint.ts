@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Complaint, ComplaintStats } from "../types/complaint";
-import { complaintAPI } from "../api/complaints";
+import { syndicReclamationApi } from "../api/syndicReclamationApi";
 import type {
   UpdateComplaintRequest,
   ComplaintFilters,
@@ -14,13 +14,13 @@ const calculateStats = (complaints: Complaint[]): ComplaintStats => {
   const total = complaintsArray.length;
   const pending = complaintsArray.filter((c) => c.status === "PENDING").length;
   const in_progress = complaintsArray.filter(
-    (c) => c.status === "IN_PROGRESS"
+    (c) => c.status === "IN_PROGRESS",
   ).length;
   const resolved = complaintsArray.filter(
-    (c) => c.status === "RESOLVED"
+    (c) => c.status === "RESOLVED",
   ).length;
   const rejected = complaintsArray.filter(
-    (c) => c.status === "REJECTED"
+    (c) => c.status === "REJECTED",
   ).length;
 
   const by_priority = {
@@ -85,7 +85,7 @@ export const useComplaint = () => {
           : undefined,
       };
 
-      const complaintsData = await complaintAPI.getComplaints(filters);
+      const complaintsData = await syndicReclamationApi.getComplaints(filters);
       setComplaints(complaintsData);
 
       // Calculate stats from the fetched complaints data
@@ -104,12 +104,15 @@ export const useComplaint = () => {
   const updateComplaint = useCallback(
     async (
       id: number,
-      data: UpdateComplaintRequest
+      data: UpdateComplaintRequest,
     ): Promise<Complaint | null> => {
       try {
-        const updatedComplaint = await complaintAPI.updateComplaint(id, data);
+        const updatedComplaint = await syndicReclamationApi.updateComplaint(
+          id,
+          data,
+        );
         setComplaints((prev) =>
-          prev.map((c) => (c.id === id ? updatedComplaint : c))
+          prev.map((c) => (c.id === id ? updatedComplaint : c)),
         );
         await fetchComplaints(); // Refresh stats
         return updatedComplaint;
@@ -121,13 +124,13 @@ export const useComplaint = () => {
         return null;
       }
     },
-    [fetchComplaints]
+    [fetchComplaints],
   );
 
   const deleteComplaint = useCallback(
     async (id: number): Promise<boolean> => {
       try {
-        await complaintAPI.deleteComplaint(id);
+        await syndicReclamationApi.deleteComplaint(id);
         setComplaints((prev) => prev.filter((c) => c.id !== id));
         await fetchComplaints(); // Refresh stats
         return true;
@@ -139,23 +142,23 @@ export const useComplaint = () => {
         return false;
       }
     },
-    [fetchComplaints]
+    [fetchComplaints],
   );
 
   const respondToComplaint = useCallback(
     async (
       id: number,
       response: string,
-      status?: string
+      status?: string,
     ): Promise<Complaint | null> => {
       try {
-        const updatedComplaint = await complaintAPI.respondToComplaint(
+        const updatedComplaint = await syndicReclamationApi.respondToComplaint(
           id,
           response,
-          status
+          status,
         );
         setComplaints((prev) =>
-          prev.map((c) => (c.id === id ? updatedComplaint : c))
+          prev.map((c) => (c.id === id ? updatedComplaint : c)),
         );
         await fetchComplaints(); // Refresh stats
         return updatedComplaint;
@@ -167,15 +170,15 @@ export const useComplaint = () => {
         return null;
       }
     },
-    [fetchComplaints]
+    [fetchComplaints],
   );
 
   const markAsResolved = useCallback(
     async (id: number): Promise<Complaint | null> => {
       try {
-        const updatedComplaint = await complaintAPI.markAsResolved(id);
+        const updatedComplaint = await syndicReclamationApi.markAsResolved(id);
         setComplaints((prev) =>
-          prev.map((c) => (c.id === id ? updatedComplaint : c))
+          prev.map((c) => (c.id === id ? updatedComplaint : c)),
         );
         await fetchComplaints(); // Refresh stats
         return updatedComplaint;
@@ -189,15 +192,16 @@ export const useComplaint = () => {
         return null;
       }
     },
-    [fetchComplaints]
+    [fetchComplaints],
   );
 
   const markAsInProgress = useCallback(
     async (id: number): Promise<Complaint | null> => {
       try {
-        const updatedComplaint = await complaintAPI.markAsInProgress(id);
+        const updatedComplaint =
+          await syndicReclamationApi.markAsInProgress(id);
         setComplaints((prev) =>
-          prev.map((c) => (c.id === id ? updatedComplaint : c))
+          prev.map((c) => (c.id === id ? updatedComplaint : c)),
         );
         await fetchComplaints(); // Refresh stats
         return updatedComplaint;
@@ -211,18 +215,18 @@ export const useComplaint = () => {
         return null;
       }
     },
-    [fetchComplaints]
+    [fetchComplaints],
   );
 
   const rejectComplaint = useCallback(
     async (id: number, response: string): Promise<Complaint | null> => {
       try {
-        const updatedComplaint = await complaintAPI.rejectComplaint(
+        const updatedComplaint = await syndicReclamationApi.rejectComplaint(
           id,
-          response
+          response,
         );
         setComplaints((prev) =>
-          prev.map((c) => (c.id === id ? updatedComplaint : c))
+          prev.map((c) => (c.id === id ? updatedComplaint : c)),
         );
         await fetchComplaints(); // Refresh stats
         return updatedComplaint;
@@ -234,7 +238,7 @@ export const useComplaint = () => {
         return null;
       }
     },
-    [fetchComplaints]
+    [fetchComplaints],
   );
 
   // Clear error

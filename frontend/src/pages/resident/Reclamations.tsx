@@ -5,10 +5,10 @@ import ReclamationStats from "@/components/resident/ReclamationStats";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { ErrorMessage } from "@/components/ui/error-message";
 import {
-  reclamationApi,
+  residentReclamationApi,
   type Reclamation,
   type ReclamationStatistics,
-} from "@/api/reclamationApi";
+} from "@/api/residentReclamationApi";
 import DeleteConfirmation from "@/components/resident/DeleteConfirmation";
 
 const Reclamations: React.FC = () => {
@@ -26,7 +26,7 @@ const Reclamations: React.FC = () => {
   const fetchReclamations = useCallback(async () => {
     try {
       setError(null);
-      const response = await reclamationApi.getReclamations();
+      const response = await residentReclamationApi.getReclamations();
       const payload = (response as any)?.data;
       const reclamationsData = Array.isArray(payload?.data)
         ? payload.data
@@ -43,7 +43,7 @@ const Reclamations: React.FC = () => {
 
   const fetchStatistics = useCallback(async () => {
     try {
-      const response = await reclamationApi.getStatistics();
+      const response = await residentReclamationApi.getStatistics();
       const payload = (response as any)?.data;
       const statisticsData = payload?.data ?? payload ?? null;
       setStatistics(statisticsData);
@@ -105,7 +105,7 @@ const Reclamations: React.FC = () => {
     setConfirmDelete(null);
     setDeletingId(id);
     try {
-      await reclamationApi.deleteReclamation(id);
+      await residentReclamationApi.deleteReclamation(id);
       setSuccessMessage("Complaint deleted successfully.");
       loadData();
     } catch (err: any) {
