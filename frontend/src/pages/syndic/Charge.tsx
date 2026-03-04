@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect } from "react";
-import SyndicLayout from "@/layouts/SyndicLayout";
 import { ChargeHeader } from "@/components/charges/ChargeHeader";
 import { ChargeStats } from "@/components/charges/ChargeStats";
 import { ChargeFilters } from "@/components/charges/ChargeFilters";
@@ -116,8 +115,9 @@ const Charge: React.FC = () => {
   }, [fetchFilteredCharges, refetchStats]);
 
   return (
-    <SyndicLayout>
-      {loading ? (
+    
+      <>
+{loading ? (
         <ChargeSkeleton />
       ) : (
         <>
@@ -183,7 +183,8 @@ const Charge: React.FC = () => {
       {errorMessage && (
         <ErrorMessage message={errorMessage} onClose={clearError} />
       )}
-    </SyndicLayout>
+</>
+    
   );
 };
 

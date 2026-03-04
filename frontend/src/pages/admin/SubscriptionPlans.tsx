@@ -10,7 +10,6 @@ import {
   TrendingUp,
   AlertCircle,
 } from "lucide-react";
-import AdminLayout from "../../layouts/AdminLayout";
 import useSubscriptionPlans from "@/hooks/useSubscriptionPlans";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,8 +45,9 @@ const SubscriptionPlans: React.FC = () => {
   const planIcons = [Sparkles, TrendingUp, Building2];
 
   return (
-    <AdminLayout>
-      <div className="space-y-8 pb-12">
+    
+      <>
+<div className="space-y-8 pb-12">
         {/* ── Header with gradient accent ── */}
         <div className="relative">
           <div className="absolute inset-0 h-32 bg-gradient-to-br from-blue-50 via-slate-50 to-transparent rounded-3xl -z-10" />
@@ -338,7 +338,8 @@ const SubscriptionPlans: React.FC = () => {
         setEditingPlan={setEditingPlan}
         setShowCreateModal={setShowCreateModal}
       />
-    </AdminLayout>
+</>
+    
   );
 };
 

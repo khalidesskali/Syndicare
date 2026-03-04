@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Plus } from "lucide-react";
-import SyndicLayout from "../../layouts/SyndicLayout";
 import { BuildingModals } from "../../components/buildings/BuildingModals";
 import { BuildingStats } from "../../components/buildings/BuildingStats";
 import { BuildingFilters } from "../../components/buildings/BuildingFilters";
@@ -57,8 +56,9 @@ const Buildings: React.FC = () => {
   };
 
   return (
-    <SyndicLayout>
-      {loading ? (
+    
+      <>
+{loading ? (
         <BuildingSkeleton />
       ) : (
         <div className="space-y-6">
@@ -121,7 +121,8 @@ const Buildings: React.FC = () => {
       {/* Success and Error Messages */}
       {successMessage && <SuccessMessage message={successMessage} />}
       {errorMessage && <ErrorMessage message={errorMessage} />}
-    </SyndicLayout>
+</>
+    
   );
 };
 

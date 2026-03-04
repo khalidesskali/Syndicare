@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import AdminLayout from "@/layouts/AdminLayout";
 import axiosInstance from "@/api/axios";
 import type { AdminDashboardResponse } from "@/types/admin";
 import AdminDashboardHeader from "@/components/admin/dashboard/AdminDashboardHeader";
@@ -33,7 +32,7 @@ const AdminDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <AdminLayout>
+      
         <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] space-y-4">
           <div className="relative">
             <div className="w-16 h-16 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin" />
@@ -44,12 +43,12 @@ const AdminDashboard: React.FC = () => {
           </div>
           <p className="text-sm text-slate-500">Loading dashboard...</p>
         </div>
-      </AdminLayout>
+      
     );
   }
 
   return (
-    <AdminLayout>
+    
       <div className="space-y-8 pb-12">
         <AdminDashboardHeader />
 
@@ -65,7 +64,7 @@ const AdminDashboard: React.FC = () => {
           <RecentPayments stats={stats} />
         </div>
       </div>
-    </AdminLayout>
+    
   );
 };
 

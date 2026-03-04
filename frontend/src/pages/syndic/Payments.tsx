@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import SyndicLayout from "../../layouts/SyndicLayout";
 import { useSyndicPayments } from "@/hooks/useSyndicPayments";
 import type { SyndicPayment } from "@/api/syndicPayments";
 import { PaymentFilters } from "../../components/payments/PaymentFilters";
@@ -75,7 +74,7 @@ const SyndicPayments: React.FC = () => {
   }
 
   return (
-    <SyndicLayout>
+    
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -129,7 +128,7 @@ const SyndicPayments: React.FC = () => {
           loading={actionLoading}
         />
       </div>
-    </SyndicLayout>
+    
   );
 };
 

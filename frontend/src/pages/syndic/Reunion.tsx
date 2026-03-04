@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import SyndicLayout from "@/layouts/SyndicLayout";
 import { ReunionHeader } from "@/components/reunions/ReunionHeader";
 import { ReunionStats as ReunionStatsComponent } from "@/components/reunions/ReunionStats";
 import { ReunionFilters } from "@/components/reunions/ReunionFilters";
@@ -152,8 +151,9 @@ const ReunionPage: React.FC = () => {
   };
 
   return (
-    <SyndicLayout>
-      {/* Error Display */}
+    
+      <>
+{/* Error Display */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex justify-between items-center">
@@ -227,7 +227,8 @@ const ReunionPage: React.FC = () => {
         onBulkCreate={handleBulkCreateSubmit}
         loading={modalLoading}
       />
-    </SyndicLayout>
+</>
+    
   );
 };
 

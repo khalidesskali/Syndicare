@@ -10,7 +10,6 @@ import {
   AlertCircle,
   RefreshCw,
 } from "lucide-react";
-import AdminLayout from "@/layouts/AdminLayout";
 import useAdminPayments from "@/hooks/useAdminPayments";
 import { format } from "date-fns";
 
@@ -35,7 +34,7 @@ const Payments: React.FC = () => {
   };
 
   return (
-    <AdminLayout>
+    
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -381,7 +380,7 @@ const Payments: React.FC = () => {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    
   );
 };
 

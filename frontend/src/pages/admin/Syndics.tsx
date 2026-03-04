@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "@/layouts/AdminLayout";
 import useSyndics from "@/hooks/useSyndics";
 import type { SyndicFilters } from "@/types/syndics";
 import SyndicsHeader from "@/components/syndic/SyndicsHeader";
@@ -148,8 +147,9 @@ const Syndics: React.FC = () => {
   };
 
   return (
-    <AdminLayout>
-      {/* Header */}
+    
+      <>
+{/* Header */}
       <SyndicsHeader onAddSyndic={() => setIsAddModalOpen(true)} />
 
       {/* Stats Cards */}
@@ -226,7 +226,8 @@ const Syndics: React.FC = () => {
         submitText="Delete Syndic"
         size="sm"
       />
-    </AdminLayout>
+</>
+    
   );
 };
 

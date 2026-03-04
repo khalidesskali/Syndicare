@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import SyndicLayout from "@/layouts/SyndicLayout";
 import { ResidentsHeader } from "@/components/residents/ResidentsHeader";
 import { ResidentsStats } from "@/components/residents/ResidentsStats";
 import { ResidentsFilters } from "@/components/residents/ResidentsFilters";
@@ -74,8 +73,9 @@ const ResidentsPage: React.FC = () => {
   };
 
   return (
-    <SyndicLayout>
-      {/* Error Display */}
+    
+      <>
+{/* Error Display */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex justify-between items-center">
@@ -133,7 +133,8 @@ const ResidentsPage: React.FC = () => {
         editingResident={editingResident}
         loading={modalLoading}
       />
-    </SyndicLayout>
+</>
+    
   );
 };
 

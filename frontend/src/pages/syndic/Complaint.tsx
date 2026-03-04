@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import SyndicLayout from "@/layouts/SyndicLayout";
 import { ComplaintHeader } from "@/components/complaints/ComplaintHeader";
 import { ComplaintStats } from "@/components/complaints/ComplaintStats";
 import { ComplaintFilters } from "@/components/complaints/ComplaintFilters";
@@ -132,8 +131,9 @@ const ComplaintPage: React.FC = () => {
   };
 
   return (
-    <SyndicLayout>
-      {/* Error Display */}
+    
+      <>
+{/* Error Display */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex justify-between items-center">
@@ -192,7 +192,8 @@ const ComplaintPage: React.FC = () => {
         onUpdateStatus={handleStatusUpdate}
         onRespond={handleRespond}
       />
-    </SyndicLayout>
+</>
+    
   );
 };
 

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import AdminLayout from "@/layouts/AdminLayout";
 import { UserPlus, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -110,7 +109,7 @@ const SubscriptionAssignment: React.FC = () => {
   };
 
   return (
-    <AdminLayout>
+    
       <div className="space-y-6">
         {/* Header */}
         <div className="mb-8">
@@ -330,7 +329,7 @@ const SubscriptionAssignment: React.FC = () => {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    
   );
 };
 

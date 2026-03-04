@@ -1,5 +1,4 @@
 import React from "react";
-import SyndicLayout from "@/layouts/SyndicLayout";
 import { AlertCircle } from "lucide-react";
 import { useSyndicDashboard } from "../hooks/useSyndicDashboard";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -22,17 +21,18 @@ const SyndicDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <SyndicLayout>
-        <div className="flex justify-center items-center h-64">
+      
+        <>
+<div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
         </div>
-      </SyndicLayout>
+      
     );
   }
 
   if (error) {
     return (
-      <SyndicLayout>
+      
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex justify-between items-center">
             <div className="flex">
@@ -58,22 +58,22 @@ const SyndicDashboard: React.FC = () => {
         >
           Try Again
         </button>
-      </SyndicLayout>
+      
     );
   }
 
   if (!stats) {
     return (
-      <SyndicLayout>
+      
         <div className="text-center py-12">
           <p className="text-slate-600">No dashboard data available</p>
         </div>
-      </SyndicLayout>
+      
     );
   }
 
   return (
-    <SyndicLayout>
+    
       {/* Error Display */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -106,7 +106,8 @@ const SyndicDashboard: React.FC = () => {
         onScheduleMeeting={handleScheduleMeeting}
       />
       <DashboardReunions reunions={[]} loading={false} />
-    </SyndicLayout>
+</>
+    
   );
 };
 

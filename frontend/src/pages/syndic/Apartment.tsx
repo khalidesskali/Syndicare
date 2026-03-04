@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import SyndicLayout from "@/layouts/SyndicLayout";
 import { ApartmentHeader } from "@/components/apartments/ApartmentHeader";
 import { ApartmentStats as ApartmentStatsComponent } from "@/components/apartments/ApartmentStats";
 import { ApartmentFilters } from "@/components/apartments/ApartmentFilters";
@@ -181,8 +180,9 @@ const ApartmentPage: React.FC = () => {
   };
 
   return (
-    <SyndicLayout>
-      {/* Success Message */}
+    
+      <>
+{/* Success Message */}
       {successMessage && (
         <div className="mb-6">
           <SuccessMessage message={successMessage} />
@@ -255,7 +255,8 @@ const ApartmentPage: React.FC = () => {
         loading={modalLoading}
         apartment={selectedApartment}
       />
-    </SyndicLayout>
+</>
+    
   );
 };
 

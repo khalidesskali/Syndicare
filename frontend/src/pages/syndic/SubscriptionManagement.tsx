@@ -1,5 +1,4 @@
 import { useState } from "react";
-import SyndicLayout from "@/layouts/SyndicLayout";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -129,7 +128,7 @@ const SubscriptionManagement = () => {
   };
 
   return (
-    <SyndicLayout>
+    
       <div className="space-y-6 max-w-7xl mx-auto pb-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -237,7 +236,7 @@ const SubscriptionManagement = () => {
           onSuccess={handlePaymentSuccess}
         />
       </div>
-    </SyndicLayout>
+    
   );
 };
 

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "@/layouts/AdminLayout";
 import { Eye, X, AlertCircle, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -145,7 +144,7 @@ const PaymentConfirmation: React.FC = () => {
   };
 
   return (
-    <AdminLayout>
+    
       <div className="space-y-6">
         {/* Header */}
         <div className="mb-8">
@@ -418,7 +417,7 @@ const PaymentConfirmation: React.FC = () => {
           </div>
         )}
       </div>
-    </AdminLayout>
+    
   );
 };
 

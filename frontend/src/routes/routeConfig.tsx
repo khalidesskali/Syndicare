@@ -13,6 +13,8 @@ import ComplaintPage from "../pages/syndic/Complaint";
 import Residents from "../pages/syndic/Residents";
 import SyndicPayments from "../pages/syndic/Payments";
 import ResidentLayout from "../layouts/ResidentLayout";
+import AdminLayout from "../layouts/AdminLayout";
+import SyndicLayout from "../layouts/SyndicLayout";
 import ResidentDashboard from "../pages/ResidentDashboard";
 import Charges from "../pages/resident/Charges";
 import ResidentPayments from "../pages/resident/Payments";
@@ -29,62 +31,118 @@ export interface RouteConfig {
 export const adminRoutes: RouteConfig[] = [
   {
     path: "/admin/dashboard",
-    element: <AdminDashboard />,
+    element: (
+      <AdminLayout>
+        <AdminDashboard />
+      </AdminLayout>
+    ),
   },
   {
     path: "/admin/syndics",
-    element: <Syndics />,
+    element: (
+      <AdminLayout>
+        <Syndics />
+      </AdminLayout>
+    ),
   },
   {
     path: "/admin/subscriptions",
-    element: <SubscriptionPlans />,
+    element: (
+      <AdminLayout>
+        <SubscriptionPlans />
+      </AdminLayout>
+    ),
   },
   {
     path: "/admin/payments",
-    element: <Payments />,
+    element: (
+      <AdminLayout>
+        <Payments />
+      </AdminLayout>
+    ),
   },
   {
     path: "/admin/subscription-assignment",
-    element: <SubscriptionAssignment />,
+    element: (
+      <AdminLayout>
+        <SubscriptionAssignment />
+      </AdminLayout>
+    ),
   },
 ];
 
 export const syndicRoutes: RouteConfig[] = [
   {
     path: "/syndic/dashboard",
-    element: <SyndicDashboard />,
+    element: (
+      <SyndicLayout>
+        <SyndicDashboard />
+      </SyndicLayout>
+    ),
   },
   {
     path: "/syndic/buildings",
-    element: <Buildings />,
+    element: (
+      <SyndicLayout>
+        <Buildings />
+      </SyndicLayout>
+    ),
   },
   {
     path: "/syndic/residents",
-    element: <Residents />,
+    element: (
+      <SyndicLayout>
+        <Residents />
+      </SyndicLayout>
+    ),
   },
   {
     path: "/syndic/charges",
-    element: <ChargeModule />,
+    element: (
+      <SyndicLayout>
+        <ChargeModule />
+      </SyndicLayout>
+    ),
   },
   {
     path: "/syndic/reunions",
-    element: <ReunionPage />,
+    element: (
+      <SyndicLayout>
+        <ReunionPage />
+      </SyndicLayout>
+    ),
   },
   {
     path: "/syndic/apartments",
-    element: <ApartmentPage />,
+    element: (
+      <SyndicLayout>
+        <ApartmentPage />
+      </SyndicLayout>
+    ),
   },
   {
     path: "/syndic/complaints",
-    element: <ComplaintPage />,
+    element: (
+      <SyndicLayout>
+        <ComplaintPage />
+      </SyndicLayout>
+    ),
   },
   {
     path: "/syndic/payments",
-    element: <SyndicPayments />,
+    element: (
+      <SyndicLayout>
+        <SyndicPayments />
+      </SyndicLayout>
+    ),
   },
   {
     path: "/syndic/subscription-management",
-    element: <SubscriptionManagement />,
+    element: (
+      <SyndicLayout>
+        <SubscriptionManagement />
+      </SyndicLayout>
+    ),
   },
 ];
 
