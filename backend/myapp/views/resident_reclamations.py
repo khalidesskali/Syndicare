@@ -183,6 +183,36 @@ class ResidentReclamationViewSet(viewsets.ModelViewSet):
             logger.exception("AI triage failed during resident reclamation create (reclamation_id=%s)", reclamation.id)
 
     # ==========================
+    # Delete (status-restricted)
+    # ==========================
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Allow residents to delete their own reclamations ONLY if the status is PENDING.
+        Once a complaint moves beyond PENDING it becomes part of the audit trail
+        and can no longer be removed by the resident.
+        """
+        reclamation = self.get_object()
+
+        if reclamation.status != 'PENDING':
+            return Response(
+                {
+                    'success': False,
+                    'message': (
+                        f"Cannot delete a complaint with status '{reclamation.status}'. "
+                        "Only complaints that are still PENDING can be deleted."
+                    ),
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        reclamation.delete()
+        return Response(
+            {'success': True, 'message': 'Complaint deleted successfully.'},
+            status=status.HTTP_200_OK,
+        )
+
+    # ==========================
     # Statistics
     # ==========================
 
