@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from django.utils import timezone
 
-from ..models import Reclamation, ReclamationStatusHistory
+from ..models import Reclamation, ReclamationStatusHistory, Notification
 from ..serializers import ReclamationSerializer
 from ..permissions import IsSyndic
 from ..services.ai_triage_service import process_reclamation_ai
@@ -53,11 +53,14 @@ def change_reclamation_status(reclamation, new_status, user, comment=""):
         comment=comment
     )
 
-    # 🔔 Notification hook (optional)
-    # Notification.objects.create(
-    #     user=reclamation.resident,
-    #     message=f"Your reclamation '{reclamation.title}' is now {new_status}"
-    # )
+    # 🔔 Notification hook
+    Notification.objects.create(
+        recipient=reclamation.resident,
+        title=f"Reclamation Status Updated",
+        message=f"Your reclamation '{reclamation.title}' is now {new_status}",
+        type='RECLAMATION_UPDATED',
+        related_entity_id=reclamation.id
+    )
 
     return reclamation
 
@@ -188,6 +191,14 @@ class ReclamationViewSet(viewsets.ModelViewSet):
             )
         except ValueError:
             pass  # Already in progress
+            
+        Notification.objects.create(
+            recipient=reclamation.resident,
+            title='Syndic Responded',
+            message=f"Your syndic responded to your reclamation: '{reclamation.title}'",
+            type='RECLAMATION_UPDATED',
+            related_entity_id=reclamation.id
+        )
 
         return Response({
             'success': True,

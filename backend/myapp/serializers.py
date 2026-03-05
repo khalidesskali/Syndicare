@@ -9,7 +9,7 @@ from .models import (
     Immeuble, Appartement, Reclamation, Reunion, 
     Charge, ChargePayment, 
     ResidentProfile, User, SyndicProfile, SubscriptionPlan, Subscription, 
-    SubscriptionPayment
+    SubscriptionPayment, Notification
 )
 
 User = get_user_model()
@@ -830,3 +830,25 @@ class ResidentReunionSerializer(ReunionSerializer):
     """
     class Meta(ReunionSerializer.Meta):
         fields = ReunionSerializer.Meta.fields
+
+# ============================================
+# NOTIFICATION SERIALIZERS
+# ============================================
+
+class NotificationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Notification model
+    """
+    class Meta:
+        model = Notification
+        fields = [
+            'id',
+            'recipient',
+            'title',
+            'message',
+            'type',
+            'read',
+            'related_entity_id',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'recipient']

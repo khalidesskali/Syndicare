@@ -79,6 +79,10 @@ from .paypal_views import (
     paypal_refund,
 )
 
+from .notifications import (
+    NotificationViewSet
+)
+
 __all__ = [
     # Authentication views
     'CustomTokenObtainPairView',
@@ -119,4 +123,7 @@ __all__ = [
     
     # Chatbot views
     'chatbot_message',
+    
+    # Notifications views
+    'NotificationViewSet',
 ]

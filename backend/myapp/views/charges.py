@@ -7,7 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 from datetime import datetime
 
-from ..models import Charge, Appartement, Immeuble, ChargePayment
+from ..models import Charge, Appartement, Immeuble, ChargePayment, Notification
 from ..serializers import ChargeSerializer
 from ..permissions import IsSyndic
 
@@ -87,7 +87,18 @@ class ChargeViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(status='UNPAID')
+        charge = serializer.save(status='UNPAID')
+
+        # Create notification if apartment has a resident
+        apartment = charge.appartement
+        if apartment.resident:
+            Notification.objects.create(
+                recipient=apartment.resident,
+                title='New Charge Created',
+                message=f'A new charge "{charge.description}" of {charge.amount} DH has been created for your apartment.',
+                type='CHARGE_CREATED',
+                related_entity_id=charge.id
+            )
 
         return Response({
             'success': True,
@@ -187,13 +198,22 @@ class ChargeViewSet(viewsets.ModelViewSet):
 
         with transaction.atomic():
             for apartment in apartments:
-                Charge.objects.create(
+                charge = Charge.objects.create(
                     appartement=apartment,
                     description=description,
                     amount=apartment.monthly_charge,
                     due_date=due_date,
                     status='UNPAID'
                 )
+                
+                if apartment.resident:
+                    Notification.objects.create(
+                        recipient=apartment.resident,
+                        title='New Charge Created',
+                        message=f'A new charge "{charge.description}" of {charge.amount} DH has been created for your apartment.',
+                        type='CHARGE_CREATED',
+                        related_entity_id=charge.id
+                    )
 
         return Response({
             'success': True,

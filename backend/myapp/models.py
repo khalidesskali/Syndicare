@@ -592,3 +592,40 @@ class ChargePayment(models.Model):
 
     def __str__(self):
         return f"{self.resident.email} - {self.amount} ({self.status})"
+
+class Notification(models.Model):
+    """
+    Notifications bridging Syndic and Residents
+    """
+    NOTIFICATION_TYPES = [
+        ('RECLAMATION_CREATED', 'Reclamation Created'),
+        ('RECLAMATION_UPDATED', 'Reclamation Updated'),
+        ('CHARGE_CREATED', 'Charge Created'),
+        ('PAYMENT_CONFIRMED', 'Payment Confirmed'),
+        ('REUNION_SCHEDULED', 'Reunion Scheduled'),
+        ('SYSTEM', 'System Notification'),
+    ]
+
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES)
+    read = models.BooleanField(default=False)
+    
+    # Store ID of related entity (e.g., complaint id, charge id)
+    # Allows front-end to build smart redirects
+    related_entity_id = models.IntegerField(blank=True, null=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+
+    def __str__(self):
+        return f"[{self.type}] {self.title} to {self.recipient.email}"

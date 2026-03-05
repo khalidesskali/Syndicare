@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.utils import timezone
 import logging
 
-from ..models import Reclamation, ReclamationStatusHistory, Appartement, Immeuble
+from ..models import Reclamation, ReclamationStatusHistory, Appartement, Immeuble, Notification
 from ..permissions import IsResident
 from ..services.ai_triage_service import process_reclamation_ai
 
@@ -181,6 +181,17 @@ class ResidentReclamationViewSet(viewsets.ModelViewSet):
             reclamation.refresh_from_db()
         except Exception:
             logger.exception("AI triage failed during resident reclamation create (reclamation_id=%s)", reclamation.id)
+
+        try:
+            Notification.objects.create(
+                recipient=reclamation.syndic,
+                title='New Complaint',
+                message=f'New complaint "{reclamation.title}" submitted by {reclamation.resident.first_name} {reclamation.resident.last_name}',
+                type='RECLAMATION_CREATED',
+                related_entity_id=reclamation.id
+            )
+        except Exception:
+            logger.exception("Failed to create notification for syndic")
 
     # ==========================
     # Delete (status-restricted)

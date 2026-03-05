@@ -32,7 +32,8 @@ from .views import (
     paypal_capture_order,
     paypal_payment_details,
     paypal_refund,
-) 
+    NotificationViewSet,
+)
 
 router = DefaultRouter()
 router.register(r'admin/syndics', SyndicAdminViewSet, basename='admin-syndic')
@@ -59,6 +60,9 @@ router.register(
     ResidentChargeViewSet,
     basename='resident-charge'
 )
+
+# Common endpoints
+router.register(r'notifications', NotificationViewSet, basename='notification')
 
 
 
