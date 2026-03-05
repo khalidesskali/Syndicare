@@ -2,15 +2,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  Activity,
-  TrendingDown,
-  TrendingUp,
-  Clock,
-  DollarSign,
-  CheckCircle2,
-  Users,
-} from "lucide-react";
+import { Users, Activity, TrendingUp, TrendingDown } from "lucide-react";
 import type { AdminDashboardResponse } from "@/types/admin";
 
 const Stats: React.FC<{
@@ -28,50 +20,12 @@ const Stats: React.FC<{
       iconColor: "text-blue-600",
       trend: (stats?.overview.syndics_this_month ?? 0) > 0 ? "up" : "neutral",
     },
-    {
-      title: "Active Subscriptions",
-      value: stats?.overview.active_subscriptions ?? "--",
-      change: stats?.overview.conversion_rate ?? 0,
-      changeLabel: "conversion rate",
-      suffix: "%",
-      icon: CheckCircle2,
-      gradient: "from-emerald-500 to-emerald-700",
-      iconBg: "bg-emerald-50",
-      iconColor: "text-emerald-600",
-      trend: "up",
-    },
-    {
-      title: "Monthly Revenue",
-      value: stats?.overview.monthly_revenue?.toLocaleString() ?? "--",
-      valuePrefix: "",
-      valueSuffix: " DH",
-      change: stats?.overview.revenue_change ?? 0,
-      changeLabel: "vs last month",
-      changePrefix: "",
-      changeSuffix: " DH",
-      icon: DollarSign,
-      gradient: "from-violet-500 to-violet-700",
-      iconBg: "bg-violet-50",
-      iconColor: "text-violet-600",
-      trend: (stats?.overview.revenue_change ?? 0) >= 0 ? "up" : "down",
-    },
-    {
-      title: "Pending Payments",
-      value: stats?.overview.pending_payments ?? "--",
-      change: stats?.overview.pending_payments_total ?? 0,
-      changeLabel: "total value",
-      changePrefix: "",
-      changeSuffix: " DH",
-      icon: Clock,
-      gradient: "from-amber-500 to-amber-700",
-      iconBg: "bg-amber-50",
-      iconColor: "text-amber-600",
-      trend: "neutral",
-    },
   ];
 
+  const gridCols = "grid-cols-1 md:grid-cols-1 lg:grid-cols-1";
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className={cn("grid gap-6", gridCols)}>
       {statCards.map((stat, idx) => {
         const Icon = stat.icon;
         const isPositive = stat.trend === "up";

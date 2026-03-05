@@ -1,9 +1,6 @@
 import { type ReactElement } from "react";
 import AdminDashboard from "../pages/AdminDashboard";
 import Syndics from "../pages/admin/Syndics";
-import SubscriptionPlans from "../pages/admin/SubscriptionPlans";
-import Payments from "../pages/admin/Payments";
-import SubscriptionAssignment from "../pages/admin/SubscriptionAssignment";
 import SyndicDashboard from "../pages/SyndicDashboard";
 import Buildings from "../pages/syndic/Buildings";
 import ChargeModule from "../pages/syndic/Charge";
@@ -21,7 +18,6 @@ import ResidentPayments from "../pages/resident/Payments";
 import Reclamations from "../pages/resident/Reclamations";
 import Announcements from "../pages/resident/Announcements";
 import Profile from "../pages/resident/Profile";
-import SubscriptionManagement from "@/pages/syndic/SubscriptionManagement";
 
 export interface RouteConfig {
   path: string;
@@ -42,30 +38,6 @@ export const adminRoutes: RouteConfig[] = [
     element: (
       <AdminLayout>
         <Syndics />
-      </AdminLayout>
-    ),
-  },
-  {
-    path: "/admin/subscriptions",
-    element: (
-      <AdminLayout>
-        <SubscriptionPlans />
-      </AdminLayout>
-    ),
-  },
-  {
-    path: "/admin/payments",
-    element: (
-      <AdminLayout>
-        <Payments />
-      </AdminLayout>
-    ),
-  },
-  {
-    path: "/admin/subscription-assignment",
-    element: (
-      <AdminLayout>
-        <SubscriptionAssignment />
       </AdminLayout>
     ),
   },
@@ -133,14 +105,6 @@ export const syndicRoutes: RouteConfig[] = [
     element: (
       <SyndicLayout>
         <SyndicPayments />
-      </SyndicLayout>
-    ),
-  },
-  {
-    path: "/syndic/subscription-management",
-    element: (
-      <SyndicLayout>
-        <SubscriptionManagement />
       </SyndicLayout>
     ),
   },

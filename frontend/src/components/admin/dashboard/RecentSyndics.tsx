@@ -2,8 +2,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Users, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { ArrowUpRight } from "lucide-react";
 import type { AdminDashboardResponse } from "@/types/admin";
 
@@ -63,17 +61,6 @@ const RecentSyndics: React.FC<{
                   </div>
                 </div>
               </div>
-              <Badge
-                variant={syndic.status ? "default" : "secondary"}
-                className={cn(
-                  "text-xs font-medium shrink-0",
-                  syndic.status
-                    ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-                    : "bg-amber-100 text-amber-700 border-amber-200",
-                )}
-              >
-                {syndic.status ? "Active" : "Pending"}
-              </Badge>
             </div>
           ))}
         </div>

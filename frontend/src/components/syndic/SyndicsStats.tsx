@@ -6,7 +6,6 @@ interface SyndicsStatsProps {
     total_syndics: number;
     active_syndics: number;
     inactive_syndics: number;
-    active_subscriptions: number;
   } | null;
 }
 
@@ -33,17 +32,10 @@ const SyndicsStats: React.FC<SyndicsStatsProps> = ({ stats }) => {
       bgColor: "bg-orange-100",
       iconColor: "text-orange-600",
     },
-    {
-      title: "With Valid Subscription",
-      value: stats?.active_subscriptions || 0,
-      icon: CheckCircle2,
-      bgColor: "bg-purple-100",
-      iconColor: "text-purple-600",
-    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       {statCards.map((card, index) => (
         <div
           key={index}

@@ -8,7 +8,6 @@ import {
   Users,
   Building2,
   Home,
-  Sparkles,
   TrendingUp,
   Shield,
   Receipt,
@@ -91,11 +90,6 @@ export const syndicNavConfig: RoleNavConfig = {
       items: [
         { name: "Monthly Fees", icon: DollarSign, path: "/syndic/charges" },
         { name: "Payments", icon: CreditCard, path: "/syndic/payments" },
-        {
-          name: "Subscription",
-          icon: Sparkles,
-          path: "/syndic/subscription-management",
-        },
       ],
     },
     {
@@ -157,20 +151,7 @@ export const adminNavConfig: RoleNavConfig = {
     },
     {
       title: "Management",
-      items: [
-        { name: "Syndics", icon: Users, path: "/admin/syndics" },
-        {
-          name: "Subscriptions",
-          icon: CreditCard,
-          path: "/admin/subscriptions",
-        },
-        {
-          name: "Subscription Assignment",
-          icon: Shield,
-          path: "/admin/subscription-assignment",
-        },
-        { name: "Payments", icon: DollarSign, path: "/admin/payments" },
-      ],
+      items: [{ name: "Syndics", icon: Users, path: "/admin/syndics" }],
     },
   ],
 };

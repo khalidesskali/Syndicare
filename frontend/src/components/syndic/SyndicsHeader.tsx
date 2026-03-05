@@ -15,7 +15,7 @@ const SyndicsHeader: React.FC<SyndicsHeaderProps> = ({ onAddSyndic }) => {
             Syndics Management 👥
           </h2>
           <p className="text-slate-600">
-            Manage all syndic accounts and their subscriptions
+            Manage all syndic accounts and their details
           </p>
         </div>
         <Button onClick={onAddSyndic} className="flex items-center space-x-2">

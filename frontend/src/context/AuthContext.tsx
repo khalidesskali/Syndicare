@@ -22,7 +22,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | Record<string, string[]> | null>(
-    null
+    null,
   );
 
   // Listen for token refresh events
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Login function
   const login = async (
     email: string,
-    password: string
+    password: string,
   ): Promise<AuthResult> => {
     try {
       setError(null);
@@ -166,7 +166,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Change password
   const changePassword = async (
     oldPassword: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<PasswordChangeResult> => {
     try {
       setError(null);
@@ -195,15 +195,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const hasRole = (role: UserRole): boolean => {
     return user?.role === role;
   };
-
-  // Check if Syndic has valid subscription
-  // const hasValidSubscription = (): boolean => {
-  //   if (user?.role === "SYNDIC") {
-  //     return user?.has_valid_subscription === true;
-  //   }
-  //   return true; // Non-syndics always have access
-  // };
-
   const value: AuthContextType = {
     user,
     loading,
@@ -214,7 +205,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     changePassword,
     hasRole,
     isAuthenticated,
-    // hasValidSubscription,
     setError,
   };
 

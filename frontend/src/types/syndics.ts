@@ -7,7 +7,6 @@ export interface Syndic {
   phone: string;
   is_active: boolean;
   created_at: string;
-  has_valid_subscription: boolean;
   company_name?: string;
   license_number?: string;
   address?: string;
@@ -35,5 +34,4 @@ export interface SyndicStats {
   total_syndics: number;
   active_syndics: number;
   inactive_syndics: number;
-  active_subscriptions: number;
 }

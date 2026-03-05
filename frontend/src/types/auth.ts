@@ -11,17 +11,7 @@ export interface User {
   phone: string | null;
   is_active: boolean;
   created_at: string;
-  has_valid_subscription?: boolean | null;
 }
-
-// Subscription interface
-export interface Subscription {
-  plan_name: string;
-  status: string;
-  days_remaining: number;
-  end_date: string;
-}
-
 // Login request
 export interface LoginRequest {
   email: string;
@@ -59,11 +49,10 @@ export interface AuthContextType {
   updateProfile: () => Promise<ProfileResult>;
   changePassword: (
     oldPassword: string,
-    newPassword: string
+    newPassword: string,
   ) => Promise<PasswordChangeResult>;
   hasRole: (role: UserRole) => boolean;
   isAuthenticated: boolean;
-  // hasValidSubscription: () => boolean;
   setError: (error: string | Record<string, string[]> | null) => void;
 }
 

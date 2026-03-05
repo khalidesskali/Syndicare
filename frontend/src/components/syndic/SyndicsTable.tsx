@@ -8,7 +8,6 @@ interface Syndic {
   email: string;
   phone: string;
   is_active: boolean;
-  has_valid_subscription: boolean;
   created_at: string;
 }
 
@@ -69,9 +68,6 @@ const SyndicsTable: React.FC<SyndicsTableProps> = ({
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Subscription
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Created
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
@@ -82,14 +78,14 @@ const SyndicsTable: React.FC<SyndicsTableProps> = ({
           <tbody className="divide-y divide-slate-200">
             {error ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-red-500">
+                <td colSpan={5} className="px-6 py-8 text-center text-red-500">
                   {error}
                 </td>
               </tr>
             ) : syndics.length === 0 ? (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={5}
                   className="px-6 py-8 text-center text-slate-500"
                 >
                   No syndics found matching your criteria.
@@ -131,19 +127,6 @@ const SyndicsTable: React.FC<SyndicsTableProps> = ({
                       }`}
                     >
                       {syndic.is_active ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        syndic.has_valid_subscription
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {syndic.has_valid_subscription
-                        ? "Active"
-                        : "No Subscription"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-500">
@@ -200,7 +183,7 @@ const SyndicsTable: React.FC<SyndicsTableProps> = ({
             <span className="font-medium">
               {Math.min(
                 pagination.page * pagination.page_size,
-                pagination.total_count
+                pagination.total_count,
               )}
             </span>{" "}
             of <span className="font-medium">{pagination.total_count}</span>{" "}
@@ -245,7 +228,7 @@ const SyndicsTable: React.FC<SyndicsTableProps> = ({
                     {pageNum}
                   </button>
                 );
-              }
+              },
             )}
             <button
               onClick={() => onPageChange(pagination.page + 1)}

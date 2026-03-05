@@ -1,8 +1,5 @@
 export interface Payment {
-  [x: string]: ReactNode;
-  syndic_name: ReactNode;
   id: string;
-  subscriptionId: string;
   amount: number;
   currency: string;
   paymentMethod: PaymentMethod;
@@ -13,12 +10,6 @@ export interface Payment {
   processedBy: string;
   paymentProof?: string;
   rib?: string;
-  subscription?: {
-    id: string;
-    planName: string;
-    syndic_name: string;
-    company_name: string;
-  };
 }
 
 export type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED" | "REFUNDED";

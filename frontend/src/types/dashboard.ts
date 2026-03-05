@@ -16,7 +16,6 @@ export interface DashboardStats {
     last_month_revenue: number;
   };
   user: any;
-  has_valid_subscription: boolean;
 }
 
 export interface ResidentDashboardStats {
