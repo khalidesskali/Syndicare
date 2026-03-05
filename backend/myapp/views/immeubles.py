@@ -60,12 +60,7 @@ class ImmeubleViewSet(viewsets.ModelViewSet):
             "floors": 5
         }
         """
-        # Check subscription limits
-        if not self._check_building_limit():
-            return Response({
-                'success': False,
-                'message': 'You have reached your building limit. Please upgrade your subscription.'
-            }, status=status.HTTP_403_FORBIDDEN)
+        # Building limits removed
         
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -154,16 +149,7 @@ class ImmeubleViewSet(viewsets.ModelViewSet):
             'message': f'Building and {appartements_deleted} associated apartment(s) deleted successfully'
         }, status=status.HTTP_200_OK)
     
-    def _check_building_limit(self):
-        """Check if syndic can create more buildings based on subscription"""
-        try:
-            subscription = self.request.user.syndic_profile.subscription
-            if subscription.is_active:
-                current_count = Immeuble.objects.filter(syndic=self.request.user).count()
-                return current_count < subscription.plan.max_buildings
-        except:
-            pass
-        return False
+    # _check_building_limit removed
     
     @action(detail=False, methods=['get'])
     def statistics(self, request):

@@ -20,11 +20,7 @@ from .syndic_admin import (
     SyndicAdminViewSet
 )
 
-from .subscription import (
-    SubscriptionPlanViewSet,
-    SubscriptionPlanAdminViewSet,
-    SubscriptionAdminViewSet
-)
+# Removed subscription views
 
 
 from .immeubles import (
@@ -67,21 +63,13 @@ from .resident_charge import (
     ResidentChargeViewSet
 )
 
-from .payment import (
-    PaymentAdminViewSet,
-    SyndicSubscriptionPaymentViewSet
-)
+# Removed subscription payment views
 
 from .syndic_payments import (
     SyndicResidentPaymentViewSet
 )
 
-from .paypal_views import (
-    paypal_create_order,
-    paypal_capture_order,
-    paypal_payment_details,
-    paypal_refund,
-)
+# Removed paypal views
 
 from .notifications import (
     NotificationViewSet
@@ -104,14 +92,7 @@ __all__ = [
     
     # Admin management views
     'SyndicAdminViewSet',
-    'PaymentAdminViewSet',
-    
-    # Subscription views
-    'SubscriptionPlanViewSet',
-    'SubscriptionPlanAdminViewSet',
-    'SubscriptionAdminViewSet',
-    'SyndicSubscriptionPaymentViewSet',
-    
+    # Subscription views removed
         
     # Building management views
     'ImmeubleViewSet',

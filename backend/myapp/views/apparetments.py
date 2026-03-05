@@ -68,12 +68,7 @@ class AppartementViewSet(viewsets.ModelViewSet):
         Create a new apartment
         POST /api/syndic/apartments/
         """
-        # Check subscription limits
-        if not self._check_apartment_limit():
-            return Response({
-                'success': False,
-                'message': 'You have reached your apartment limit. Please upgrade your subscription.'
-            }, status=status.HTTP_403_FORBIDDEN)
+        # Apartment limits removed
         
         # Verify building ownership
         building_id = request.data.get('immeuble')
@@ -222,16 +217,7 @@ class AppartementViewSet(viewsets.ModelViewSet):
             'data': self.get_serializer(apartment).data
         })
     
-    def _check_apartment_limit(self):
-        """Check if syndic can create more apartments based on subscription"""
-        try:
-            subscription = self.request.user.syndic_profile.subscription
-            if subscription.is_active:
-                current_count = Appartement.objects.filter(immeuble__syndic=self.request.user).count()
-                return current_count < subscription.plan.max_apartments
-        except:
-            pass
-        return False
+    # _check_apartment_limit removed
     
     def _verify_building_ownership(self, building_id):
         """Verify that the building belongs to the syndic"""

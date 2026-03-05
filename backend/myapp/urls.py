@@ -3,9 +3,6 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.routers import DefaultRouter
 from .views import (
     SyndicAdminViewSet,
-    SubscriptionPlanAdminViewSet,
-    SubscriptionPlanViewSet,
-    SubscriptionAdminViewSet,
     CustomTokenObtainPairView,
     RegisterView,
     LogoutView,
@@ -26,25 +23,15 @@ from .views import (
     ChargeViewSet,
     ResidentPaymentViewSet,
     ResidentChargeViewSet,
-    PaymentAdminViewSet,
-    SyndicSubscriptionPaymentViewSet,
-    paypal_create_order,
-    paypal_capture_order,
-    paypal_payment_details,
-    paypal_refund,
     NotificationViewSet,
     SyndicResidentPaymentViewSet,
 )
 
 router = DefaultRouter()
 router.register(r'admin/syndics', SyndicAdminViewSet, basename='admin-syndic')
-router.register(r'admin/subscription-plans', SubscriptionPlanAdminViewSet, basename='admin-subscription-plan')
-router.register(r'admin/subscription-assignment', SubscriptionAdminViewSet, basename='admin-subscription-assignment')
-router.register(r'admin/payments', PaymentAdminViewSet, basename='admin-payment')
 
 # Syndic endpoints
-router.register(r'syndic/subscription-plans', SubscriptionPlanViewSet, basename='syndic-subscription-plan')
-router.register(r'syndic/payments', SyndicSubscriptionPaymentViewSet, basename='syndic-payment')
+# Removed syndic subscription router registrations
 router.register(r'syndic/buildings', ImmeubleViewSet, basename='syndic-building')
 router.register(r'syndic/apartments', AppartementViewSet, basename='syndic-apartment')
 router.register(r'syndic/residents', ResidentViewSet, basename='syndic-resident')
@@ -86,11 +73,7 @@ urlpatterns = [
     
     path("chatbot/", include("chatbot.urls")),
 
-    # PayPal payment endpoints
-    path('paypal/create-order/', paypal_create_order, name='paypal-create-order'),
-    path('paypal/capture-order/', paypal_capture_order, name='paypal-capture-order'),
-    path('paypal/payment/<str:payment_id>/', paypal_payment_details, name='paypal-payment-details'),
-    path('paypal/refund/', paypal_refund, name='paypal-refund'),
+    # PayPal payment endpoints removed
 
     path('', include(router.urls)),
 ]

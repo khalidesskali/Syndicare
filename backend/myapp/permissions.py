@@ -10,17 +10,10 @@ class IsAdmin(permissions.BasePermission):
 
 class IsSyndic(permissions.BasePermission):
     """
-    Permission for Syndic users with valid subscription
+    Permission for Syndic users only
     """
     def has_permission(self, request, view):
-        if not (request.user and request.user.is_authenticated and request.user.is_syndic):
-            return False
-        
-        # Check if subscription is valid
-        if not request.user.has_valid_subscription:
-            return False
-        
-        return True
+        return request.user and request.user.is_authenticated and request.user.is_syndic
 
 
 class IsResident(permissions.BasePermission):
@@ -42,7 +35,7 @@ class IsAdminOrSyndic(permissions.BasePermission):
         if request.user.is_admin:
             return True
         
-        if request.user.is_syndic and request.user.has_valid_subscription:
+        if request.user.is_syndic:
             return True
         
         return False

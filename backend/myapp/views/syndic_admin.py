@@ -8,8 +8,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 
 from ..models import (
-    User, SyndicProfile, Subscription, SubscriptionPlan, 
-    SubscriptionPayment, Immeuble, Appartement
+    User, SyndicProfile, Immeuble, Appartement
 )
 from ..serializers import UserSerializer
 from ..permissions import IsAdmin
@@ -132,23 +131,6 @@ class SyndicAdminViewSet(viewsets.ModelViewSet):
             resident__isnull=False
         ).count()
         
-        # Get subscription info
-        subscription_info = None
-        try:
-            profile = syndic.syndic_profile
-            if hasattr(profile, 'subscription'):
-                sub = profile.subscription
-                subscription_info = {
-                    'plan': sub.plan.name,
-                    'status': sub.status,
-                    'start_date': sub.start_date,
-                    'end_date': sub.end_date,
-                    'days_remaining': sub.days_remaining,
-                    'is_active': sub.is_active
-                }
-        except:
-            pass
-        
         return Response({
             'success': True,
             'data': serializer.data,
@@ -157,8 +139,7 @@ class SyndicAdminViewSet(viewsets.ModelViewSet):
                 'total_apartments': total_apartments,
                 'occupied_apartments': occupied_apartments,
                 'vacant_apartments': total_apartments - occupied_apartments
-            },
-            'subscription': subscription_info
+            }
         })
 
     def update(self, request, *args, **kwargs):
@@ -178,7 +159,6 @@ class SyndicAdminViewSet(viewsets.ModelViewSet):
             # Update profile if data provided
             try:
                 profile = syndic.syndic_profile
-                # No profile fields to update as they were removed
                 profile.save()
             except SyndicProfile.DoesNotExist:
                 pass
@@ -233,18 +213,6 @@ class SyndicAdminViewSet(viewsets.ModelViewSet):
                 'message': 'Cannot delete syndic with existing buildings. Please remove all buildings first.'
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Check if syndic has active subscription
-        try:
-            if hasattr(syndic, 'syndic_profile') and hasattr(syndic.syndic_profile, 'subscription'):
-                subscription = syndic.syndic_profile.subscription
-                if subscription.status == 'ACTIVE':
-                    return Response({
-                        'success': False,
-                        'message': 'Cannot delete syndic with active subscription. Cancel subscription first.'
-                    }, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            pass
-        
         # Store info before deletion
         email = syndic.email
         
@@ -256,74 +224,6 @@ class SyndicAdminViewSet(viewsets.ModelViewSet):
             'message': f'Syndic account {email} deleted successfully'
         })
     
-    @action(detail=True, methods=['post'])
-    def assign_subscription(self, request, pk=None):
-        """
-        Assign or update subscription for a syndic
-        POST /api/admin/syndics/{id}/assign_subscription/
-        Body: {
-            "plan_id": 1,
-            "start_date": "2024-01-01",
-            "duration_days": 30
-        }
-        """
-        syndic = self.get_object()
-        plan_id = request.data.get('plan_id')
-        start_date = request.data.get('start_date')
-        
-        if not plan_id:
-            return Response({
-                'success': False,
-                'message': 'Plan ID is required'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            plan = SubscriptionPlan.objects.get(id=plan_id, is_active=True)
-            profile = syndic.syndic_profile
-            
-            # Parse start date or use today
-            if start_date:
-                start = datetime.strptime(start_date, '%Y-%m-%d').date()
-            else:
-                start = timezone.now().date()
-            
-            # Calculate end date
-            end = start + timedelta(days=plan.duration_days)
-            
-            # Create or update subscription
-            subscription, created = Subscription.objects.update_or_create(
-                syndic_profile=profile,
-                defaults={
-                    'plan': plan,
-                    'start_date': start,
-                    'end_date': end,
-                    'status': 'ACTIVE'
-                }
-            )
-            
-            action_text = 'created' if created else 'updated'
-            
-            return Response({
-                'success': True,
-                'message': f'Subscription {action_text} successfully',
-                'data': {
-                    'plan': plan.name,
-                    'start_date': start,
-                    'end_date': end,
-                    'status': subscription.status
-                }
-            })
-            
-        except SubscriptionPlan.DoesNotExist:
-            return Response({
-                'success': False,
-                'message': 'Subscription plan not found'
-            }, status=status.HTTP_404_NOT_FOUND)
-        except SyndicProfile.DoesNotExist:
-            return Response({
-                'success': False,
-                'message': 'Syndic profile not found'
-            }, status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=True, methods=['get'])
     def statistics(self, request, pk=None):
@@ -373,7 +273,6 @@ class SyndicAdminViewSet(viewsets.ModelViewSet):
             'total_syndics': total_syndics,
             'active_syndics': active_syndics,
             'inactive_syndics': total_syndics - active_syndics,
-            'active_subscriptions': Subscription.objects.filter(status='ACTIVE').count(),
         }
         
         return Response({
