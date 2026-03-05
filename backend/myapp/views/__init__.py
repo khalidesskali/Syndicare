@@ -72,6 +72,10 @@ from .payment import (
     SyndicSubscriptionPaymentViewSet
 )
 
+from .syndic_payments import (
+    SyndicResidentPaymentViewSet
+)
+
 from .paypal_views import (
     paypal_create_order,
     paypal_capture_order,
@@ -126,4 +130,5 @@ __all__ = [
     
     # Notifications views
     'NotificationViewSet',
+    'SyndicResidentPaymentViewSet',
 ]

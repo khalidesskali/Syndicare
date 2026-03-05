@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from myapp.models import Charge, ChargePayment
+from myapp.models import Charge, ChargePayment, Notification
 from myapp.permissions import IsResident
 from myapp.serializers import ChargeSerializer
 
@@ -95,8 +95,20 @@ class ResidentChargeViewSet(viewsets.ReadOnlyModelViewSet):
     
         # Update charge amounts (business consistency)
         charge.paid_amount += amount
-        charge.save(update_fields="paid_amount")
-    
+        charge.save(update_fields=["paid_amount"])
+
+        # Notify the syndic
+        try:
+            Notification.objects.create(
+                recipient=charge.appartement.immeuble.syndic,
+                title="Payment Submitted",
+                message=f"{user.first_name} {user.last_name} submitted a payment of {amount} DH for {charge.description}",
+                type="SYSTEM",
+                related_entity_id=charge.id
+            )
+        except Exception:
+            pass
+
         return Response(
             {
                 "success": True,

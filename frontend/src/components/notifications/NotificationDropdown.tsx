@@ -38,8 +38,14 @@ export const NotificationDropdown: React.FC = () => {
       } else if (user?.role === "RESIDENT") {
         navigate("/resident/reclamations");
       }
-    } else if (notification.type === "CHARGE_CREATED") {
+    } else if (
+      notification.type === "CHARGE_CREATED" ||
+      notification.type === "PAYMENT_CONFIRMED"
+    ) {
       if (user?.role === "RESIDENT") navigate("/resident/charges");
+    } else if (notification.type === "REUNION_SCHEDULED") {
+      if (user?.role === "RESIDENT") navigate("/resident/reunions");
+      else if (user?.role === "SYNDIC") navigate("/syndic/reunions");
     }
   };
 

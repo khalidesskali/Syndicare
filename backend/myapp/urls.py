@@ -33,6 +33,7 @@ from .views import (
     paypal_payment_details,
     paypal_refund,
     NotificationViewSet,
+    SyndicResidentPaymentViewSet,
 )
 
 router = DefaultRouter()
@@ -50,6 +51,7 @@ router.register(r'syndic/residents', ResidentViewSet, basename='syndic-resident'
 router.register(r'syndic/reclamations', ReclamationViewSet, basename='syndic-reclamation')
 router.register(r'syndic/reunions', ReunionViewSet, basename='syndic-reunion')
 router.register(r'syndic/charges', ChargeViewSet, basename='syndic-charge')
+router.register(r'syndic/resident-payments', SyndicResidentPaymentViewSet, basename='syndic-resident-payment')
 
 # Resident endpoints
 router.register(r'resident/payments', ResidentPaymentViewSet, basename='resident-payment')

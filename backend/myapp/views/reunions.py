@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 
-from ..models import Reunion, User, Immeuble
+from ..models import Reunion, User, Immeuble, Notification, Appartement
 from ..serializers import ReunionSerializer
 from ..permissions import IsSyndic
 
@@ -90,6 +90,22 @@ class ReunionViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             reunion = serializer.save(syndic=request.user)
+            
+            # Notify all residents in this building
+            residents = User.objects.filter(
+                role='RESIDENT',
+                appartements__immeuble=reunion.immeuble
+            ).distinct()
+            
+            for resident in residents:
+                Notification.objects.create(
+                    recipient=resident,
+                    title='New Meeting Scheduled',
+                    message=f'A new meeting "{reunion.title}" has been scheduled for {reunion.date_time.strftime("%Y-%m-%d %H:%M")}',
+                    type='REUNION_SCHEDULED',
+                    related_entity_id=reunion.id
+                )
+
             return Response({
                 'success': True,
                 'message': 'Reunion created successfully',
