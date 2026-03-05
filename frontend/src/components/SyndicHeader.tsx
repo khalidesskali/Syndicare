@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import {
   Search,
-  Bell,
   ChevronDown,
   LogOut,
   PanelLeftClose,
@@ -9,6 +8,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { NotificationDropdown } from "./notifications/NotificationDropdown";
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -127,19 +127,7 @@ const SyndicHeader: React.FC<HeaderProps> = ({
 
         {/* ── Right: notifications + profile ── */}
         <div className="flex items-center gap-1 shrink-0">
-          {/* Notification bell */}
-          <button
-            className={cn(
-              "relative w-9 h-9 rounded-xl flex items-center justify-center",
-              "text-slate-400 hover:text-slate-700 hover:bg-slate-100",
-              "transition-all duration-150",
-            )}
-            aria-label="Notifications"
-          >
-            <Bell className="w-[18px] h-[18px]" strokeWidth={1.75} />
-            {/* Live dot — matches sidebar notification dot */}
-            <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_4px_1px_rgba(239,68,68,0.5)]" />
-          </button>
+          <NotificationDropdown />
 
           {/* Divider */}
           <Separator orientation="vertical" className="h-6 mx-2 bg-slate-100" />

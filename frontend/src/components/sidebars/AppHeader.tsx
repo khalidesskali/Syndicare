@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   Search,
-  Bell,
   ChevronDown,
   LogOut,
   PanelLeftClose,
@@ -9,6 +8,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { NotificationDropdown } from "../notifications/NotificationDropdown";
 
 export interface HeaderAccent {
   searchIcon: string;
@@ -35,7 +35,6 @@ export interface AppHeaderProps {
   user?: AppHeaderUser | null;
   onLogout?: () => void;
   searchPlaceholder?: string;
-  notificationCount?: number;
 }
 
 const AppHeader: React.FC<AppHeaderProps> = ({
@@ -45,7 +44,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   user,
   onLogout,
   searchPlaceholder = "Search...",
-  notificationCount = 0,
 }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -144,34 +142,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
 
         {/* ── Right: bell + divider + profile ── */}
         <div className="flex items-center gap-1 shrink-0">
-          {/* Bell */}
-          <button
-            aria-label="Notifications"
-            className="relative w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all duration-150"
-          >
-            <Bell className="w-[18px] h-[18px]" strokeWidth={1.75} />
-            {notificationCount > 0 ? (
-              <span
-                className={cn(
-                  "absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1",
-                  "flex items-center justify-center rounded-full",
-                  "text-[9px] font-bold text-white",
-                  accent.notifDot,
-                )}
-                style={{ boxShadow: accent.notifGlow }}
-              >
-                {notificationCount > 9 ? "9+" : notificationCount}
-              </span>
-            ) : (
-              <span
-                className={cn(
-                  "absolute top-2 right-2 w-1.5 h-1.5 rounded-full",
-                  accent.notifDot,
-                )}
-                style={{ boxShadow: accent.notifGlow }}
-              />
-            )}
-          </button>
+          <NotificationDropdown />
 
           <Separator orientation="vertical" className="h-6 mx-2 bg-slate-100" />
 
