@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import type { ReclamationCreateData } from "@/api/residentReclamationApi";
-import { residentReclamationApi } from "@/api/residentReclamationApi";
+import { reclamationApi } from "@/api/residentReclamationApi";
 
 interface ReclamationFormProps {
   onReclamationCreated?: () => void;
@@ -41,7 +41,7 @@ const ReclamationForm: React.FC<ReclamationFormProps> = ({
     setLoading(true);
 
     try {
-      await residentReclamationApi.createReclamation(formData);
+      await reclamationApi.createReclamation(formData);
 
       // Reset form
       setFormData({ title: "", content: "" });

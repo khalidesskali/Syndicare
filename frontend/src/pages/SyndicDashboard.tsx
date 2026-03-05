@@ -21,18 +21,17 @@ const SyndicDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      
-        <>
-<div className="flex justify-center items-center h-64">
+      <>
+        <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
         </div>
-      
+      </>
     );
   }
 
   if (error) {
     return (
-      
+      <div>
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex justify-between items-center">
             <div className="flex">
@@ -58,22 +57,20 @@ const SyndicDashboard: React.FC = () => {
         >
           Try Again
         </button>
-      
+      </div>
     );
   }
 
   if (!stats) {
     return (
-      
-        <div className="text-center py-12">
-          <p className="text-slate-600">No dashboard data available</p>
-        </div>
-      
+      <div className="text-center py-12">
+        <p className="text-slate-600">No dashboard data available</p>
+      </div>
     );
   }
 
   return (
-    
+    <>
       {/* Error Display */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -106,8 +103,7 @@ const SyndicDashboard: React.FC = () => {
         onScheduleMeeting={handleScheduleMeeting}
       />
       <DashboardReunions reunions={[]} loading={false} />
-</>
-    
+    </>
   );
 };
 
