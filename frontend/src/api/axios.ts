@@ -116,21 +116,28 @@ axiosInstance.interceptors.response.use(
 
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        // Clear auth state
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("user");
+        // Only clear auth state if it's a definitive auth failure (401, 403, or 400)
+        // If the server is just down (Network Error), keep the local state
+        if (axios.isAxiosError(refreshError) && refreshError.response) {
+          const status = refreshError.response.status;
+          if (status === 401 || status === 403 || status === 400) {
+            // Clear auth state
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            localStorage.removeItem("user");
 
-        // Notify auth context about auth error
-        window.dispatchEvent(new CustomEvent("authError"));
+            // Notify auth context about auth error
+            window.dispatchEvent(new CustomEvent("authError"));
+
+            // Redirect to login if not already there
+            if (!window.location.pathname.includes("/login")) {
+              window.location.href = "/login";
+            }
+          }
+        }
 
         // Process queued requests with error
         processQueue(refreshError);
-
-        // Redirect to login if not already there
-        if (!window.location.pathname.includes("/login")) {
-          window.location.href = "/login";
-        }
 
         return Promise.reject(refreshError);
       } finally {

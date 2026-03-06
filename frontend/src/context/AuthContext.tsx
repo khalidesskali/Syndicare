@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import authAPI from "../api/auth";
 import type {
   User,
@@ -65,12 +65,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           localStorage.setItem("user", JSON.stringify(userData.user));
         } catch (error) {
           console.error("Auth verification failed:", error);
-          // Token invalid, clear storage
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-          localStorage.removeItem("user");
-          setUser(null);
-          setIsAuthenticated(false);
+
+          // Only clear auth state if it's a definitive auth failure (401 or 403)
+          // If the server is just down (Network Error), keep the local state
+          if (axios.isAxiosError(error)) {
+            if (
+              error.response?.status === 401 ||
+              error.response?.status === 403
+            ) {
+              console.log("Token invalid/expired, clearing auth state");
+              localStorage.removeItem("access_token");
+              localStorage.removeItem("refresh_token");
+              localStorage.removeItem("user");
+              setUser(null);
+              setIsAuthenticated(false);
+            } else {
+              console.log(
+                "Network or server error during auth check, keeping local state",
+              );
+            }
+          }
         }
       } else {
         setUser(null);
