@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Bell, type LucideIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -30,10 +30,6 @@ export interface SidebarAccent {
   activeIcon: string;
   pillBg: string;
   pillGlow: string;
-  /** Notification dot bg         e.g. "bg-emerald-500"                 */
-  notifDot: string;
-  /** Notification dot glow       e.g. "0 0 6px 2px rgba(…)"           */
-  notifGlow: string;
   /** Top ambient gradient colour e.g. "rgba(209,250,229,0.6)"          */
   ambientColor: string;
   /** Badge bg when active        e.g. "bg-emerald-100"                 */
@@ -49,16 +45,12 @@ export interface AppSidebarProps {
   onToggle?: () => void;
   brandName: string;
   brandLabel: string;
-  logoIcon: LucideIcon;
-  /** Tailwind gradient classes   e.g. "from-emerald-500 to-emerald-700" */
+  logoIcon: React.ElementType;
   logoGradient: string;
-  /** Tailwind shadow class        e.g. "shadow-emerald-200/80"          */
   logoShadow: string;
   accent: SidebarAccent;
   sections: SidebarSection[];
 }
-
-// ─── Internal: single nav item ───────────────────────────────────────────────
 
 const NavItem: React.FC<{
   item: SidebarNavItem;
@@ -79,7 +71,7 @@ const NavItem: React.FC<{
           accent.activeBg,
           accent.activeText,
           "shadow-[inset_0_1px_0_0_rgba(0,0,0,0.04)]",
-        ]
+        ],
       )}
     >
       {/* Left glow pill */}
@@ -87,7 +79,7 @@ const NavItem: React.FC<{
         <span
           className={cn(
             "absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full",
-            accent.pillBg
+            accent.pillBg,
           )}
           style={{ boxShadow: accent.pillGlow }}
         />
@@ -100,7 +92,7 @@ const NavItem: React.FC<{
           "transition-transform duration-200 group-hover/item:scale-110",
           isActive
             ? accent.activeIcon
-            : "text-slate-400 group-hover/item:text-slate-700"
+            : "text-slate-400 group-hover/item:text-slate-700",
         )}
       >
         <Icon
@@ -117,7 +109,7 @@ const NavItem: React.FC<{
               "flex-1 text-sm tracking-[-0.01em] truncate",
               isActive
                 ? cn("font-semibold", accent.activeText)
-                : "font-medium text-slate-500 group-hover/item:text-slate-800"
+                : "font-medium text-slate-500 group-hover/item:text-slate-800",
             )}
           >
             {item.name}
@@ -129,7 +121,7 @@ const NavItem: React.FC<{
                 "min-w-[18px] px-1.5 text-[10px] font-bold rounded-full border",
                 item.badgeVariant === "destructive"
                   ? "bg-red-100 text-red-600 border-red-200"
-                  : cn(accent.badgeBg, accent.badgeText, accent.badgeBorder)
+                  : cn(accent.badgeBg, accent.badgeText, accent.badgeBorder),
               )}
             >
               {item.badge}
@@ -140,7 +132,7 @@ const NavItem: React.FC<{
             <ChevronRight
               className={cn(
                 "w-3.5 h-3.5 opacity-60 shrink-0",
-                accent.activeText
+                accent.activeText,
               )}
               strokeWidth={2.5}
             />
@@ -190,13 +182,22 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
 
   return (
     <TooltipProvider>
+      {/* Mobile Backdrop */}
+      <div
+        className={cn(
+          "fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[45] md:hidden transition-opacity duration-300",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
+        )}
+        onClick={onToggle}
+      />
       <aside
         className={cn(
-          "fixed left-0 top-0 h-full z-40 flex flex-col",
-          "transition-all duration-300 ease-in-out",
+          "fixed left-0 top-0 h-full flex flex-col transition-all duration-300 ease-in-out bg-white border-r border-slate-100 shadow-[1px_0_12px_0_rgba(0,0,0,0.04)]",
+          // Desktop/Tablet rail behavior
           collapsed ? "w-[68px]" : "w-[220px]",
-          "bg-white border-r border-slate-100",
-          "shadow-[1px_0_12px_0_rgba(0,0,0,0.04)]"
+          // Mobile responsive behavior
+          "z-[50] md:z-40",
+          isOpen ? "translate-x-0" : "max-md:-translate-x-full",
         )}
       >
         {/* Noise texture overlay */}
@@ -222,7 +223,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
           className={cn(
             "relative z-10 flex items-center h-16 px-4 shrink-0",
             "border-b border-slate-100",
-            collapsed ? "justify-center" : "justify-between"
+            collapsed ? "justify-center" : "justify-between",
           )}
         >
           <div className="flex items-center gap-3 min-w-0">
@@ -231,7 +232,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
                 className={cn(
                   "w-9 h-9 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-md",
                   logoGradient,
-                  logoShadow
+                  logoShadow,
                 )}
               >
                 <LogoIcon
@@ -242,7 +243,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
               <div
                 className={cn(
                   "absolute inset-0 rounded-xl blur-md -z-10 scale-125 opacity-20 bg-gradient-to-br",
-                  logoGradient
+                  logoGradient,
                 )}
               />
             </div>
@@ -297,51 +298,6 @@ const AppSidebar: React.FC<AppSidebarProps> = ({
 
         {/* ── Footer ── */}
         <div className="relative z-10 border-t border-slate-100 p-3 space-y-1 shrink-0">
-          {!collapsed ? (
-            <button
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl",
-                "text-slate-500 hover:text-slate-800 hover:bg-slate-100/80",
-                "transition-all duration-150 group/notif"
-              )}
-            >
-              <Bell
-                className={cn(
-                  "w-[18px] h-[18px] shrink-0 transition-colors",
-                  `group-hover/notif:${accent.activeIcon}`
-                )}
-                strokeWidth={1.75}
-              />
-              <span className="text-sm font-medium flex-1 text-left">
-                Notifications
-              </span>
-              <span
-                className={cn("w-2 h-2 rounded-full", accent.notifDot)}
-                style={{ boxShadow: accent.notifGlow }}
-              />
-            </button>
-          ) : (
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <button className="relative w-full flex justify-center items-center py-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-all duration-150">
-                  <Bell className="w-[18px] h-[18px]" strokeWidth={1.75} />
-                  <span
-                    className={cn(
-                      "absolute top-2 right-2.5 w-1.5 h-1.5 rounded-full",
-                      accent.notifDot
-                    )}
-                  />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent
-                side="right"
-                className="bg-slate-900 text-slate-100 border-slate-700 text-xs ml-1"
-              >
-                Notifications
-              </TooltipContent>
-            </Tooltip>
-          )}
-
           {collapsed && onToggle && (
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>

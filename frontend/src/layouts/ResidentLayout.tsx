@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import AppSidebar from "../components/sidebars/AppSidebar";
 import AppHeader from "@/components/sidebars/AppHeader";
 import { residentNavConfig } from "@/components/sidebars/navConfigs";
 import ChatbotWidget from "@/components/chatbot/ChatbotWidget";
+import { useSidebarResponsive } from "@/hooks/useSidebarResponsive";
 
 interface ResidentLayoutProps {
   children?: React.ReactNode;
@@ -13,7 +14,8 @@ interface ResidentLayoutProps {
 const ResidentLayout: React.FC<ResidentLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { isOpen: sidebarOpen, toggle: toggleSidebar } =
+    useSidebarResponsive(true);
 
   const handleLogout = async (): Promise<void> => {
     await logout();
@@ -24,7 +26,7 @@ const ResidentLayout: React.FC<ResidentLayoutProps> = ({ children }) => {
     <div className="min-h-screen bg-slate-50/60">
       <AppSidebar
         isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen((p) => !p)}
+        onToggle={toggleSidebar}
         brandName={residentNavConfig.brandName}
         brandLabel={residentNavConfig.brandLabel}
         logoIcon={residentNavConfig.logoIcon}
@@ -36,15 +38,14 @@ const ResidentLayout: React.FC<ResidentLayoutProps> = ({ children }) => {
 
       <div
         className={`transition-all duration-300 ${
-          sidebarOpen ? "ml-[220px]" : "ml-[68px]"
+          sidebarOpen ? "ml-[220px]" : "md:ml-[68px] ml-0"
         }`}
       >
         <AppHeader
           accent={residentNavConfig.headerAccent}
-          sidebarOpen={sidebarOpen}
-          onToggleSidebar={() => setSidebarOpen((p) => !p)}
           user={user}
           onLogout={handleLogout}
+          onToggleSidebar={toggleSidebar}
           searchPlaceholder={residentNavConfig.searchPlaceholder}
         />
 

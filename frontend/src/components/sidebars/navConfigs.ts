@@ -24,7 +24,7 @@ export interface RoleNavConfig {
   // Sidebar
   brandName: string;
   brandLabel: string;
-  logoIcon: any;
+  logoIcon: React.ElementType;
   logoGradient: string;
   logoShadow: string;
   sidebarAccent: SidebarAccent;
@@ -47,8 +47,6 @@ export const syndicNavConfig: RoleNavConfig = {
     activeIcon: "text-emerald-600",
     pillBg: "bg-emerald-500",
     pillGlow: "0 0 8px 2px rgba(16,185,129,0.35)",
-    notifDot: "bg-emerald-500",
-    notifGlow: "0 0 6px 2px rgba(16,185,129,0.4)",
     ambientColor: "rgba(209,250,229,0.6)",
     badgeBg: "bg-emerald-100",
     badgeText: "text-emerald-700",
@@ -119,8 +117,6 @@ export const adminNavConfig: RoleNavConfig = {
     activeIcon: "text-blue-600",
     pillBg: "bg-blue-500",
     pillGlow: "0 0 8px 2px rgba(59,130,246,0.35)",
-    notifDot: "bg-blue-500",
-    notifGlow: "0 0 6px 2px rgba(59,130,246,0.4)",
     ambientColor: "rgba(219,234,254,0.6)",
     badgeBg: "bg-blue-100",
     badgeText: "text-blue-700",
@@ -169,8 +165,6 @@ export const residentNavConfig: RoleNavConfig = {
     activeIcon: "text-blue-600",
     pillBg: "bg-blue-500",
     pillGlow: "0 0 8px 2px rgba(59,130,246,0.35)",
-    notifDot: "bg-blue-500",
-    notifGlow: "0 0 6px 2px rgba(59,130,246,0.4)",
     ambientColor: "rgba(219,234,254,0.6)",
     badgeBg: "bg-blue-100",
     badgeText: "text-blue-700",

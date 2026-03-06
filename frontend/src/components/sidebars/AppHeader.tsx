@@ -1,11 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Search,
-  ChevronDown,
-  LogOut,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "lucide-react";
+import { Search, ChevronDown, LogOut, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { NotificationDropdown } from "../notifications/NotificationDropdown";
@@ -30,20 +24,18 @@ export interface AppHeaderUser {
 
 export interface AppHeaderProps {
   accent: HeaderAccent;
-  sidebarOpen: boolean;
-  onToggleSidebar: () => void;
   user?: AppHeaderUser | null;
   onLogout?: () => void;
   searchPlaceholder?: string;
+  onToggleSidebar?: () => void;
 }
 
 const AppHeader: React.FC<AppHeaderProps> = ({
   accent,
-  sidebarOpen,
-  onToggleSidebar,
   user,
   onLogout,
   searchPlaceholder = "Search...",
+  onToggleSidebar,
 }) => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -81,21 +73,15 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       <div className="flex items-center justify-between w-full px-4 sm:px-6 gap-4">
         {/* ── Left: toggle + search ── */}
         <div className="flex items-center gap-3 min-w-0">
-          {/* Sidebar toggle */}
+          {/* Mobile menu toggle */}
           <button
             onClick={onToggleSidebar}
-            aria-label="Toggle sidebar"
-            className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all duration-150"
+            aria-label="Open menu"
+            className="md:hidden shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all duration-150"
           >
-            {sidebarOpen ? (
-              <PanelLeftClose
-                className="w-[18px] h-[18px]"
-                strokeWidth={1.75}
-              />
-            ) : (
-              <PanelLeftOpen className="w-[18px] h-[18px]" strokeWidth={1.75} />
-            )}
+            <Menu className="w-[18px] h-[18px]" strokeWidth={1.75} />
           </button>
+          {/* Sidebar toggle */}
 
           {/* Search — desktop */}
           <div className="hidden md:block relative">
