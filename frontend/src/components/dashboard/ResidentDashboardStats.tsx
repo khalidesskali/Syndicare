@@ -1,5 +1,6 @@
 import React from "react";
 import { DollarSign, AlertTriangle, CreditCard } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ResidentDashboardStatsProps {
   totalUnpaid: number;
@@ -10,13 +11,47 @@ interface ResidentDashboardStatsProps {
     reference: string;
     charge_description: string;
   } | null;
+  loading?: boolean;
 }
 
 const ResidentDashboardStats: React.FC<ResidentDashboardStatsProps> = ({
   totalUnpaid,
   overdueCharges,
   lastPayment,
+  loading = false,
 }) => {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {[...Array(2)].map((_, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-xl shadow-sm border border-slate-200 p-6"
+          >
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-32" />
+              </div>
+              <Skeleton className="h-12 w-12 rounded-lg" />
+            </div>
+          </div>
+        ))}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:col-span-2">
+          <div className="flex items-center space-x-2 mb-4">
+            <Skeleton className="h-9 w-9 rounded-lg" />
+            <Skeleton className="h-6 w-32" />
+          </div>
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",

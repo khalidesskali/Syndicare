@@ -1,5 +1,6 @@
 import React from "react";
 import { Clock, DollarSign, AlertCircle } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Charge {
   id: string;
@@ -12,11 +13,36 @@ interface Charge {
 
 interface ResidentRecentChargesProps {
   charges: Charge[];
+  loading?: boolean;
 }
 
 const ResidentRecentCharges: React.FC<ResidentRecentChargesProps> = ({
   charges,
+  loading = false,
 }) => {
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200">
+        <div className="p-6 border-b border-slate-200">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-7 w-40" />
+            <Skeleton className="h-5 w-5" />
+          </div>
+        </div>
+        <div className="divide-y divide-slate-100 p-4 space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex justify-between items-center py-2">
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-5 w-1/2" />
+                <Skeleton className="h-4 w-1/3" />
+              </div>
+              <Skeleton className="h-8 w-24" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -81,7 +107,7 @@ const ResidentRecentCharges: React.FC<ResidentRecentChargesProps> = ({
                     </h4>
                     <span
                       className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        charge.status
+                        charge.status,
                       )}`}
                     >
                       {getStatusIcon(charge.status)}

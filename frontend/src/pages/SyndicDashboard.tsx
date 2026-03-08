@@ -19,19 +19,9 @@ const SyndicDashboard: React.FC = () => {
     clearError,
   } = useSyndicDashboard();
 
-  if (loading) {
+  if (error && !stats) {
     return (
-      <>
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-        </div>
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <div>
+      <div className="p-8">
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex justify-between items-center">
             <div className="flex">
@@ -61,25 +51,17 @@ const SyndicDashboard: React.FC = () => {
     );
   }
 
-  if (!stats) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-slate-600">No dashboard data available</p>
-      </div>
-    );
-  }
-
   return (
     <>
       {/* Error Display */}
-      {error && (
+      {error && stats && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex justify-between items-center">
             <div className="flex">
               <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
               <div>
                 <h3 className="text-sm font-medium text-red-800">
-                  Error loading dashboard
+                  Error refreshing data
                 </h3>
                 <p className="text-sm text-red-700 mt-1">{error}</p>
               </div>
@@ -94,15 +76,38 @@ const SyndicDashboard: React.FC = () => {
         </div>
       )}
 
-      <DashboardHeader onRefreshData={refreshData} />
-      <DashboardStats stats={stats} />
+      <DashboardHeader onRefreshData={refreshData} loading={loading} />
+      <DashboardStats
+        stats={
+          stats || {
+            overview: {
+              total_buildings: 0,
+              buildings_this_month: 0,
+              total_residents: 0,
+              residents_this_month: 0,
+              pending_charges: 0,
+              upcoming_reunions: 0,
+              open_complaints: 0,
+              urgent_complaints: 0,
+            },
+            financial: {
+              monthly_revenue: 0,
+              revenue_change: 0,
+              total_monthly_charges: 0,
+              last_month_revenue: 0,
+            },
+          }
+        }
+        loading={loading}
+      />
       <DashboardQuickActions
         onAddBuilding={handleAddBuilding}
         onAddResident={handleAddResident}
         onCreateCharge={handleCreateCharge}
         onScheduleMeeting={handleScheduleMeeting}
+        loading={loading}
       />
-      <DashboardReunions reunions={[]} loading={false} />
+      <DashboardReunions reunions={[]} loading={loading} />
     </>
   );
 };
