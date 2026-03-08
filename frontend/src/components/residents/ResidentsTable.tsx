@@ -1,5 +1,6 @@
 import { Edit2, Trash2 } from "lucide-react";
 import type { Resident } from "../../types/resident";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ResidentsTableProps {
   residents: Resident[];
@@ -17,8 +18,52 @@ export function ResidentsTable({
   if (loading) {
     return (
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div className="flex justify-center items-center p-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left">
+                  <Skeleton className="h-4 w-24" />
+                </th>
+                <th className="px-6 py-3 text-left">
+                  <Skeleton className="h-4 w-24" />
+                </th>
+                <th className="px-6 py-3 text-left">
+                  <Skeleton className="h-4 w-24" />
+                </th>
+                <th className="px-6 py-3 text-left">
+                  <Skeleton className="h-4 w-16" />
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {[...Array(5)].map((_, i) => (
+                <tr key={i}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Skeleton className="h-4 w-40" />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex space-x-2">
+                      <Skeleton className="h-8 w-8 rounded-md" />
+                      <Skeleton className="h-8 w-8 rounded-md" />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     );

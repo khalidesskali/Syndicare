@@ -73,9 +73,8 @@ const ResidentsPage: React.FC = () => {
   };
 
   return (
-    
-      <>
-{/* Error Display */}
+    <>
+      {/* Error Display */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex justify-between items-center">
@@ -109,13 +108,17 @@ const ResidentsPage: React.FC = () => {
       )}
 
       <div className="p-6">
-        <ResidentsHeader onCreateResident={handleCreateResident} />
+        <ResidentsHeader
+          onCreateResident={handleCreateResident}
+          loading={loading}
+        />
         <ResidentsStats stats={stats} loading={loading} />
         <ResidentsFilters
           searchTerm={searchTerm}
           statusFilter={statusFilter}
           onSearchChange={setSearchTerm}
           onStatusFilterChange={setStatusFilter}
+          loading={loading}
         />
         <ResidentsTable
           residents={residents}
@@ -133,8 +136,7 @@ const ResidentsPage: React.FC = () => {
         editingResident={editingResident}
         loading={modalLoading}
       />
-</>
-    
+    </>
   );
 };
 

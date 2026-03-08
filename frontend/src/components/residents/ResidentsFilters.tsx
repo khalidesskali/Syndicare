@@ -1,10 +1,12 @@
 import { Search, Filter } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ResidentsFiltersProps {
   searchTerm: string;
   statusFilter: string;
   onSearchChange: (value: string) => void;
   onStatusFilterChange: (value: string) => void;
+  loading?: boolean;
 }
 
 export function ResidentsFilters({
@@ -12,7 +14,23 @@ export function ResidentsFilters({
   statusFilter,
   onSearchChange,
   onStatusFilterChange,
+  loading = false,
 }: ResidentsFiltersProps) {
+  if (loading) {
+    return (
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Skeleton className="h-10 w-full rounded-md" />
+          </div>
+          <div className="w-full md:w-48">
+            <Skeleton className="h-10 w-full rounded-md" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white p-4 rounded-lg shadow mb-6">
       <div className="flex flex-col md:flex-row gap-4">

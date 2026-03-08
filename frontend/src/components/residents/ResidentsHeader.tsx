@@ -1,10 +1,27 @@
 import { Plus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ResidentsHeaderProps {
   onCreateResident: () => void;
+  loading?: boolean;
 }
 
-export function ResidentsHeader({ onCreateResident }: ResidentsHeaderProps) {
+export function ResidentsHeader({
+  onCreateResident,
+  loading = false,
+}: ResidentsHeaderProps) {
+  if (loading) {
+    return (
+      <div className="flex justify-between items-center mb-6">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <Skeleton className="h-10 w-36 rounded-md" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex justify-between items-center mb-6">
       <div>
