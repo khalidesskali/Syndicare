@@ -1,11 +1,38 @@
 import { Home, AlertCircle, Users, DollarSign } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { ApartmentStats } from "../../types/apartment";
 
 interface ApartmentStatsProps {
-  stats: ApartmentStats;
+  stats: ApartmentStats | null;
+  loading?: boolean;
 }
 
-export function ApartmentStats({ stats }: ApartmentStatsProps) {
+export function ApartmentStats({
+  stats,
+  loading = false,
+}: ApartmentStatsProps) {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {[...Array(4)].map((_, index) => (
+          <div
+            key={index}
+            className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm"
+          >
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-12 w-12 rounded-lg" />
+              <div className="space-y-2 text-right">
+                <Skeleton className="h-8 w-20 ml-auto" />
+                <Skeleton className="h-4 w-28 ml-auto" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!stats) return null;
   const cards = [
     {
       title: "Total Apartments",

@@ -1,5 +1,6 @@
 import { Search, Building, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -17,6 +18,7 @@ interface ApartmentFiltersProps {
   onOccupancyChange: (value: "all" | "occupied" | "vacant") => void;
   onSearch: () => void;
   buildings?: { id: number; name: string }[];
+  loading?: boolean;
 }
 
 export function ApartmentFilters({
@@ -28,7 +30,25 @@ export function ApartmentFilters({
   onOccupancyChange,
   onSearch,
   buildings = [],
+  loading = false,
 }: ApartmentFiltersProps) {
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1">
+            <Skeleton className="h-10 w-full rounded-md" />
+          </div>
+          <div className="w-full lg:w-64">
+            <Skeleton className="h-10 w-full rounded-md" />
+          </div>
+          <div className="w-full lg:w-48">
+            <Skeleton className="h-10 w-full rounded-md" />
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
       <div className="flex flex-col lg:flex-row gap-4">

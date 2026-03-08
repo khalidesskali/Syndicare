@@ -180,9 +180,8 @@ const ApartmentPage: React.FC = () => {
   };
 
   return (
-    
-      <>
-{/* Success Message */}
+    <>
+      {/* Success Message */}
       {successMessage && (
         <div className="mb-6">
           <SuccessMessage message={successMessage} />
@@ -196,9 +195,12 @@ const ApartmentPage: React.FC = () => {
         </div>
       )}
 
-      <ApartmentHeader onCreateApartment={handleCreateApartment} />
+      <ApartmentHeader
+        onCreateApartment={handleCreateApartment}
+        loading={loading}
+      />
 
-      <ApartmentStatsComponent stats={stats} />
+      <ApartmentStatsComponent stats={stats} loading={loading} />
 
       <ApartmentFilters
         searchTerm={searchTerm}
@@ -209,6 +211,7 @@ const ApartmentPage: React.FC = () => {
         onOccupancyChange={setOccupancyFilter}
         onSearch={handleSearch}
         buildings={buildings}
+        loading={loading}
       />
 
       <ApartmentTable
@@ -255,8 +258,7 @@ const ApartmentPage: React.FC = () => {
         loading={modalLoading}
         apartment={selectedApartment}
       />
-</>
-    
+    </>
   );
 };
 

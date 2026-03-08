@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import type { Apartment } from "../../types/apartment";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 interface ApartmentTableProps {
   apartments: Apartment[];
   loading: boolean;
@@ -49,11 +51,61 @@ export function ApartmentTable({
 }: ApartmentTableProps) {
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border border-slate-200 p-8">
-        <div className="flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-          <span className="ml-2 text-slate-600">Loading apartments...</span>
-        </div>
+      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-slate-50">
+              <TableHead>
+                <Skeleton className="h-4 w-24" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-32" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-28" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-32" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-20" />
+              </TableHead>
+              <TableHead className="text-right">
+                <Skeleton className="h-4 w-12 ml-auto" />
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[...Array(5)].map((_, i) => (
+              <TableRow key={i}>
+                <TableCell>
+                  <Skeleton className="h-4 w-16" />
+                </TableCell>
+                <TableCell>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-3 w-32" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-20" />
+                </TableCell>
+                <TableCell>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-3 w-32" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-6 w-16 rounded-full" />
+                </TableCell>
+                <TableCell className="text-right">
+                  <Skeleton className="h-8 w-8 ml-auto rounded-md" />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     );
   }

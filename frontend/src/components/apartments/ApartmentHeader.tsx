@@ -1,15 +1,34 @@
 import { Plus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ApartmentHeaderProps {
   onCreateApartment: () => void;
   onAssignMultiple?: () => void;
+  loading?: boolean;
 }
 
 export function ApartmentHeader({
   onCreateApartment,
   onAssignMultiple,
+  loading = false,
 }: ApartmentHeaderProps) {
+  if (loading) {
+    return (
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-96" />
+          </div>
+          <div className="flex items-center space-x-3">
+            <Skeleton className="h-10 w-36 rounded-md" />
+            <Skeleton className="h-10 w-36 rounded-md" />
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-2">
