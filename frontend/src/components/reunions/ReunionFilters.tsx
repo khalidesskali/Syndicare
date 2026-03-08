@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -24,6 +25,7 @@ interface ReunionFiltersProps {
   onDateRangeChange: (range: { from?: Date; to?: Date } | undefined) => void;
   buildings: Building[];
   buildingsLoading: boolean;
+  loading?: boolean;
 }
 
 export function ReunionFilters({
@@ -37,9 +39,31 @@ export function ReunionFilters({
   onDateRangeChange,
   buildings,
   buildingsLoading,
+  loading = false,
 }: ReunionFiltersProps) {
   const [showStartCalendar, setShowStartCalendar] = useState(false);
   const [showEndCalendar, setShowEndCalendar] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+        <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+          <div className="relative w-full lg:max-w-sm">
+            <Skeleton className="h-10 w-full rounded-md" />
+          </div>
+          <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-3">
+            <Skeleton className="h-10 w-[180px] rounded-md" />
+            <Skeleton className="h-10 w-[160px] rounded-md" />
+            <div className="flex items-center space-x-2">
+              <Skeleton className="h-10 w-[120px] rounded-md" />
+              <Skeleton className="h-3 w-4" />
+              <Skeleton className="h-10 w-[120px] rounded-md" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">

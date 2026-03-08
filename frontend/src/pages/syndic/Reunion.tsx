@@ -75,13 +75,6 @@ const ReunionPage: React.FC = () => {
     }
   };
 
-  const handleDeleteReunionFromTable = (reunionId: number) => {
-    const reunion = reunions.find((r) => r.id === reunionId);
-    if (reunion) {
-      handleDeleteReunion(reunion);
-    }
-  };
-
   const handleViewDetails = (reunionId: number) => {
     const reunion = reunions.find((r) => r.id === reunionId);
     if (reunion) {
@@ -151,9 +144,8 @@ const ReunionPage: React.FC = () => {
   };
 
   return (
-    
-      <>
-{/* Error Display */}
+    <>
+      {/* Error Display */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex justify-between items-center">
@@ -171,9 +163,10 @@ const ReunionPage: React.FC = () => {
       <ReunionHeader
         onCreateReunion={handleCreateReunion}
         onScheduleMultiple={handleScheduleMultiple}
+        loading={loading}
       />
 
-      <ReunionStatsComponent stats={stats} />
+      <ReunionStatsComponent stats={stats} loading={loading} />
 
       <ReunionFilters
         searchTerm={searchTerm}
@@ -186,13 +179,13 @@ const ReunionPage: React.FC = () => {
         onDateRangeChange={setDateRange}
         buildings={buildings}
         buildingsLoading={buildingsLoading}
+        loading={loading}
       />
 
       <ReunionTable
         reunions={reunions}
         loading={loading}
         onEditReunion={handleEditReunionFromTable}
-        onDeleteReunion={handleDeleteReunionFromTable}
         onViewDetails={handleViewDetails}
       />
 
@@ -227,8 +220,7 @@ const ReunionPage: React.FC = () => {
         onBulkCreate={handleBulkCreateSubmit}
         loading={modalLoading}
       />
-</>
-    
+    </>
   );
 };
 

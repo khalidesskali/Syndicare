@@ -12,11 +12,12 @@ import { Badge } from "@/components/ui/badge";
 import type { Reunion } from "../../types/reunion";
 import { format } from "date-fns";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 interface ReunionTableProps {
   reunions: Reunion[];
   loading: boolean;
   onEditReunion: (reunionId: number) => void;
-  onDeleteReunion: (reunionId: number) => void;
   onViewDetails: (reunionId: number) => void;
 }
 
@@ -24,7 +25,6 @@ export function ReunionTable({
   reunions,
   loading,
   onEditReunion,
-  onDeleteReunion: _onDeleteReunion,
   onViewDetails,
 }: ReunionTableProps) {
   const statusVariant = {
@@ -32,6 +32,73 @@ export function ReunionTable({
     COMPLETED: "outline",
     CANCELLED: "destructive",
   } as const;
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-slate-50 border-b border-slate-200">
+              <TableHead className="pl-5">
+                <Skeleton className="h-4 w-24" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-28" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-24" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-24" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-20" />
+              </TableHead>
+              <TableHead className="text-right pr-5">
+                <Skeleton className="h-4 w-12 ml-auto" />
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[...Array(5)].map((_, i) => (
+              <TableRow key={i}>
+                <TableCell className="pl-5">
+                  <div className="flex items-center">
+                    <Skeleton className="h-8 w-8 rounded-lg mr-3" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-48" />
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-3 w-16" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-24" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-24" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-6 w-16 rounded-full" />
+                </TableCell>
+                <TableCell className="text-right pr-5">
+                  <div className="flex justify-end space-x-2">
+                    <Skeleton className="h-8 w-14 rounded-md" />
+                    <Skeleton className="h-8 w-14 rounded-md" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  }
 
   // Ensure reunions is an array
   const reunionsArray = Array.isArray(reunions) ? reunions : [];
@@ -62,19 +129,7 @@ export function ReunionTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {loading ? (
-            <TableRow>
-              <TableCell
-                colSpan={7}
-                className="h-24 text-center text-slate-600"
-              >
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-green-500"></div>
-                  <span>Loading...</span>
-                </div>
-              </TableCell>
-            </TableRow>
-          ) : reunionsArray.length === 0 ? (
+          {reunionsArray.length === 0 ? (
             <TableRow>
               <TableCell
                 colSpan={7}
@@ -138,13 +193,17 @@ export function ReunionTable({
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant={statusVariant[reunion.status]}
+                    variant={
+                      statusVariant[
+                        reunion.status as keyof typeof statusVariant
+                      ]
+                    }
                     className={`${
                       reunion.status === "SCHEDULED"
                         ? "bg-green-100 text-green-700 border-green-200"
                         : reunion.status === "COMPLETED"
-                        ? "bg-gray-100 text-gray-700 border-gray-200"
-                        : "bg-red-100 text-red-700 border-red-200"
+                          ? "bg-gray-100 text-gray-700 border-gray-200"
+                          : "bg-red-100 text-red-700 border-red-200"
                     }`}
                   >
                     {reunion.status}
