@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import HomeRedirect from "./components/HomeRedirect";
 import { generateRoutes } from "./components/RouteGenerator";
 import {
@@ -15,8 +16,9 @@ function App() {
       {/* Default redirect */}
       <Route path="/" element={<HomeRedirect />} />
 
-      {/* Public login route */}
+      {/* Public login and signup routes */}
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
 
       {/* Admin routes */}
       {generateRoutes({

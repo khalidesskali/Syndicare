@@ -109,7 +109,7 @@ REST_FRAMEWORK = {
         'anon': '100/hour',  # Anonymous users: 100 requests per hour
         'user': '1000/hour',  # Authenticated users: 1000 requests per hour
         'login': '5/minute',  # Login attempts: 5 per minute
-        'register': '3/hour',  # Registration: 3 per hour
+        'register': '10/minute',  # Registration: 10 per minute (relaxed for testing)
     },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
@@ -205,10 +205,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-    # Add custom validator
-    {
-        'NAME': 'myapp.validators.CustomPasswordValidator',
     },
 ]
 

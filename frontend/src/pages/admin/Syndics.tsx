@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
 import useSyndics from "@/hooks/useSyndics";
-import type { SyndicFilters } from "@/types/syndics";
+import type { Syndic, SyndicFilters, SyndicFormData } from "@/types/syndics";
 import SyndicsHeader from "@/components/syndic/SyndicsHeader";
 import SyndicsStats from "@/components/syndic/SyndicsStats";
 import SyndicsFilters from "@/components/syndic/SyndicsFilters";
 import SyndicsTable from "@/components/syndic/SyndicsTable";
 import { FormModal } from "@/components/ui/form-modal";
-import {
-  addSyndicFields,
-  editSyndicFields,
-} from "@/components/syndic/SyndicsFormConfig";
+import { editSyndicFields } from "@/components/syndic/SyndicsFormConfig";
 
 const Syndics: React.FC = () => {
   const [filters, setFilters] = useState<Partial<SyndicFilters>>({
@@ -19,10 +16,9 @@ const Syndics: React.FC = () => {
     search: "",
   });
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [selectedSyndic, setSelectedSyndic] = useState<any>(null);
+  const [selectedSyndic, setSelectedSyndic] = useState<Syndic | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const {
@@ -32,7 +28,6 @@ const Syndics: React.FC = () => {
     pagination,
     fetchSyndics,
     stats,
-    createSyndic,
     updateSyndic,
     deleteSyndic,
   } = useSyndics();
@@ -45,32 +40,17 @@ const Syndics: React.FC = () => {
     setFilters((prev) => ({ ...prev, page: newPage }));
   };
 
-  const handleEdit = (syndic: any) => {
+  const handleEdit = (syndic: Syndic) => {
     setSelectedSyndic(syndic);
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (syndic: any) => {
+  const handleDelete = (syndic: Syndic) => {
     setSelectedSyndic(syndic);
     setIsDeleteModalOpen(true);
   };
 
-  const handleAddSyndic = async (data: Record<string, any>) => {
-    setIsSubmitting(true);
-    try {
-      await createSyndic(data as any);
-      setIsAddModalOpen(false);
-      await fetchSyndics(filters);
-      return true;
-    } catch (error) {
-      console.error("Error adding syndic:", error);
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleEditSyndic = async (data: Record<string, any>) => {
+  const handleEditSyndic = async (data: Record<string, unknown>) => {
     if (!selectedSyndic?.id) {
       console.error("No syndic selected for editing");
       return false;
@@ -78,7 +58,7 @@ const Syndics: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      await updateSyndic(selectedSyndic.id, data as any);
+      await updateSyndic(selectedSyndic.id, data as Partial<SyndicFormData>);
       setIsEditModalOpen(false);
       await fetchSyndics(filters);
       return true;
@@ -147,10 +127,9 @@ const Syndics: React.FC = () => {
   };
 
   return (
-    
-      <>
-{/* Header */}
-      <SyndicsHeader onAddSyndic={() => setIsAddModalOpen(true)} />
+    <>
+      {/* Header */}
+      <SyndicsHeader />
 
       {/* Stats Cards */}
       <SyndicsStats stats={stats} />
@@ -177,18 +156,6 @@ const Syndics: React.FC = () => {
         onPageChange={handlePageChange}
         formatDate={formatDate}
         timeSince={timeSince}
-      />
-
-      {/* Add Syndic Modal */}
-      <FormModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        title="Add New Syndic"
-        fields={addSyndicFields}
-        onSubmit={handleAddSyndic}
-        loading={isSubmitting}
-        submitText="Add Syndic"
-        size="md"
       />
 
       {/* Edit Syndic Modal */}
@@ -226,8 +193,7 @@ const Syndics: React.FC = () => {
         submitText="Delete Syndic"
         size="sm"
       />
-</>
-    
+    </>
   );
 };
 

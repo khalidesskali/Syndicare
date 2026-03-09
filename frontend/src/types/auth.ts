@@ -25,6 +25,23 @@ export interface LoginResponse {
   user: User;
 }
 
+// Register request
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  password2: string;
+  first_name: string;
+  last_name: string;
+}
+
+// Register response
+export interface RegisterResponse {
+  access: string;
+  refresh: string;
+  user: User;
+  message?: string;
+}
+
 // Change password request
 export interface ChangePasswordRequest {
   old_password: string;
@@ -45,6 +62,7 @@ export interface AuthContextType {
   loading: boolean;
   error: string | Record<string, string[]> | null;
   login: (email: string, password: string) => Promise<AuthResult>;
+  register: (data: RegisterRequest) => Promise<AuthResult>;
   logout: () => Promise<void>;
   updateProfile: () => Promise<ProfileResult>;
   changePassword: (

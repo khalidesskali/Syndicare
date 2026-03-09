@@ -1,5 +1,11 @@
 import axiosInstance from "./axios";
-import type { LoginResponse, User, CheckAuthResponse } from "../types/auth";
+import type {
+  LoginResponse,
+  User,
+  CheckAuthResponse,
+  RegisterRequest,
+  RegisterResponse,
+} from "../types/auth";
 
 const authAPI = {
   // Login
@@ -8,6 +14,15 @@ const authAPI = {
       email,
       password,
     });
+    return response.data;
+  },
+
+  // Register
+  register: async (data: RegisterRequest): Promise<RegisterResponse> => {
+    const response = await axiosInstance.post<RegisterResponse>(
+      "/auth/register/",
+      data,
+    );
     return response.data;
   },
 
@@ -37,7 +52,7 @@ const authAPI = {
   // Change password
   changePassword: async (
     oldPassword: string,
-    newPassword: string
+    newPassword: string,
   ): Promise<{ message: string }> => {
     const response = await axiosInstance.post<{ message: string }>(
       "/auth/change-password/",
@@ -45,7 +60,7 @@ const authAPI = {
         old_password: oldPassword,
         new_password: newPassword,
         new_password2: newPassword,
-      }
+      },
     );
     return response.data;
   },
@@ -64,7 +79,7 @@ const authAPI = {
   }> => {
     try {
       const response = await axiosInstance.get<{ valid: boolean; user: User }>(
-        "/auth/verify/"
+        "/auth/verify/",
       );
       return response.data;
     } catch (error) {

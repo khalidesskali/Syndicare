@@ -9,6 +9,7 @@ import type {
   ProfileResult,
   PasswordChangeResult,
   ApiError,
+  RegisterRequest,
 } from "../types/auth";
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -148,6 +149,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Register function
+  const register = async (data: RegisterRequest): Promise<AuthResult> => {
+    try {
+      setError(null);
+      setLoading(true);
+
+      console.log("Registration attempt:", { email: data.email });
+
+      const response = await authAPI.register(data);
+
+      console.log("Registration response:", response);
+
+      // Save tokens
+      localStorage.setItem("access_token", response.access);
+      localStorage.setItem("refresh_token", response.refresh);
+      localStorage.setItem("user", JSON.stringify(response.user));
+
+      setUser(response.user);
+      setIsAuthenticated(true);
+      setLoading(false);
+
+      return { user: response.user };
+    } catch (err) {
+      console.error("Registration error:", err);
+
+      const error = err as AxiosError<ApiError>;
+      let errorMessage = "Registration failed";
+
+      if (error.response) {
+        // Server responded with error
+        if (error.response.data.errors) {
+          // Field-specific errors
+          setError(error.response.data.errors);
+          errorMessage = "Registration validation failed";
+        } else {
+          errorMessage = error.response.data.detail || "Registration failed";
+          setError(errorMessage);
+        }
+      } else if (error.request) {
+        errorMessage =
+          "No response from server. Please check if the backend is running.";
+        setError(errorMessage);
+      } else {
+        errorMessage = error.message || "Network error";
+        setError(errorMessage);
+      }
+
+      setLoading(false);
+      setIsAuthenticated(false);
+      return { user: null };
+    }
+  };
+
   // Logout function
   const logout = async (): Promise<void> => {
     try {
@@ -214,6 +268,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading,
     error,
     login,
+    register,
     logout,
     updateProfile,
     changePassword,

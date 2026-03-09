@@ -85,7 +85,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['email', 'password', 'password2', 'first_name', 'last_name', 'role']
+        fields = ['email', 'password', 'password2', 'first_name', 'last_name']
     
     def validate_email(self, value):
         """Check if email already exists"""
@@ -101,33 +101,27 @@ class RegisterSerializer(serializers.ModelSerializer):
             })
         return attrs
     
-    def validate_role(self, value):
-        """Validate role permissions"""
-        request = self.context.get('request')
-        
-        # Only Admin can create Admin or Syndic accounts
-        if value in ['ADMIN', 'SYNDIC']:
-            if not (request and request.user and request.user.is_authenticated and request.user.is_admin):
-                raise serializers.ValidationError(
-                    "Only administrators can create Syndic or Admin accounts."
-                )
-        
-        return value
     
     def create(self, validated_data):
-        """Create user with hashed password"""
+        """Create user with hashed password and auto-set SYNDIC role"""
         validated_data.pop('password2')
         password = validated_data.pop('password')
         
+        # Hardcode role to SYNDIC for self-registration
         user = User(**validated_data)
+        user.role = 'SYNDIC'
         user.set_password(password)
         
-        # Set created_by if available
+        # Set created_by if available (usually None for self-reg)
         request = self.context.get('request')
         if request and request.user and request.user.is_authenticated:
             user.created_by = request.user
         
         user.save()
+        
+        # Auto-create syndic profile
+        SyndicProfile.objects.create(user=user)
+        
         return user
 
 

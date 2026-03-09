@@ -4,8 +4,9 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Mail, Lock, AlertCircle, Shield } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Shield, AlertCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { ErrorMessage } from "@/components/ui/error-message";
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
@@ -33,7 +34,8 @@ export default function Login() {
     }
   }, [error]);
 
-  const from = (location.state as any)?.from?.pathname || "/";
+  const from =
+    (location.state as { from?: { pathname: string } })?.from?.pathname || "/";
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -93,7 +95,6 @@ export default function Login() {
       <div className="w-full max-w-md">
         {/* Main Card */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-          {/* Header Section */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 text-center">
             <div className="mx-auto h-16 w-16 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm">
               <Shield className="h-8 w-8 text-white" />
@@ -104,21 +105,19 @@ export default function Login() {
             </p>
           </div>
 
+          {/* General Error Toast Message */}
+          {errors.general && (
+            <ErrorMessage
+              message={errors.general}
+              duration={5000}
+              onClose={() =>
+                setErrors((prev) => ({ ...prev, general: undefined }))
+              }
+            />
+          )}
+
           {/* Form Section */}
           <div className="p-8 space-y-6">
-            {/* General Error Message */}
-            {errors.general && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-red-800">
-                    Login Failed
-                  </p>
-                  <p className="text-sm text-red-700 mt-1">{errors.general}</p>
-                </div>
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Email Field */}
               <div className="space-y-2">
@@ -266,17 +265,15 @@ export default function Login() {
               </Button>
             </form>
 
-            {/* Footer */}
             <div className="pt-6 border-t border-slate-200">
               <div className="text-center">
                 <p className="text-sm text-slate-600">
-                  Need access to your account?{" "}
+                  Don't have an account?{" "}
                   <Link
-                    to="/contact"
+                    to="/signup"
                     className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
-                    onClick={(e) => e.preventDefault()}
                   >
-                    Contact your administrator
+                    Sign up
                   </Link>
                 </p>
               </div>

@@ -1,12 +1,5 @@
 import React from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
-interface SyndicsHeaderProps {
-  onAddSyndic: () => void;
-}
-
-const SyndicsHeader: React.FC<SyndicsHeaderProps> = ({ onAddSyndic }) => {
+const SyndicsHeader: React.FC = () => {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
@@ -18,10 +11,6 @@ const SyndicsHeader: React.FC<SyndicsHeaderProps> = ({ onAddSyndic }) => {
             Manage all syndic accounts and their details
           </p>
         </div>
-        <Button onClick={onAddSyndic} className="flex items-center space-x-2">
-          <Plus className="h-5 w-5" />
-          <span>Add Syndic</span>
-        </Button>
       </div>
     </div>
   );

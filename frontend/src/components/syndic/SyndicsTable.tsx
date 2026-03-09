@@ -1,15 +1,7 @@
 import React from "react";
 import { Edit, Trash2, Eye, Phone, Calendar } from "lucide-react";
 
-interface Syndic {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  is_active: boolean;
-  created_at: string;
-}
+import type { Syndic } from "@/types/syndics";
 
 interface Pagination {
   page: number;
