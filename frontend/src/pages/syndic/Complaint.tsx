@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { ComplaintHeader } from "@/components/complaints/ComplaintHeader";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { ErrorState } from "@/components/ui/error-state";
 import { ComplaintStats } from "@/components/complaints/ComplaintStats";
 import { ComplaintFilters } from "@/components/complaints/ComplaintFilters";
 import { ComplaintTable } from "@/components/complaints/ComplaintTable";
@@ -27,6 +29,8 @@ const ComplaintPage: React.FC = () => {
     updateComplaint,
     deleteComplaint,
     respondToComplaint,
+    rejectComplaint,
+    refetch,
     clearError,
   } = useComplaint();
 
@@ -71,10 +75,6 @@ const ComplaintPage: React.FC = () => {
       setSelectedComplaint(complaint);
       setShowDetailsModal(true);
     }
-  };
-
-  const handleSearch = () => {
-    // Search is handled by the reactive hook
   };
 
   // Modal form handlers
@@ -123,45 +123,50 @@ const ComplaintPage: React.FC = () => {
   return (
     <>
       {/* Error Display */}
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex justify-between items-center">
-            <p className="text-red-700">{error}</p>
-            <button
-              onClick={clearError}
-              className="text-red-500 hover:text-red-700"
-            >
-              ×
-            </button>
-          </div>
-        </div>
+      {error && complaints.length > 0 && (
+        <ErrorMessage message={error} onClose={clearError} />
       )}
 
-      <ComplaintHeader loading={loading} />
+      {error && complaints.length === 0 && !loading ? (
+        <ErrorState
+          message={error}
+          onRetry={refetch}
+          errorType={
+            error.toLowerCase().includes("network") ||
+            error.toLowerCase().includes("fetch")
+              ? "network"
+              : "server"
+          }
+        />
+      ) : (
+        <>
+          <ComplaintHeader loading={loading} />
 
-      <ComplaintStats stats={stats} loading={loading} />
+          <ComplaintStats stats={stats} loading={loading} />
 
-      <ComplaintFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        statusFilter={statusFilter}
-        onStatusChange={setStatusFilter}
-        priorityFilter={priorityFilter}
-        onPriorityChange={setPriorityFilter}
-        buildingFilter={buildingFilter}
-        onBuildingChange={setBuildingFilter}
-        dateRange={dateRange}
-        onDateRangeChange={setDateRange}
-        onSearch={handleSearch}
-        loading={loading}
-      />
+          <ComplaintFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            priorityFilter={priorityFilter}
+            onPriorityChange={setPriorityFilter}
+            buildingFilter={buildingFilter}
+            onBuildingChange={setBuildingFilter}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            loading={loading}
+            onSearch={() => {}}
+          />
 
-      <ComplaintTable
-        complaints={complaints}
-        loading={loading}
-        onEditComplaint={handleEditComplaintFromTable}
-        onViewDetails={handleViewDetails}
-      />
+          <ComplaintTable
+            complaints={complaints}
+            loading={loading}
+            onEditComplaint={handleEditComplaintFromTable}
+            onViewDetails={handleViewDetails}
+          />
+        </>
+      )}
 
       {/* Modals */}
       <ComplaintEditModal

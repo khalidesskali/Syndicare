@@ -7,6 +7,7 @@ import { BuildingTable } from "../../components/buildings/BuildingTable";
 import { BuildingSkeleton } from "../../components/buildings/BuildingSkeleton";
 import { SuccessMessage } from "../../components/ui/success-message";
 import { ErrorMessage } from "../../components/ui/error-message";
+import { ErrorState } from "../../components/ui/error-state";
 import { useBuilding } from "../../hooks/useBuilding";
 import type { Building } from "../../types/building";
 
@@ -26,7 +27,8 @@ const Buildings: React.FC = () => {
     deleteBuilding,
     refetch,
     successMessage,
-    errorMessage,
+    error,
+    clearError,
   } = useBuilding();
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -56,9 +58,25 @@ const Buildings: React.FC = () => {
   };
 
   return (
-    
-      <>
-{loading ? (
+    <>
+      {/* Success and Error Messages */}
+      {successMessage && <SuccessMessage message={successMessage} />}
+      {error && buildings.length > 0 && (
+        <ErrorMessage message={error} onClose={clearError} />
+      )}
+
+      {error && buildings.length === 0 && !loading ? (
+        <ErrorState
+          message={error}
+          onRetry={refetch}
+          errorType={
+            error.toLowerCase().includes("network") ||
+            error.toLowerCase().includes("fetch")
+              ? "network"
+              : "server"
+          }
+        />
+      ) : loading ? (
         <BuildingSkeleton />
       ) : (
         <div className="space-y-6">
@@ -118,11 +136,7 @@ const Buildings: React.FC = () => {
         updateBuilding={updateBuilding}
         deleteBuilding={deleteBuilding}
       />
-      {/* Success and Error Messages */}
-      {successMessage && <SuccessMessage message={successMessage} />}
-      {errorMessage && <ErrorMessage message={errorMessage} />}
-</>
-    
+    </>
   );
 };
 

@@ -18,6 +18,7 @@ interface UseSyndicPaymentsReturn {
   refreshPayments: () => void;
   confirmPayment: (id: number) => Promise<void>;
   rejectPayment: (id: number, reason?: string) => Promise<void>;
+  clearError: () => void;
 }
 
 export const useSyndicPayments = (): UseSyndicPaymentsReturn => {
@@ -57,7 +58,7 @@ export const useSyndicPayments = (): UseSyndicPaymentsReturn => {
       await fetchPayments(); // Refresh the list
     } catch (err: any) {
       throw new Error(
-        err.response?.data?.message || "Failed to confirm payment"
+        err.response?.data?.message || "Failed to confirm payment",
       );
     }
   };
@@ -68,7 +69,7 @@ export const useSyndicPayments = (): UseSyndicPaymentsReturn => {
       await fetchPayments(); // Refresh the list
     } catch (err: any) {
       throw new Error(
-        err.response?.data?.message || "Failed to reject payment"
+        err.response?.data?.message || "Failed to reject payment",
       );
     }
   };
@@ -90,5 +91,6 @@ export const useSyndicPayments = (): UseSyndicPaymentsReturn => {
     refreshPayments,
     confirmPayment,
     rejectPayment,
+    clearError: () => setError(null),
   };
 };

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useSyndicPayments } from "@/hooks/useSyndicPayments";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { ErrorState } from "@/components/ui/error-state";
 import type { SyndicPayment } from "@/api/syndicPayments";
 import { PaymentFilters } from "../../components/payments/PaymentFilters";
 import { PaymentTable } from "../../components/payments/PaymentTable";
@@ -16,7 +18,10 @@ const SyndicPayments: React.FC = () => {
     refreshPayments,
     confirmPayment,
     rejectPayment,
+    clearError,
   } = useSyndicPayments();
+
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const [selectedPayment, setSelectedPayment] = useState<SyndicPayment | null>(
     null,
@@ -30,7 +35,7 @@ const SyndicPayments: React.FC = () => {
     try {
       await confirmPayment(paymentId);
     } catch (error: any) {
-      alert(error.message);
+      setLocalError(error.message);
     } finally {
       setActionLoading(false);
     }
@@ -46,7 +51,7 @@ const SyndicPayments: React.FC = () => {
       setRejectReason("");
       setSelectedPayment(null);
     } catch (error: any) {
-      alert(error.message);
+      setLocalError(error.message);
     } finally {
       setActionLoading(false);
     }
@@ -57,78 +62,86 @@ const SyndicPayments: React.FC = () => {
     setShowRejectModal(true);
   };
 
-  if (error) {
-    return (
-      <div className="p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
-          <button
-            onClick={refreshPayments}
-            className="mt-2 text-red-600 hover:text-red-800 underline"
-          >
-            Try again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Resident Payments
-            </h1>
-            <p className="text-muted-foreground">
-              View and manage payments from residents
-            </p>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <PaymentFilters
-          filters={filters}
-          setFilters={setFilters}
-          refreshPayments={refreshPayments}
-          loading={loading}
-        />
-
-        {/* Payments Table */}
-        <PaymentTable
-          payments={payments}
-          loading={loading}
-          onViewDetails={setSelectedPayment}
-          onConfirmPayment={handleConfirmPayment}
-          onRejectPayment={openRejectModal}
-          actionLoading={actionLoading}
-          filters={filters}
-        />
-
-        {/* Payment Details Modal */}
-        <PaymentDetailsModal
-          payment={selectedPayment}
-          onClose={() => setSelectedPayment(null)}
-        />
-
-        {/* Reject Payment Modal */}
-        <PaymentRejectModal
-          payment={selectedPayment}
-          open={showRejectModal}
+    <>
+      {/* Error Display */}
+      {(error || localError) && payments.length > 0 && (
+        <ErrorMessage
+          message={error || localError || ""}
           onClose={() => {
-            setShowRejectModal(false);
-            setRejectReason("");
-            setSelectedPayment(null);
+            if (error) clearError();
+            if (localError) setLocalError(null);
           }}
-          onReject={handleRejectPayment}
-          reason={rejectReason}
-          onReasonChange={setRejectReason}
-          loading={actionLoading}
         />
-      </div>
-    
+      )}
+
+      {error && payments.length === 0 && !loading ? (
+        <ErrorState
+          message={error}
+          onRetry={refreshPayments}
+          errorType={
+            error.toLowerCase().includes("network") ||
+            error.toLowerCase().includes("fetch")
+              ? "network"
+              : "server"
+          }
+        />
+      ) : (
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Resident Payments
+              </h1>
+              <p className="text-muted-foreground">
+                View and manage payments from residents
+              </p>
+            </div>
+          </div>
+
+          {/* Filters */}
+          <PaymentFilters
+            filters={filters}
+            setFilters={setFilters}
+            refreshPayments={refreshPayments}
+            loading={loading}
+          />
+
+          {/* Payments Table */}
+          <PaymentTable
+            payments={payments}
+            loading={loading}
+            onViewDetails={setSelectedPayment}
+            onConfirmPayment={handleConfirmPayment}
+            onRejectPayment={openRejectModal}
+            actionLoading={actionLoading}
+            filters={filters}
+          />
+
+          {/* Payment Details Modal */}
+          <PaymentDetailsModal
+            payment={selectedPayment}
+            onClose={() => setSelectedPayment(null)}
+          />
+
+          {/* Reject Payment Modal */}
+          <PaymentRejectModal
+            payment={selectedPayment}
+            open={showRejectModal}
+            onClose={() => {
+              setShowRejectModal(false);
+              setRejectReason("");
+              setSelectedPayment(null);
+            }}
+            onReject={handleRejectPayment}
+            reason={rejectReason}
+            onReasonChange={setRejectReason}
+            loading={actionLoading}
+          />
+        </div>
+      )}
+    </>
   );
 };
 

@@ -11,22 +11,22 @@ const calculateStats = (reunions: Reunion[]): ReunionStats => {
 
   const totalReunions = reunionsArray.length;
   const upcomingReunions = reunionsArray.filter(
-    (r) => r.status === "SCHEDULED"
+    (r) => r.status === "SCHEDULED",
   ).length;
   const completedReunions = reunionsArray.filter(
-    (r) => r.status === "COMPLETED"
+    (r) => r.status === "COMPLETED",
   ).length;
   const totalParticipants = reunionsArray.reduce(
     (sum, r) => sum + r.participants_count,
-    0
+    0,
   );
   const averageAttendance =
     totalReunions > 0
       ? Math.round(
           reunionsArray.reduce(
             (sum, r) => sum + (r.participants_count / r.max_participants) * 100,
-            0
-          ) / totalReunions
+            0,
+          ) / totalReunions,
         )
       : 0;
 
@@ -107,7 +107,7 @@ export const useReunion = () => {
         return null;
       }
     },
-    [fetchReunions]
+    [fetchReunions],
   );
 
   const updateReunion = useCallback(
@@ -119,7 +119,7 @@ export const useReunion = () => {
 
         const updatedReunion = await reunionAPI.updateReunion(id, data);
         setReunions((prev) =>
-          prev.map((r) => (r.id === id ? updatedReunion : r))
+          prev.map((r) => (r.id === id ? updatedReunion : r)),
         );
         await fetchReunions();
         return updatedReunion;
@@ -131,7 +131,7 @@ export const useReunion = () => {
         return null;
       }
     },
-    [fetchReunions]
+    [fetchReunions],
   );
 
   const deleteReunion = useCallback(
@@ -149,7 +149,7 @@ export const useReunion = () => {
         return false;
       }
     },
-    [fetchReunions]
+    [fetchReunions],
   );
 
   const bulkCreateReunions = useCallback(
@@ -167,7 +167,7 @@ export const useReunion = () => {
         return null;
       }
     },
-    [fetchReunions]
+    [fetchReunions],
   );
 
   const updateReunionStatus = useCallback(
@@ -175,7 +175,7 @@ export const useReunion = () => {
       try {
         const updatedReunion = await reunionAPI.updateReunionStatus(id, status);
         setReunions((prev) =>
-          prev.map((r) => (r.id === id ? updatedReunion : r))
+          prev.map((r) => (r.id === id ? updatedReunion : r)),
         );
         await fetchReunions(); // Refresh stats
         return updatedReunion;
@@ -189,21 +189,21 @@ export const useReunion = () => {
         return null;
       }
     },
-    [fetchReunions]
+    [fetchReunions],
   );
 
   const addParticipant = useCallback(
     async (
       reunionId: number,
-      participantEmail: string
+      participantEmail: string,
     ): Promise<Reunion | null> => {
       try {
         const updatedReunion = await reunionAPI.addParticipant(
           reunionId,
-          participantEmail
+          participantEmail,
         );
         setReunions((prev) =>
-          prev.map((r) => (r.id === reunionId ? updatedReunion : r))
+          prev.map((r) => (r.id === reunionId ? updatedReunion : r)),
         );
         await fetchReunions(); // Refresh stats
         return updatedReunion;
@@ -215,21 +215,21 @@ export const useReunion = () => {
         return null;
       }
     },
-    [fetchReunions]
+    [fetchReunions],
   );
 
   const removeParticipant = useCallback(
     async (
       reunionId: number,
-      participantEmail: string
+      participantEmail: string,
     ): Promise<Reunion | null> => {
       try {
         const updatedReunion = await reunionAPI.removeParticipant(
           reunionId,
-          participantEmail
+          participantEmail,
         );
         setReunions((prev) =>
-          prev.map((r) => (r.id === reunionId ? updatedReunion : r))
+          prev.map((r) => (r.id === reunionId ? updatedReunion : r)),
         );
         await fetchReunions(); // Refresh stats
         return updatedReunion;
@@ -241,7 +241,7 @@ export const useReunion = () => {
         return null;
       }
     },
-    [fetchReunions]
+    [fetchReunions],
   );
 
   // Initialize data and refetch when filters change
@@ -279,5 +279,6 @@ export const useReunion = () => {
 
     // Utility
     refetch: fetchReunions,
+    clearError: () => setError(null),
   };
 };

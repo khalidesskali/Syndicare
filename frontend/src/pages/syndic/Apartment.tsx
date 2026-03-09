@@ -5,10 +5,11 @@ import { ApartmentFilters } from "@/components/apartments/ApartmentFilters";
 import { ApartmentTable } from "@/components/apartments/ApartmentTable";
 import { ApartmentCreateModal } from "@/components/apartments/ApartmentCreateModal";
 import { ApartmentEditModal } from "@/components/apartments/ApartmentEditModal";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { ErrorState } from "@/components/ui/error-state";
 import { ApartmentDetailsModal } from "@/components/apartments/ApartmentDetailsModal";
 import { ApartmentAssignResidentModal } from "@/components/apartments/ApartmentAssignResidentModal";
 import { SuccessMessage } from "@/components/ui/success-message";
-import { ErrorMessage } from "@/components/ui/error-message";
 import { useApartment } from "../../hooks/useApartment";
 import type { Apartment } from "../../types/apartment";
 import { useBuilding } from "@/hooks/useBuilding";
@@ -188,41 +189,54 @@ const ApartmentPage: React.FC = () => {
         </div>
       )}
 
-      {/* Error Message */}
-      {error && (
-        <div className="mb-6">
-          <ErrorMessage message={error} />
-        </div>
+      {/* Error Display */}
+      {error && apartments.length > 0 && (
+        <ErrorMessage message={error} onClose={clearMessages} />
       )}
 
-      <ApartmentHeader
-        onCreateApartment={handleCreateApartment}
-        loading={loading}
-      />
+      {error && apartments.length === 0 && !loading ? (
+        <ErrorState
+          message={error}
+          onRetry={refetch}
+          errorType={
+            error.toLowerCase().includes("network") ||
+            error.toLowerCase().includes("fetch")
+              ? "network"
+              : "server"
+          }
+        />
+      ) : (
+        <>
+          <ApartmentHeader
+            onCreateApartment={handleCreateApartment}
+            loading={loading}
+          />
 
-      <ApartmentStatsComponent stats={stats} loading={loading} />
+          <ApartmentStatsComponent stats={stats} loading={loading} />
 
-      <ApartmentFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        buildingFilter={buildingFilter}
-        onBuildingChange={setBuildingFilter}
-        occupancyFilter={occupancyFilter}
-        onOccupancyChange={setOccupancyFilter}
-        onSearch={handleSearch}
-        buildings={buildings}
-        loading={loading}
-      />
+          <ApartmentFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            buildingFilter={buildingFilter}
+            onBuildingChange={setBuildingFilter}
+            occupancyFilter={occupancyFilter}
+            onOccupancyChange={setOccupancyFilter}
+            onSearch={handleSearch}
+            buildings={buildings}
+            loading={loading}
+          />
 
-      <ApartmentTable
-        apartments={apartments}
-        loading={loading}
-        onEditApartment={handleEditApartmentFromTable}
-        onDeleteApartment={handleDeleteApartmentFromTable}
-        onViewDetails={handleViewDetailsFromTable}
-        onAssignResident={handleAssignResidentFromTable}
-        onRemoveResident={handleRemoveResidentFromTable}
-      />
+          <ApartmentTable
+            apartments={apartments}
+            loading={loading}
+            onEditApartment={handleEditApartmentFromTable}
+            onDeleteApartment={handleDeleteApartmentFromTable}
+            onViewDetails={handleViewDetailsFromTable}
+            onAssignResident={handleAssignResidentFromTable}
+            onRemoveResident={handleRemoveResidentFromTable}
+          />
+        </>
+      )}
 
       {/* Modals */}
       <ApartmentCreateModal

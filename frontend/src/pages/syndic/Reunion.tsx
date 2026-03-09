@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ReunionHeader } from "@/components/reunions/ReunionHeader";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { ReunionStats as ReunionStatsComponent } from "@/components/reunions/ReunionStats";
 import { ReunionFilters } from "@/components/reunions/ReunionFilters";
 import { ReunionTable } from "@/components/reunions/ReunionTable";
@@ -30,6 +31,7 @@ const ReunionPage: React.FC = () => {
     deleteReunion,
     bulkCreateReunions,
     updateReunionStatus,
+    clearError,
   } = useReunion();
 
   const { buildings, loading: buildingsLoading } = useBuilding();
@@ -140,25 +142,13 @@ const ReunionPage: React.FC = () => {
     setShowDetailsModal(false);
     setShowBulkCreateModal(false);
     setSelectedReunion(null);
-    // clearError();
+    clearError();
   };
 
   return (
     <>
       {/* Error Display */}
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex justify-between items-center">
-            <p className="text-red-700">{error}</p>
-            <button
-              // onClick={clearError}
-              className="text-red-500 hover:text-red-700"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
+      {error && <ErrorMessage message={error} onClose={clearError} />}
 
       <ReunionHeader
         onCreateReunion={handleCreateReunion}

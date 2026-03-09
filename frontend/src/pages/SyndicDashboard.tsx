@@ -1,5 +1,6 @@
 import React from "react";
-import { AlertCircle } from "lucide-react";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { ErrorState } from "@/components/ui/error-state";
 import { useSyndicDashboard } from "../hooks/useSyndicDashboard";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
@@ -21,61 +22,22 @@ const SyndicDashboard: React.FC = () => {
 
   if (error && !stats) {
     return (
-      <div className="p-8">
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex justify-between items-center">
-            <div className="flex">
-              <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-              <div>
-                <h3 className="text-sm font-medium text-red-800">
-                  Error loading dashboard
-                </h3>
-                <p className="text-sm text-red-700 mt-1">{error}</p>
-              </div>
-            </div>
-            <button
-              onClick={clearError}
-              className="text-red-500 hover:text-red-700"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-        <button
-          onClick={refreshData}
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
-        >
-          Try Again
-        </button>
-      </div>
+      <ErrorState
+        message={error}
+        onRetry={refreshData}
+        errorType={
+          error.toLowerCase().includes("network") ||
+          error.toLowerCase().includes("fetch")
+            ? "network"
+            : "server"
+        }
+      />
     );
   }
 
   return (
     <>
-      {/* Error Display */}
-      {error && stats && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <div className="flex justify-between items-center">
-            <div className="flex">
-              <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-              <div>
-                <h3 className="text-sm font-medium text-red-800">
-                  Error refreshing data
-                </h3>
-                <p className="text-sm text-red-700 mt-1">{error}</p>
-              </div>
-            </div>
-            <button
-              onClick={clearError}
-              className="text-red-500 hover:text-red-700"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
-
+      {error && stats && <ErrorMessage message={error} onClose={clearError} />}
       <DashboardHeader onRefreshData={refreshData} loading={loading} />
       <DashboardStats
         stats={

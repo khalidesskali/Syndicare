@@ -11,6 +11,7 @@ import { useCharge } from "@/hooks/useCharge";
 import type { Charge } from "@/types/charge";
 import { useBuilding } from "@/hooks/useBuilding";
 import { useApartment } from "@/hooks/useApartment";
+import { ErrorState } from "@/components/ui/error-state";
 
 const Charge: React.FC = () => {
   const {
@@ -18,7 +19,7 @@ const Charge: React.FC = () => {
     stats,
     loading,
     successMessage,
-    errorMessage,
+    error,
     createCharge,
     updateCharge,
     deleteCharge,
@@ -114,10 +115,24 @@ const Charge: React.FC = () => {
     refetchStats(); // Fetch stats for initial load
   }, [fetchFilteredCharges, refetchStats]);
 
+  if (error && !stats) {
+    return (
+      <ErrorState
+        message={error}
+        onRetry={refetchStats}
+        errorType={
+          error.toLowerCase().includes("network") ||
+          error.toLowerCase().includes("fetch")
+            ? "network"
+            : "server"
+        }
+      />
+    );
+  }
+
   return (
-    
-      <>
-{loading ? (
+    <>
+      {loading ? (
         <ChargeSkeleton />
       ) : (
         <>
@@ -180,11 +195,8 @@ const Charge: React.FC = () => {
 
       {/* Success and Error Messages */}
       {successMessage && <SuccessMessage message={successMessage} />}
-      {errorMessage && (
-        <ErrorMessage message={errorMessage} onClose={clearError} />
-      )}
-</>
-    
+      {error && <ErrorMessage message={error} onClose={clearError} />}
+    </>
   );
 };
 

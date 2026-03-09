@@ -15,18 +15,18 @@ const calculateStats = (buildings: Building[]): BuildingStats => {
 
   const totalBuildings = buildingsArray.length;
   const activeBuildings = buildingsArray.filter(
-    (b) => b.status === "active"
+    (b) => b.status === "active",
   ).length;
   const inactiveBuildings = buildingsArray.filter(
-    (b) => b.status === "inactive"
+    (b) => b.status === "inactive",
   ).length;
   const totalApartments = buildingsArray.reduce(
     (sum, b) => sum + b.total_apartments,
-    0
+    0,
   );
   const occupiedApartments = buildingsArray.reduce(
     (sum, b) => sum + b.occupied_apartments,
-    0
+    0,
   );
   const averageOccupancy =
     totalApartments > 0
@@ -53,7 +53,6 @@ export const useBuilding = () => {
     { from?: Date; to?: Date } | undefined
   >();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [stats, setStats] = useState<BuildingStats>({
     total_buildings: 0,
     total_apartments: 0,
@@ -130,18 +129,17 @@ export const useBuilding = () => {
         }
 
         setError(errorMessage);
-        setErrorMessage(errorMessage);
         console.error("Error creating building:", err);
         return null;
       }
     },
-    [fetchBuildings]
+    [fetchBuildings],
   );
 
   const updateBuilding = useCallback(
     async (
       id: number,
-      data: UpdateBuildingRequest
+      data: UpdateBuildingRequest,
     ): Promise<Building | null> => {
       try {
         const response: UpdateBuildingResponse =
@@ -152,7 +150,7 @@ export const useBuilding = () => {
         const successMessage = response.message;
 
         setBuildings((prev) =>
-          prev.map((b) => (b.id === id ? updatedBuilding : b))
+          prev.map((b) => (b.id === id ? updatedBuilding : b)),
         );
         await fetchBuildings(); // Refresh stats
 
@@ -176,12 +174,11 @@ export const useBuilding = () => {
         }
 
         setError(errorMessage);
-        setErrorMessage(errorMessage);
         console.error("Error updating building:", err);
         return null;
       }
     },
-    [fetchBuildings]
+    [fetchBuildings],
   );
 
   const deleteBuilding = useCallback(
@@ -216,26 +213,25 @@ export const useBuilding = () => {
         }
 
         setError(errorMessage);
-        setErrorMessage(errorMessage);
         console.error("Error deleting building:", err);
         return false;
       }
     },
-    [fetchBuildings]
+    [fetchBuildings],
   );
 
   const updateBuildingStatus = useCallback(
     async (
       id: number,
-      status: Building["status"]
+      status: Building["status"],
     ): Promise<Building | null> => {
       try {
         const updatedBuilding = await buildingAPI.updateBuildingStatus(
           id,
-          status
+          status,
         );
         setBuildings((prev) =>
-          prev.map((b) => (b.id === id ? updatedBuilding : b))
+          prev.map((b) => (b.id === id ? updatedBuilding : b)),
         );
         await fetchBuildings(); // Refresh stats
         return updatedBuilding;
@@ -249,12 +245,13 @@ export const useBuilding = () => {
         return null;
       }
     },
-    [fetchBuildings]
+    [fetchBuildings],
   );
 
   // Clear error
   const clearError = useCallback(() => {
     setError(null);
+    setSuccessMessage(null);
   }, []);
 
   // Initialize data and refetch when filters change
@@ -287,7 +284,6 @@ export const useBuilding = () => {
 
     // Messages
     successMessage,
-    errorMessage,
 
     // Utility
     refetch: fetchBuildings,

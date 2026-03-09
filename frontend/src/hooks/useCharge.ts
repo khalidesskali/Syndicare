@@ -26,7 +26,6 @@ export const useCharge = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Fetch charges with optional filters
   const fetchCharges = useCallback(
@@ -51,7 +50,7 @@ export const useCharge = () => {
         setLoading(false);
       }
     },
-    []
+    [],
   );
 
   // Fetch statistics
@@ -71,12 +70,12 @@ export const useCharge = () => {
         const response: ChargeResponse = await chargeAPI.createCharge(data);
 
         const newCharge = response.data;
-        const successMessage = response.message;
+        const successMsg = response.message;
 
         setCharges((prev) => [...prev, newCharge]);
         await fetchStats();
 
-        setSuccessMessage(successMessage);
+        setSuccessMessage(successMsg);
 
         setTimeout(() => {
           setSuccessMessage(null);
@@ -99,12 +98,11 @@ export const useCharge = () => {
         }
 
         setError(errorMessage);
-        setErrorMessage(errorMessage);
         console.error("Error creating charge:", err);
         return null;
       }
     },
-    [fetchStats]
+    [fetchStats],
   );
 
   // Update charge
@@ -114,14 +112,14 @@ export const useCharge = () => {
         const response: ChargeResponse = await chargeAPI.updateCharge(id, data);
 
         const updatedCharge = response.data;
-        const successMessage = response.message;
+        const successMsg = response.message;
 
         setCharges((prev) =>
-          prev.map((c) => (c.id === id ? updatedCharge : c))
+          prev.map((c) => (c.id === id ? updatedCharge : c)),
         );
         await fetchStats();
 
-        setSuccessMessage(successMessage);
+        setSuccessMessage(successMsg);
 
         setTimeout(() => {
           setSuccessMessage(null);
@@ -145,12 +143,11 @@ export const useCharge = () => {
         }
 
         setError(errorMessage);
-        setErrorMessage(errorMessage);
         console.error("Error updating charge:", err);
         return null;
       }
     },
-    [fetchStats]
+    [fetchStats],
   );
 
   // Delete charge
@@ -159,12 +156,12 @@ export const useCharge = () => {
       try {
         const response: DeleteChargeResponse = await chargeAPI.deleteCharge(id);
 
-        const successMessage = response.message;
+        const successMsg = response.message;
 
         setCharges((prev) => prev.filter((c) => c.id !== id));
         await fetchStats();
 
-        setSuccessMessage(successMessage);
+        setSuccessMessage(successMsg);
         return true;
       } catch (err) {
         let errorMessage = "Failed to delete charge";
@@ -183,27 +180,25 @@ export const useCharge = () => {
         }
 
         setError(errorMessage);
-        setErrorMessage(errorMessage);
         console.error("Error deleting charge:", err);
         return false;
       }
     },
-    [fetchStats]
+    [fetchStats],
   );
 
   // Bulk create charges
   const bulkCreateCharges = useCallback(
     async (data: BulkCreateRequest): Promise<boolean> => {
       try {
-        const response: BulkCreateResponse = await chargeAPI.bulkCreateCharges(
-          data
-        );
+        const response: BulkCreateResponse =
+          await chargeAPI.bulkCreateCharges(data);
 
-        const successMessage = response.message;
+        const successMsg = response.message;
 
         // Set success message - don't fetch here to avoid clearing it
         // The parent component will call handleModalSuccess() to refetch
-        setSuccessMessage(successMessage);
+        setSuccessMessage(successMsg);
 
         // Auto-clear success message after 5 seconds
         setTimeout(() => {
@@ -228,12 +223,11 @@ export const useCharge = () => {
         }
 
         setError(errorMessage);
-        setErrorMessage(errorMessage);
         console.error("Error bulk creating charges:", err);
         return false;
       }
     },
-    []
+    [],
   );
 
   // Get charge details with payments
@@ -249,7 +243,6 @@ export const useCharge = () => {
   // Clear error
   const clearError = useCallback(() => {
     setError(null);
-    setErrorMessage(null);
   }, []);
 
   return {
@@ -261,7 +254,6 @@ export const useCharge = () => {
 
     // Messages
     successMessage,
-    errorMessage,
 
     // Actions
     createCharge,
