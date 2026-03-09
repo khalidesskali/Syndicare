@@ -11,7 +11,8 @@ from ..serializers import (
     UserSerializer, 
     RegisterSerializer,
     ChangePasswordSerializer,
-    LogoutSerializer
+    LogoutSerializer,
+    ResidentProfileDetailSerializer
 )
 from ..permissions import IsAdmin, IsSyndic, IsResident
 from ..throttling import (
@@ -123,6 +124,35 @@ class UserProfileView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+
+
+class ResidentProfileView(APIView):
+    """
+    Get detailed resident profile including apartments
+    """
+    permission_classes = [permissions.IsAuthenticated, IsResident]
+    
+    def get(self, request):
+        serializer = ResidentProfileDetailSerializer(request.user)
+        return Response({
+            'success': True,
+            'data': serializer.data
+        })
+
+    def patch(self, request):
+        """Allow resident to update their own profile info"""
+        serializer = ResidentProfileDetailSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Profile updated successfully',
+                'data': serializer.data
+            })
+        return Response({
+            'success': False,
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChangePasswordView(APIView):

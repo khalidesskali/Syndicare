@@ -321,6 +321,18 @@ class AppartementSerializer(serializers.ModelSerializer):
 # RESIDENT SERIALIZERS
 # ============================================
 
+class ResidentProfileDetailSerializer(serializers.ModelSerializer):
+    """
+    Detailed profile for Residents including their apartments
+    """
+    appartements = AppartementSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'first_name', 'last_name', 'role', 'is_active', 'created_at', 'appartements']
+        read_only_fields = ['id', 'role', 'created_at']
+
+
 class ResidentProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for ResidentProfile model

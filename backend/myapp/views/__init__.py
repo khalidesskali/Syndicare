@@ -5,6 +5,7 @@ from .authentication import (
     RegisterView,
     LogoutView,
     UserProfileView,
+    ResidentProfileView,
     ChangePasswordView,
     verify_token,
     check_auth
@@ -81,6 +82,7 @@ __all__ = [
     'RegisterView',
     'LogoutView',
     'UserProfileView',
+    'ResidentProfileView',
     'ChangePasswordView',
     'verify_token',
     'check_auth',

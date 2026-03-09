@@ -13,6 +13,7 @@ from .views import (
     admin_dashboard,
     syndic_dashboard,
     resident_dashboard,
+    ResidentProfileView,
     ImmeubleViewSet,
     AppartementViewSet,
     ResidentViewSet,
@@ -70,6 +71,7 @@ urlpatterns = [
     path('admin/dashboard/', admin_dashboard, name='admin_dashboard'),
     path('syndic/dashboard/', syndic_dashboard, name='syndic_dashboard'),
     path('resident/dashboard/', resident_dashboard, name='resident_dashboard'),
+    path('resident/profile/', ResidentProfileView.as_view(), name='resident_profile'),
     
     path("chatbot/", include("chatbot.urls")),
 
