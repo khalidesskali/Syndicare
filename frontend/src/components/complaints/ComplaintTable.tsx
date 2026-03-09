@@ -22,11 +22,12 @@ import { Badge } from "@/components/ui/badge";
 import type { Complaint } from "../../types/complaint";
 import { format } from "date-fns";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 interface ComplaintTableProps {
   complaints: Complaint[];
   loading: boolean;
   onEditComplaint: (complaintId: number) => void;
-  onDeleteComplaint: (complaintId: number) => void;
   onViewDetails: (complaintId: number) => void;
 }
 
@@ -34,7 +35,6 @@ export function ComplaintTable({
   complaints,
   loading,
   onEditComplaint,
-  onDeleteComplaint: _onDeleteComplaint,
   onViewDetails,
 }: ComplaintTableProps) {
   const statusVariant = {
@@ -43,6 +43,82 @@ export function ComplaintTable({
     RESOLVED: "outline",
     REJECTED: "destructive",
   } as const;
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-slate-50 border-b border-slate-200">
+              <TableHead className="pl-5">
+                <Skeleton className="h-4 w-24" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-24" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-24" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-20" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-20" />
+              </TableHead>
+              <TableHead>
+                <Skeleton className="h-4 w-24" />
+              </TableHead>
+              <TableHead className="text-right pr-5">
+                <Skeleton className="h-4 w-12 ml-auto" />
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[...Array(5)].map((_, i) => (
+              <TableRow key={i}>
+                <TableCell className="pl-5">
+                  <div className="flex items-center">
+                    <Skeleton className="h-8 w-8 rounded-lg mr-3" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-48" />
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-32" />
+                </TableCell>
+                <TableCell>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-6 w-16 rounded-full" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                </TableCell>
+                <TableCell>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-3 w-12" />
+                  </div>
+                </TableCell>
+                <TableCell className="text-right pr-5">
+                  <div className="flex justify-end space-x-2">
+                    <Skeleton className="h-8 w-14 rounded-md" />
+                    <Skeleton className="h-8 w-14 rounded-md" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  }
 
   const priorityColors = {
     URGENT: "bg-red-100 text-red-700 border-red-200",
@@ -97,19 +173,7 @@ export function ComplaintTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {loading ? (
-            <TableRow>
-              <TableCell
-                colSpan={7}
-                className="h-24 text-center text-slate-600"
-              >
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-orange-500"></div>
-                  <span>Loading...</span>
-                </div>
-              </TableCell>
-            </TableRow>
-          ) : complaintsArray.length === 0 ? (
+          {complaintsArray.length === 0 ? (
             <TableRow>
               <TableCell
                 colSpan={7}
@@ -168,7 +232,11 @@ export function ComplaintTable({
                     <AlertTriangle className="mr-2 h-4 w-4 text-slate-400" />
                     <Badge
                       variant="outline"
-                      className={priorityColors[complaint.priority]}
+                      className={
+                        priorityColors[
+                          complaint.priority as keyof typeof priorityColors
+                        ]
+                      }
                     >
                       {complaint.priority}
                     </Badge>
@@ -180,8 +248,16 @@ export function ComplaintTable({
                       className: "mr-2 h-4 w-4 text-slate-400",
                     })}
                     <Badge
-                      variant={statusVariant[complaint.status]}
-                      className={statusColors[complaint.status]}
+                      variant={
+                        statusVariant[
+                          complaint.status as keyof typeof statusVariant
+                        ]
+                      }
+                      className={
+                        statusColors[
+                          complaint.status as keyof typeof statusColors
+                        ]
+                      }
                     >
                       {complaint.status.replace("_", " ")}
                     </Badge>

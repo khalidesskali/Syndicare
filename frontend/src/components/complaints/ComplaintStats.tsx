@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   MessageSquare,
   Clock,
@@ -10,10 +11,55 @@ import {
 import type { ComplaintStats } from "../../types/complaint";
 
 interface ComplaintStatsProps {
-  stats: ComplaintStats;
+  stats: ComplaintStats | null;
+  loading?: boolean;
 }
 
-export function ComplaintStats({ stats }: ComplaintStatsProps) {
+export function ComplaintStats({
+  stats,
+  loading = false,
+}: ComplaintStatsProps) {
+  if (loading) {
+    return (
+      <div className="mb-8 space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => (
+            <Card key={i} className="border-slate-200 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center">
+                  <Skeleton className="h-12 w-12 rounded-lg mr-4" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-8 w-12" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div>
+          <Skeleton className="h-6 w-32 mb-4" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i} className="border-slate-200 shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-center">
+                    <Skeleton className="h-8 w-8 rounded-lg mr-3" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-3 w-16" />
+                      <Skeleton className="h-6 w-8" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
   const statCards = [
     {
       title: "Total Complaints",

@@ -27,9 +27,6 @@ const ComplaintPage: React.FC = () => {
     updateComplaint,
     deleteComplaint,
     respondToComplaint,
-    markAsResolved,
-    markAsInProgress,
-    rejectComplaint,
     clearError,
   } = useComplaint();
 
@@ -65,13 +62,6 @@ const ComplaintPage: React.FC = () => {
     const complaint = complaints.find((c) => c.id === complaintId);
     if (complaint) {
       handleEditComplaint(complaint);
-    }
-  };
-
-  const handleDeleteComplaintFromTable = (complaintId: number) => {
-    const complaint = complaints.find((c) => c.id === complaintId);
-    if (complaint) {
-      handleDeleteComplaint(complaint);
     }
   };
 
@@ -131,9 +121,8 @@ const ComplaintPage: React.FC = () => {
   };
 
   return (
-    
-      <>
-{/* Error Display */}
+    <>
+      {/* Error Display */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex justify-between items-center">
@@ -148,9 +137,9 @@ const ComplaintPage: React.FC = () => {
         </div>
       )}
 
-      <ComplaintHeader />
+      <ComplaintHeader loading={loading} />
 
-      <ComplaintStats stats={stats} />
+      <ComplaintStats stats={stats} loading={loading} />
 
       <ComplaintFilters
         searchTerm={searchTerm}
@@ -164,13 +153,13 @@ const ComplaintPage: React.FC = () => {
         dateRange={dateRange}
         onDateRangeChange={setDateRange}
         onSearch={handleSearch}
+        loading={loading}
       />
 
       <ComplaintTable
         complaints={complaints}
         loading={loading}
         onEditComplaint={handleEditComplaintFromTable}
-        onDeleteComplaint={handleDeleteComplaintFromTable}
         onViewDetails={handleViewDetails}
       />
 
@@ -192,8 +181,7 @@ const ComplaintPage: React.FC = () => {
         onUpdateStatus={handleStatusUpdate}
         onRespond={handleRespond}
       />
-</>
-    
+    </>
   );
 };
 

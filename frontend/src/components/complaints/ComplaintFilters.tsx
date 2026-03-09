@@ -1,7 +1,7 @@
-import React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, X, Calendar } from "lucide-react";
+import { Search, X, Calendar } from "lucide-react";
 
 interface ComplaintFiltersProps {
   searchTerm: string;
@@ -23,6 +23,7 @@ interface ComplaintFiltersProps {
   dateRange?: { from?: Date; to?: Date } | undefined;
   onDateRangeChange: (range?: { from?: Date; to?: Date }) => void;
   onSearch: () => void;
+  loading?: boolean;
 }
 
 const statusOptions = [
@@ -60,7 +61,25 @@ export function ComplaintFilters({
   dateRange,
   onDateRangeChange,
   onSearch,
+  loading = false,
 }: ComplaintFiltersProps) {
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex-1">
+            <Skeleton className="h-10 w-full rounded-md" />
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Skeleton className="h-10 w-[150px] rounded-md" />
+            <Skeleton className="h-10 w-[150px] rounded-md" />
+            <Skeleton className="h-10 w-[150px] rounded-md" />
+            <Skeleton className="h-10 w-[100px] rounded-md" />
+          </div>
+        </div>
+      </div>
+    );
+  }
   const hasActiveFilters =
     statusFilter !== "all" ||
     priorityFilter !== "all" ||

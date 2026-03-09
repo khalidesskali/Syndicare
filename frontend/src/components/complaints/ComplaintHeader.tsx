@@ -1,11 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { Plus, MessageSquare } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ComplaintHeaderProps {
   onCreateComplaint?: () => void;
+  loading?: boolean;
 }
 
-export function ComplaintHeader({ onCreateComplaint }: ComplaintHeaderProps) {
+export function ComplaintHeader({
+  onCreateComplaint,
+  loading = false,
+}: ComplaintHeaderProps) {
+  if (loading) {
+    return (
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-4 w-96" />
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="mb-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
