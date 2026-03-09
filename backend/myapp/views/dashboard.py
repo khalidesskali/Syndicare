@@ -8,7 +8,7 @@ from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
 from ..models import User, Immeuble, Appartement, Reclamation, Reunion, Charge, ResidentProfile, ChargePayment
-from ..serializers import ChargeSerializer, UserSerializer
+from ..serializers import ChargeSerializer, UserSerializer, AppartementSerializer, ReunionSerializer, ReclamationSerializer
 
 User = get_user_model()
 
@@ -221,63 +221,103 @@ def syndic_dashboard(request):
 @permission_classes([IsResident])
 def resident_dashboard(request):
     """
-    Resident Dashboard Overview
-    Supports residents owning multiple apartments
+    Enhanced Resident Dashboard Overview
+    Provides comprehensive stats, apartment info, and recent activity
     """
-
     user = request.user
     today = timezone.now().date()
+    current_year = today.year
 
-    # Get all apartments linked to the resident
-    apartments = user.appartements.all()  # adjust related_name if different
-
+    # 1. Apartment Details
+    apartments = user.appartements.all().select_related('immeuble')
     if not apartments.exists():
         return Response({
             'success': False,
             'message': 'Resident is not linked to any apartment'
         }, status=400)
+    
+    apartments_data = AppartementSerializer(apartments, many=True).data
 
-    # Charges for all resident apartments
+    # 2. Charge Statistics & Breakdown
     charges_qs = Charge.objects.filter(appartement__in=apartments)
-
-    # Total unpaid amount (UNPAID + PARTIALLY_PAID)
+    
     total_unpaid = charges_qs.filter(
         status__in=['UNPAID', 'PARTIALLY_PAID']
     ).aggregate(total=Sum('amount'))['total'] or 0
 
-    # Overdue charges count
     overdue_count = charges_qs.filter(
         status='UNPAID',
         due_date__lt=today
     ).count()
 
-    # Last payment across all apartments
-    last_payment = ChargePayment.objects.filter(
-        resident=user,
-        appartement__in=apartments
-    ).select_related('charge').order_by('-created_at').first()
+    charge_breakdown = {
+        'total': charges_qs.count(),
+        'paid': charges_qs.filter(status='PAID').count(),
+        'unpaid': charges_qs.filter(status='UNPAID').count(),
+        'overdue': overdue_count,
+        'partially_paid': charges_qs.filter(status='PARTIALLY_PAID').count()
+    }
 
+    # 3. Payment Summary
+    payments_qs = ChargePayment.objects.filter(resident=user)
+    
+    total_paid_all_time = payments_qs.filter(status='CONFIRMED').aggregate(total=Sum('amount'))['total'] or 0
+    total_paid_this_year = payments_qs.filter(
+        status='CONFIRMED', 
+        paid_at__year=current_year
+    ).aggregate(total=Sum('amount'))['total'] or 0
+
+    # Last payment details
+    last_payment = payments_qs.select_related('charge', 'appartement').order_by('-created_at').first()
     last_payment_data = None
     if last_payment:
         last_payment_data = {
+            'id': last_payment.id,
             'amount': float(last_payment.amount),
             'date': last_payment.created_at.date().isoformat(),
             'reference': last_payment.reference,
-            'charge_description': last_payment.charge.description,
-            'apartment_id': last_payment.appartement.id
+            'charge_description': last_payment.charge.description if last_payment.charge else "N/A",
+            'apartment_number': last_payment.appartement.number if last_payment.appartement else "N/A",
+            'status': last_payment.status
         }
 
-    # Recent charges (last 5 across all apartments)
+    # 4. Activity Widgets
+    # Next 2 upcoming meetings for building(s)
+    buildings = [apt.immeuble for apt in apartments]
+    upcoming_meetings = Reunion.objects.filter(
+        immeuble__in=buildings,
+        status='SCHEDULED',
+        date_time__gte=timezone.now()
+    ).order_by('date_time')[:2]
+    meetings_data = ReunionSerializer(upcoming_meetings, many=True).data
+
+    # Last 3 reclamations
+    recent_reclamations = Reclamation.objects.filter(resident=user).order_by('-created_at')[:3]
+    reclamations_data = ReclamationSerializer(recent_reclamations, many=True).data
+
+    # 5. Recent Charges (Last 5)
     recent_charges = charges_qs.order_by('-created_at')[:5]
     recent_charges_data = ChargeSerializer(recent_charges, many=True).data
 
     return Response({
         'success': True,
         'data': {
-            'apartments_count': apartments.count(),
-            'total_unpaid': float(total_unpaid),
-            'overdue_charges': overdue_count,
+            'user': {
+                'id': user.id,
+                'name': f"{user.first_name} {user.last_name}",
+                'email': user.email,
+            },
+            'apartments': apartments_data,
+            'stats': {
+                'total_unpaid': float(total_unpaid),
+                'overdue_count': overdue_count,
+                'total_paid_all_time': float(total_paid_all_time),
+                'total_paid_this_year': float(total_paid_this_year),
+                'charge_breakdown': charge_breakdown
+            },
             'last_payment': last_payment_data,
+            'upcoming_meetings': meetings_data,
+            'recent_reclamations': reclamations_data,
             'recent_charges': recent_charges_data
         }
     })
