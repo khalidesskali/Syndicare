@@ -49,6 +49,14 @@ const authAPI = {
     return response.data;
   },
 
+  // Get detailed resident profile
+  getResidentProfile: async (): Promise<{ success: boolean; data: any }> => {
+    const response = await axiosInstance.get<{ success: boolean; data: any }>(
+      "/resident/profile/",
+    );
+    return response.data;
+  },
+
   // Change password
   changePassword: async (
     oldPassword: string,
