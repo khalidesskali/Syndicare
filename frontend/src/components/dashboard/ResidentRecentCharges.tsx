@@ -2,14 +2,7 @@ import React from "react";
 import { Clock, DollarSign, AlertCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface Charge {
-  id: string;
-  description: string;
-  amount: number;
-  due_date: string;
-  status: string;
-  created_at: string;
-}
+import type { Charge } from "../../types/charge";
 
 interface ResidentRecentChargesProps {
   charges: Charge[];
