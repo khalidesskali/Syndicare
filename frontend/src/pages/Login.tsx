@@ -118,7 +118,7 @@ export default function Login() {
 
           {/* Form Section */}
           <div className="p-8 space-y-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
               {/* Email Field */}
               <div className="space-y-2">
                 <Label
