@@ -1,4 +1,4 @@
-from myapp.models import Charge
+from apps.payments.models import Charge
 from django.utils import timezone
 
 def explain_charges(user_id):
