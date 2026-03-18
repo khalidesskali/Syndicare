@@ -1,4 +1,4 @@
-from chatbot.services.charge_service import explain_charges, unpaid_charges_summary
+from .charge_service import explain_charges, unpaid_charges_summary
 import logging
 
 logger = logging.getLogger(__name__)

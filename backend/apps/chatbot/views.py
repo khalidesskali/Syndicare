@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .serializers import ChatbotRequestSerializer
 from .services.dialogflow_service import detect_intent
-from chatbot.services.handlers import handle_dynamic_intent
+from .services.handlers import handle_dynamic_intent
 from rest_framework.permissions import IsAuthenticated
 
 import logging
@@ -99,7 +99,7 @@ def dialogflow_webhook(request):
         logger.info(f"Using user_id: {user_id}")
         
         # Call handler with real user_id
-        from chatbot.services.handlers import handle_dynamic_intent
+        from .services.handlers import handle_dynamic_intent
         answer = handle_dynamic_intent(intent, user_id)
         
         logger.info(f"Response: {answer}")
