@@ -110,8 +110,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const data = await authAPI.login(email, password);
 
-      console.log("Login response:", data);
-
       // Save tokens
       localStorage.setItem("access_token", data.access);
       localStorage.setItem("refresh_token", data.refresh);
@@ -158,8 +156,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log("Registration attempt:", { email: data.email });
 
       const response = await authAPI.register(data);
-
-      console.log("Registration response:", response);
 
       // Save tokens
       localStorage.setItem("access_token", response.access);
