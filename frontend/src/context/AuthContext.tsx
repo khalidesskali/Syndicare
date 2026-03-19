@@ -132,8 +132,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.log("Server error response:", error.response.data.detail);
       } else if (error.request) {
         // Request made but no response
-        errorMessage =
-          "No response from server. Please check if the backend is running.";
+        errorMessage = "Network Error, please try again";
         console.log("No response error");
       } else {
         // Error in request setup

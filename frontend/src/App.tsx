@@ -1,6 +1,8 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import { PageLoader } from "./components/ui/PageLoader";
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
 import HomeRedirect from "./components/HomeRedirect";
 import { generateRoutes } from "./components/RouteGenerator";
 import {
@@ -17,8 +19,22 @@ function App() {
       <Route path="/" element={<HomeRedirect />} />
 
       {/* Public login and signup routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route
+        path="/login"
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <Login />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <Signup />
+          </Suspense>
+        }
+      />
 
       {/* Admin routes */}
       {generateRoutes({
