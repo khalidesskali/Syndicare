@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { PageLoader } from "./components/ui/PageLoader";
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
+const PropertyDashboard = lazy(() => import("./pages/PropertyDashboard"));
 import HomeRedirect from "./components/HomeRedirect";
 import { generateRoutes } from "./components/RouteGenerator";
 import {
@@ -32,6 +33,14 @@ function App() {
         element={
           <Suspense fallback={<PageLoader />}>
             <Signup />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/property-dashboard"
+        element={
+          <Suspense fallback={<PageLoader />}>
+            <PropertyDashboard />
           </Suspense>
         }
       />

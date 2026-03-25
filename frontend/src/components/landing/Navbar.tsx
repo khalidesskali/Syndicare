@@ -20,6 +20,7 @@ const Navbar: React.FC = () => {
     { label: "Pricing", href: "#pricing" },
     { label: "About", href: "#benefits" },
     { label: "Contact", href: "#contact" },
+    { label: "Dashboard Demo", href: "/property-dashboard" },
   ];
 
   return (
